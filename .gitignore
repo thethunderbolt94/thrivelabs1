@@ -1,2 +1,12 @@
-assets/hero-loop.mp4
+# macOS
+.DS_Store
+*.swp
+
+# Editor / agent state
 .gstack/
+.claude/
+.idea/
+.vscode/
+
+# Optional: large hero loop video (kept out of git, can re-add if needed)
+# assets/hero-loop.mp4
