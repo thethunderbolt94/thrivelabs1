@@ -67,16 +67,8 @@ nav.scrolled{background:rgba(3,6,10,0.75);backdrop-filter:blur(24px);-webkit-bac
 /* ─── HERO ─── */
 .hero{min-height:100vh;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;padding:120px 48px 80px}
 
-/* Animated liquid blobs */
-.hero-bg{position:absolute;inset:0;z-index:0;overflow:hidden}
-.blob{position:absolute;border-radius:50%;filter:blur(90px);opacity:0.75}
-.blob-1{width:800px;height:800px;background:radial-gradient(circle,rgba(0,229,255,0.22),transparent 70%);top:-25%;left:-15%;animation:blobFloat1 12s ease-in-out infinite}
-.blob-2{width:700px;height:700px;background:radial-gradient(circle,rgba(107,60,255,0.26),transparent 70%);bottom:-15%;right:-8%;animation:blobFloat2 15s ease-in-out infinite}
-.blob-3{width:500px;height:500px;background:radial-gradient(circle,rgba(0,120,255,0.18),transparent 70%);top:25%;left:35%;animation:blobFloat3 10s ease-in-out infinite}
-.blob-4{width:380px;height:380px;background:radial-gradient(circle,rgba(200,77,255,0.16),transparent 70%);top:5%;right:15%;animation:blobFloat4 9s ease-in-out infinite}
-
-/* Animated grid lines */
-.hero-grid{position:absolute;inset:0;z-index:0;background-image:linear-gradient(rgba(0,229,255,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(0,229,255,0.04) 1px,transparent 1px);background-size:64px 64px;mask-image:radial-gradient(ellipse 80% 80% at 50% 50%,black 40%,transparent 100%)}
+/* Dark overlay for frame contrast */
+.hero-overlay{position:absolute;inset:0;z-index:0;background:radial-gradient(ellipse 120% 100% at 50% 50%,transparent 40%,rgba(3,6,10,0.5) 100%)}
 
 /* Liquid Glass Card — iPhone-grade frosted glass */
 .hero-glass{
@@ -277,10 +269,6 @@ footer{padding:40px 48px;border-top:1px solid var(--border);display:flex;align-i
 .reveal{opacity:0;transform:translateY(28px)}
 
 /* ─── KEYFRAMES ─── */
-@keyframes blobFloat1{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(40px,-50px) scale(1.08)}66%{transform:translate(-30px,30px) scale(0.94)}}
-@keyframes blobFloat2{0%,100%{transform:translate(0,0) scale(1)}40%{transform:translate(-50px,40px) scale(1.06)}70%{transform:translate(30px,-20px) scale(0.96)}}
-@keyframes blobFloat3{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(40px,-40px) scale(1.1)}}
-@keyframes blobFloat4{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(-30px,30px) scale(0.9)}}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
 @keyframes ringPulse{0%,100%{transform:scale(1);opacity:0.3}50%{transform:scale(1.15);opacity:0}}
 @keyframes marqueeScroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
@@ -314,14 +302,9 @@ footer{padding:40px 48px;border-top:1px solid var(--border);display:flex;align-i
 
 <!-- HERO -->
 <section class="hero" id="hero">
-  <div class="hero-bg">
-    <div class="blob blob-1"></div>
-    <div class="blob blob-2"></div>
-    <div class="blob blob-3"></div>
-    <div class="blob blob-4"></div>
-  </div>
-  <!-- Cinematic grid + cubes canvas -->
-  <canvas id="heroCinematic" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:1"></canvas>
+  <div class="hero-overlay"></div>
+  <!-- Frame sequence canvas -->
+  <canvas id="heroCinematic" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:1;filter:brightness(2.2) contrast(1.4) saturate(1.6)"></canvas>
 
   <!-- Floating particles -->
   <canvas id="particleCanvas" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:1"></canvas>
@@ -654,102 +637,56 @@ window.addEventListener('scroll',function(){
   document.getElementById('nav').classList.toggle('scrolled',window.scrollY>40);
 },{passive:true});
 
-// ─── Glass Cube Node Network ───
+// ─── Cinematic Frame Sequence (Kie.ai / Runway video) ───
 var hc=document.getElementById('heroCinematic');
 var hx=hc.getContext('2d');
-var netNodes=[];
+var heroFrames=[];
+var TOTAL_FRAMES=121;
 
-function initNN(){
-  netNodes=[];
-  var w=hc.width||1440,h=hc.height||900;
-  for(var i=0;i<20;i++){
-    netNodes.push({
-      x:(Math.random()-0.5)*w*0.95,
-      y:(Math.random()-0.5)*h*0.88,
-      z:(Math.random()-0.5)*440,
-      vx:(Math.random()-0.5)*0.30,
-      vy:(Math.random()-0.5)*0.20,
-      vz:(Math.random()-0.5)*0.12,
-      sz:30+Math.random()*58,
-      rx:Math.random()*Math.PI*2,ry:Math.random()*Math.PI*2,rz:Math.random()*Math.PI*2,
-      vrx:(Math.random()-0.5)*0.011,vry:(Math.random()-0.5)*0.010,vrz:(Math.random()-0.5)*0.006,
-      col:Math.random()>0.5?[0,220,255]:[110,60,255]
-    });
-  }
-}
-function resizeHC(){hc.width=hc.offsetWidth;hc.height=hc.offsetHeight;initNN();}
-resizeHC();window.addEventListener('resize',resizeHC,{passive:true});
+function resizeHC(){hc.width=window.innerWidth;hc.height=window.innerHeight;}
+resizeHC();window.addEventListener('resize',function(){resizeHC();drawFrame(Math.round(heroObj.frame));},{passive:true});
 
-var CV=[[-1,-1,-1],[1,-1,-1],[1,1,-1],[-1,1,-1],[-1,-1,1],[1,-1,1],[1,1,1],[-1,1,1]];
-var CE=[[0,1],[1,2],[2,3],[3,0],[4,5],[5,6],[6,7],[7,4],[0,4],[1,5],[2,6],[3,7]];
-var CF=[[0,1,2,3],[4,5,6,7],[0,1,5,4],[3,2,6,7],[0,3,7,4],[1,2,6,5]];
-
-function rotv3(px,py,pz,crx,srx,cry,sry,crz,srz){
-  var ty=py*crx-pz*srx,tz=py*srx+pz*crx;py=ty;pz=tz;
-  var tx=px*cry+pz*sry;tz=-px*sry+pz*cry;px=tx;pz=tz;
-  tx=px*crz-py*srz;ty=px*srz+py*crz;return[tx,ty,tz];
+// Preload all frames
+for(var fi=1;fi<=TOTAL_FRAMES;fi++){
+  (function(idx){
+    var img=new Image();
+    img.src='assets/frames/frame-'+('000'+idx).slice(-4)+'.jpg';
+    heroFrames[idx-1]=img;
+  })(fi);
 }
 
-function drawGlassNode(n,cx,cy){
-  var s=n.sz/2,fov=560,cam=920;
-  var crx=Math.cos(n.rx),srx=Math.sin(n.rx);
-  var cry=Math.cos(n.ry),sry=Math.sin(n.ry);
-  var crz=Math.cos(n.rz),srz=Math.sin(n.rz);
-  var pv=CV.map(function(v){
-    var r=rotv3(v[0]*s,v[1]*s,v[2]*s,crx,srx,cry,sry,crz,srz);
-    var wx=n.x+r[0],wy=n.y+r[1],wz=n.z+r[2];
-    var sc=fov/(cam+wz);
-    return{x:cx+wx*sc,y:cy+wy*sc};
-  });
-  var depth=Math.max(0,Math.min(1,(440-n.z)/880));
-  var a=0.1+depth*0.35;
-  var c=n.col;
-  // Glass face fill
-  CF.forEach(function(f){
-    hx.beginPath();hx.moveTo(pv[f[0]].x,pv[f[0]].y);
-    for(var fi=1;fi<f.length;fi++)hx.lineTo(pv[f[fi]].x,pv[f[fi]].y);
-    hx.closePath();hx.fillStyle='rgba('+c[0]+','+c[1]+','+c[2]+','+(a*0.07)+')';hx.fill();
-  });
-  // Colored edge glow
-  hx.strokeStyle='rgba('+c[0]+','+c[1]+','+c[2]+','+(a*0.95)+')';
-  hx.lineWidth=1.1;hx.beginPath();
-  CE.forEach(function(e){hx.moveTo(pv[e[0]].x,pv[e[0]].y);hx.lineTo(pv[e[1]].x,pv[e[1]].y);});hx.stroke();
-  // White glass sheen
-  hx.strokeStyle='rgba(210,245,255,'+(a*0.38)+')';hx.lineWidth=0.5;hx.beginPath();
-  CE.forEach(function(e){hx.moveTo(pv[e[0]].x,pv[e[0]].y);hx.lineTo(pv[e[1]].x,pv[e[1]].y);});hx.stroke();
+// Cover-fit draw
+function drawFrame(idx){
+  idx=Math.max(0,Math.min(idx,TOTAL_FRAMES-1));
+  var img=heroFrames[idx];
+  if(!img||!img.complete||!img.naturalWidth)return;
+  var cw=hc.width,ch=hc.height;
+  var iw=img.naturalWidth,ih=img.naturalHeight;
+  var scale=Math.max(cw/iw,ch/ih);
+  var sw=iw*scale,sh=ih*scale;
+  hx.drawImage(img,(cw-sw)/2,(ch-sh)/2,sw,sh);
 }
 
-var heroT=0;
-function animHero(){
-  heroT++;
-  var w=hc.width,h=hc.height,cx=w/2,cy=h/2;
-  var fov=560,cam=920;
-  hx.clearRect(0,0,w,h);
-  netNodes.forEach(function(n){
-    n.rx+=n.vrx;n.ry+=n.vry;n.rz+=n.vrz;
-    n.x+=n.vx;n.y+=n.vy;n.z+=n.vz;
-    if(Math.abs(n.x)>w*0.60)n.vx*=-1;
-    if(Math.abs(n.y)>h*0.55)n.vy*=-1;
-    if(Math.abs(n.z)>380)n.vz*=-1;
-  });
-  var npc=netNodes.map(function(n){var sc=fov/(cam+n.z);return{x:cx+n.x*sc,y:cy+n.y*sc};});
-  // Network connection lines
-  for(var i=0;i<netNodes.length;i++)for(var j=i+1;j<netNodes.length;j++){
-    var dx=netNodes[i].x-netNodes[j].x,dy=netNodes[i].y-netNodes[j].y,dz=netNodes[i].z-netNodes[j].z;
-    var d=Math.sqrt(dx*dx+dy*dy+dz*dz);
-    if(d<380){
-      var la=(1-d/380)*0.22;
-      hx.strokeStyle='rgba(0,200,255,'+la+')';hx.lineWidth=0.8;
-      hx.beginPath();hx.moveTo(npc[i].x,npc[i].y);hx.lineTo(npc[j].x,npc[j].y);hx.stroke();
-    }
-  }
-  // Sort back-to-front and draw
-  var ord=netNodes.map(function(n,i){return{n:n,i:i};});
-  ord.sort(function(a,b){return b.n.z-a.n.z;});
-  ord.forEach(function(o){drawGlassNode(o.n,cx,cy);});
-  requestAnimationFrame(animHero);
-}
-animHero();
+// Draw first frame as soon as it loads
+heroFrames[0].onload=function(){drawFrame(0);};
+
+// GSAP scroll-driven scrub — pins hero, plays frames on scroll
+var heroObj={frame:0};
+gsap.to(heroObj,{
+  frame:TOTAL_FRAMES-1,
+  snap:'frame',
+  ease:'none',
+  scrollTrigger:{
+    trigger:'.hero',
+    start:'top top',
+    end:'+=2000',
+    scrub:0.5,
+    pin:true,
+    pinSpacing:true,
+    anticipatePin:1
+  },
+  onUpdate:function(){drawFrame(Math.round(heroObj.frame));}
+});
 
 // ─── Floating particles ───
 var pc=document.getElementById('particleCanvas');
