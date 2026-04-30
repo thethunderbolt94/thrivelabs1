@@ -501,20 +501,22 @@
 
     .marquee-track {
       display: flex;
-      overflow: hidden;
-      padding: 16px 0
+      padding: 16px 0;
+      width: max-content;
+      animation: marqueeScroll 35s linear infinite;
+      will-change: transform;
+      backface-visibility: hidden;
+    }
+
+    .marquee-track.marquee-row-rev {
+      animation-direction: reverse;
+      animation-duration: 42s;
     }
 
     .marquee-content {
       display: flex;
       gap: 40px;
       flex-shrink: 0;
-      animation: marqueeScroll 35s linear infinite
-    }
-
-    .marquee-row-rev .marquee-content {
-      animation-direction: reverse;
-      animation-duration: 42s
     }
 
     .marquee-item {
@@ -853,6 +855,7 @@
     }
 
     /* ─── HOW IT WORKS ─── */
+    /* ─── HOW IT WORKS ─── */
     .hiw-section {
       padding: 120px 48px;
       background: var(--void);
@@ -872,154 +875,268 @@
     }
 
     .hiw-inner {
-      max-width: 1100px;
+      max-width: 1200px;
       margin: 0 auto
     }
 
     .hiw-steps {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 32px;
+      gap: 2px;
       margin-top: 64px;
       position: relative
     }
 
-    /* Connecting line */
+    /* Animated connector line */
     .hiw-steps::before {
       content: '';
       position: absolute;
-      top: 60px;
-      left: calc(16.67% + 20px);
-      right: calc(16.67% + 20px);
+      top: 72px;
+      left: calc(33.33% + 2px);
+      right: calc(33.33% + 2px);
       height: 1px;
-      background: linear-gradient(90deg, rgba(0, 229, 255, 0.3), rgba(107, 60, 255, 0.3));
-      z-index: 0
+      background: linear-gradient(90deg, rgba(0,229,255,0.4), rgba(107,60,255,0.4), rgba(0,255,136,0.4));
+      z-index: 0;
+      animation: flowLine 3s ease-in-out infinite alternate;
+    }
+    @keyframes flowLine {
+      0%   { opacity: 0.3; }
+      100% { opacity: 0.8; }
     }
 
     .hiw-step {
-      background: var(--card);
-      padding: 40px 32px 36px;
-      border-top: 2px solid transparent;
-      transition: all .4s var(--ease);
+      background: linear-gradient(160deg, rgba(10,16,28,0.95) 0%, rgba(5,10,18,0.98) 100%);
+      border: 1px solid rgba(255,255,255,0.06);
+      padding: 52px 40px 44px;
       position: relative;
-      overflow: hidden
+      overflow: hidden;
+      cursor: default;
+      transition: border-color .4s var(--ease), transform .4s var(--ease), box-shadow .4s var(--ease);
+    }
+
+    /* Per-step accent color variables */
+    .hiw-step:nth-child(1) { --step-color: #00e5ff; --step-glow: rgba(0,229,255,0.15); --step-dim: rgba(0,229,255,0.08); }
+    .hiw-step:nth-child(2) { --step-color: #6b3cff; --step-glow: rgba(107,60,255,0.18); --step-dim: rgba(107,60,255,0.08); }
+    .hiw-step:nth-child(3) { --step-color: #00ff88; --step-glow: rgba(0,255,136,0.15); --step-dim: rgba(0,255,136,0.08); }
+
+    .hiw-step::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-top: 2px solid transparent;
+      border-top-color: var(--step-color);
+      opacity: 0;
+      transition: opacity .4s var(--ease);
+    }
+
+    /* Scan line sweep on hover */
+    .hiw-step::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: -100%;
+      height: 30%;
+      background: linear-gradient(180deg, transparent 0%, rgba(255,255,255,0.03) 50%, transparent 100%);
+      transition: none;
+      pointer-events: none;
+    }
+
+    .hiw-step:hover::after {
+      animation: scanSweep .7s ease-out forwards;
+    }
+    @keyframes scanSweep {
+      from { top: -30%; }
+      to   { top: 120%; }
     }
 
     .hiw-step:hover {
-      border-top-color: var(--accent);
-      transform: translateY(-6px);
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4)
+      border-color: rgba(255,255,255,0.12);
+      transform: translateY(-8px);
+      box-shadow: 0 0 0 1px var(--step-color), 0 24px 80px rgba(0,0,0,0.5), 0 0 40px var(--step-glow);
     }
 
-    /* Animated step number */
+    .hiw-step:hover::before {
+      opacity: 1;
+    }
+
+    /* Ghost number watermark */
+    .hiw-step-ghost {
+      position: absolute;
+      right: -12px;
+      bottom: -20px;
+      font-family: 'Orbitron', monospace;
+      font-weight: 900;
+      font-size: 120px;
+      color: var(--step-color);
+      opacity: 0.04;
+      line-height: 1;
+      pointer-events: none;
+      transition: opacity .5s var(--ease);
+      user-select: none;
+    }
+
+    .hiw-step:hover .hiw-step-ghost {
+      opacity: 0.08;
+    }
+
+    /* Step badge */
     .hiw-step-num {
-      width: 52px;
-      height: 52px;
+      width: 56px;
+      height: 56px;
       border-radius: 50%;
-      border: 1px solid rgba(0, 229, 255, 0.3);
+      border: 1px solid var(--step-color);
       display: flex;
       align-items: center;
       justify-content: center;
-      margin-bottom: 28px;
+      margin-bottom: 36px;
       position: relative;
       z-index: 1;
-      background: rgba(0, 229, 255, 0.05);
+      background: var(--step-dim);
       transition: all .4s var(--ease);
+      box-shadow: 0 0 0 0 var(--step-glow);
     }
 
     .hiw-step:hover .hiw-step-num {
-      border-color: var(--accent);
-      background: rgba(0, 229, 255, 0.1);
-      box-shadow: 0 0 20px rgba(0, 229, 255, 0.2)
+      box-shadow: 0 0 0 6px var(--step-dim), 0 0 24px var(--step-glow);
     }
 
     .hiw-step-num-ring {
       position: absolute;
-      inset: -4px;
+      inset: -6px;
       border-radius: 50%;
-      border: 1px solid rgba(0, 229, 255, 0.15);
+      border: 1px solid var(--step-color);
+      opacity: 0.2;
       animation: ringPulse 3s ease-in-out infinite;
     }
 
-    .hiw-step:nth-child(2) .hiw-step-num-ring {
-      animation-delay: .5s
-    }
-
-    .hiw-step:nth-child(3) .hiw-step-num-ring {
-      animation-delay: 1s
-    }
+    .hiw-step:nth-child(2) .hiw-step-num-ring { animation-delay: .6s; }
+    .hiw-step:nth-child(3) .hiw-step-num-ring { animation-delay: 1.2s; }
 
     .hiw-num-text {
       font-family: 'Orbitron', monospace;
       font-weight: 700;
-      font-size: 14px;
-      color: var(--accent);
-      z-index: 1
+      font-size: 16px;
+      color: var(--step-color);
+      z-index: 1;
     }
 
+    /* Phase tag */
     .hiw-step-label {
       font-family: 'JetBrains Mono', monospace;
       font-size: 9px;
-      letter-spacing: 0.28em;
-      color: rgba(0, 229, 255, 0.5);
+      letter-spacing: 0.3em;
+      color: var(--step-color);
       text-transform: uppercase;
-      margin-bottom: 14px
+      margin-bottom: 14px;
+      opacity: 0.7;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .hiw-step-label::before {
+      content: '▶';
+      font-size: 7px;
+      opacity: 0.6;
     }
 
     .hiw-step h3 {
       font-family: 'Orbitron', monospace;
       font-weight: 700;
-      font-size: 14px;
-      letter-spacing: 0.08em;
+      font-size: 15px;
+      letter-spacing: 0.06em;
       text-transform: uppercase;
       color: var(--text);
-      margin-bottom: 12px
+      margin-bottom: 16px;
+      line-height: 1.3;
     }
 
     .hiw-step p {
       font-family: 'Outfit', sans-serif;
       font-size: 15px;
-      color: #8a9fb8;
-      line-height: 1.65
+      color: #7a8fa8;
+      line-height: 1.7;
     }
 
-    /* Animated icon */
+    /* Large icon */
     .hiw-anim {
-      width: 40px;
-      height: 40px;
-      margin-bottom: 4px;
+      width: 48px;
+      height: 48px;
       position: absolute;
-      top: 32px;
-      right: 28px;
-      opacity: 0.15;
-      transition: opacity .4s;
-      color: var(--accent)
+      top: 40px;
+      right: 36px;
+      opacity: 0.12;
+      transition: opacity .4s, transform .5s var(--ease);
+      color: var(--step-color);
     }
 
     .hiw-step:hover .hiw-anim {
-      opacity: 0.4
+      opacity: 0.5;
+      transform: rotate(10deg) scale(1.1);
     }
 
-    /* Motion path */
+    /* Status readout */
+    .hiw-status {
+      margin-top: 28px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      color: var(--step-color);
+      opacity: 0;
+      transform: translateY(6px);
+      transition: opacity .4s var(--ease), transform .4s var(--ease);
+    }
+
+    .hiw-step:hover .hiw-status {
+      opacity: 0.7;
+      transform: translateY(0);
+    }
+
+    .hiw-status-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--step-color);
+      box-shadow: 0 0 6px var(--step-color);
+      animation: blink 1.8s ease-in-out infinite;
+    }
+
+    /* Progress bar */
     .hiw-progress {
-      height: 3px;
-      background: rgba(0, 229, 255, 0.1);
+      height: 2px;
+      background: rgba(255,255,255,0.06);
       margin-top: 24px;
-      border-radius: 2px;
-      overflow: hidden
+      overflow: hidden;
     }
 
     .hiw-progress-bar {
       height: 100%;
       width: 0%;
-      background: linear-gradient(90deg, var(--accent), var(--violet));
-      border-radius: 2px;
-      transition: width 1.5s var(--ease)
+      background: linear-gradient(90deg, var(--step-color), transparent);
+      transition: width 1.2s var(--ease);
+      position: relative;
     }
 
-    .hiw-step:hover .hiw-progress-bar {
-      width: 100%
+    .hiw-progress-bar::after {
+      content: '';
+      position: absolute;
+      right: 0;
+      top: -1px;
+      width: 4px;
+      height: 4px;
+      background: var(--step-color);
+      border-radius: 50%;
+      box-shadow: 0 0 6px var(--step-color);
+      opacity: 0;
+      transition: opacity .3s;
     }
+
+    .hiw-step:hover .hiw-progress-bar { width: 100%; }
+    .hiw-step:hover .hiw-progress-bar::after { opacity: 1; transition-delay: 1s; }
 
     /* ─── TECH LOGOS SECTION ─── */
     .tech-section {
@@ -1173,6 +1290,36 @@
       letter-spacing:0.2em;color:var(--accent);text-transform:uppercase;margin-bottom:4px
     }
     .book-details div{font-family:'Outfit',sans-serif;font-size:13px;color:var(--dim)}
+    /* Format toggle */
+    .format-toggle {
+      display: flex;
+      gap: 3px;
+      margin-top: 6px;
+      justify-content: center;
+    }
+    .format-btn {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 4px 8px;
+      background: transparent;
+      border: 1px solid rgba(0,229,255,0.15);
+      color: var(--muted);
+      cursor: pointer;
+      transition: all .2s;
+      border-radius: 2px;
+      white-space: nowrap;
+    }
+    .format-btn.active {
+      background: rgba(0,229,255,0.1);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+    .format-btn:hover:not(.active) {
+      border-color: rgba(0,229,255,0.3);
+      color: var(--dim);
+    }
     /* Info row */
     .info-row {
       display: flex;gap: 2px;flex-direction:column;margin-top:2px
@@ -1285,13 +1432,8 @@
     }
 
     @keyframes marqueeScroll {
-      from {
-        transform: translateX(0)
-      }
-
-      to {
-        transform: translateX(-50%)
-      }
+      from { transform: translateX(0); }
+      to { transform: translateX(-50%); }
     }
 
     @keyframes floatUp {
@@ -1463,8 +1605,11 @@
 
       .services-grid,
       .hiw-steps {
-        grid-template-columns: 1fr
+        grid-template-columns: 1fr;
+        gap: 2px;
       }
+
+      .hiw-step-ghost { font-size: 80px; }
 
       .stats-grid {
         grid-template-columns: repeat(2, 1fr);
@@ -1854,103 +1999,90 @@
         <h2 class="sect-h2">Three Steps.<br><em>Zero Hype.</em></h2>
       </div>
       <div class="hiw-steps">
+
+        <!-- Step 01 -->
         <div class="hiw-step reveal">
+          <span class="hiw-step-ghost">01</span>
           <div class="hiw-step-num">
             <div class="hiw-step-num-ring"></div>
             <span class="hiw-num-text">01</span>
           </div>
           <div class="hiw-step-label">Discover</div>
-          <h3>Map Your Workflow</h3>
-          <p>We audit your operations, identify the highest-leverage automation opportunities, and scope a solution with
-            clear deliverables and timelines.</p>
-          <div class="hiw-progress">
-            <div class="hiw-progress-bar"></div>
-          </div>
-          <svg class="hiw-anim" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
-            <circle cx="11" cy="11" r="8" />
-            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+          <h3>Map Your<br>Workflow</h3>
+          <p>We audit your operations, identify the highest-leverage automation opportunities, and scope a solution with clear deliverables and timelines.</p>
+          <div class="hiw-progress"><div class="hiw-progress-bar"></div></div>
+          <div class="hiw-status"><span class="hiw-status-dot"></span>ANALYSIS COMPLETE</div>
+          <svg class="hiw-anim" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
+            <circle cx="11" cy="11" r="8"/>
+            <circle cx="11" cy="11" r="4" opacity="0.4"/>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"/>
           </svg>
         </div>
+
+        <!-- Step 02 -->
         <div class="hiw-step reveal">
+          <span class="hiw-step-ghost">02</span>
           <div class="hiw-step-num">
             <div class="hiw-step-num-ring"></div>
             <span class="hiw-num-text">02</span>
           </div>
           <div class="hiw-step-label">Build</div>
-          <h3>Build &amp; Simulate</h3>
-          <p>We build in a simulated environment with real workloads. You see it working before it touches production.
-            Zero guesswork.</p>
-          <div class="hiw-progress">
-            <div class="hiw-progress-bar"></div>
-          </div>
-          <svg class="hiw-anim" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
-            <polyline points="16 18 22 12 16 6" />
-            <polyline points="8 6 2 12 8 18" />
+          <h3>Build &amp;<br>Simulate</h3>
+          <p>We build in a simulated environment with real workloads. You see it working before it touches production. Zero guesswork.</p>
+          <div class="hiw-progress"><div class="hiw-progress-bar"></div></div>
+          <div class="hiw-status"><span class="hiw-status-dot"></span>SIMULATION RUNNING</div>
+          <svg class="hiw-anim" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
+            <polyline points="16 18 22 12 16 6"/>
+            <polyline points="8 6 2 12 8 18"/>
+            <line x1="12" y1="3" x2="12" y2="21" opacity="0.4"/>
           </svg>
         </div>
+
+        <!-- Step 03 -->
         <div class="hiw-step reveal">
+          <span class="hiw-step-ghost">03</span>
           <div class="hiw-step-num">
             <div class="hiw-step-num-ring"></div>
             <span class="hiw-num-text">03</span>
           </div>
           <div class="hiw-step-label">Deploy</div>
-          <h3>Deploy &amp; Optimize</h3>
-          <p>Live deployment with monitoring. We track performance, tune the models, and iterate until the numbers move.
-            This is where we earn it.</p>
-          <div class="hiw-progress">
-            <div class="hiw-progress-bar"></div>
-          </div>
-          <svg class="hiw-anim" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
-            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+          <h3>Deploy &amp;<br>Optimize</h3>
+          <p>Live deployment with monitoring. We track performance, tune the models, and iterate until the numbers move. This is where we earn it.</p>
+          <div class="hiw-progress"><div class="hiw-progress-bar"></div></div>
+          <div class="hiw-status"><span class="hiw-status-dot"></span>SYSTEM LIVE</div>
+          <svg class="hiw-anim" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
           </svg>
         </div>
+
       </div>
     </div>
   </section>
 
   <!-- MARQUEE 2 -->
   <div class="marquee-wrap">
-    <div class="marquee-track">
-      <div class="marquee-content marquee-row-rev" style="animation-direction:reverse;animation-duration:42s">
-        <div class="marquee-item"><span class="marquee-logo"><span>Workflow Automation</span></span></div><span
-          class="marquee-sep"></span>
-        <div class="marquee-item"><span class="marquee-logo"><span>Lead Qualification</span></span></div><span
-          class="marquee-sep"></span>
-        <div class="marquee-item"><span class="marquee-logo"><span>Content Generation</span></span></div><span
-          class="marquee-sep"></span>
-        <div class="marquee-item"><span class="marquee-logo"><span>Data Enrichment</span></span></div><span
-          class="marquee-sep"></span>
-        <div class="marquee-item"><span class="marquee-logo"><span>CRM Integration</span></span></div><span
-          class="marquee-sep"></span>
-        <div class="marquee-item"><span class="marquee-logo"><span>Email Sequencing</span></span></div><span
-          class="marquee-sep"></span>
-        <div class="marquee-item"><span class="marquee-logo"><span>Voice AI Calls</span></span></div><span
-          class="marquee-sep"></span>
-        <div class="marquee-item"><span class="marquee-logo"><span>RAG Pipelines</span></span></div><span
-          class="marquee-sep"></span>
-        <div class="marquee-item"><span class="marquee-logo"><span>Agent Orchestration</span></span></div><span
-          class="marquee-sep"></span>
+    <div class="marquee-track marquee-row-rev">
+      <div class="marquee-content">
+        <div class="marquee-item"><span class="marquee-logo"><span>Workflow Automation</span></span></div><span class="marquee-sep"></span>
+        <div class="marquee-item"><span class="marquee-logo"><span>Lead Qualification</span></span></div><span class="marquee-sep"></span>
+        <div class="marquee-item"><span class="marquee-logo"><span>Content Generation</span></span></div><span class="marquee-sep"></span>
+        <div class="marquee-item"><span class="marquee-logo"><span>Data Enrichment</span></span></div><span class="marquee-sep"></span>
+        <div class="marquee-item"><span class="marquee-logo"><span>CRM Integration</span></span></div><span class="marquee-sep"></span>
+        <div class="marquee-item"><span class="marquee-logo"><span>Email Sequencing</span></span></div><span class="marquee-sep"></span>
+        <div class="marquee-item"><span class="marquee-logo"><span>Voice AI Calls</span></span></div><span class="marquee-sep"></span>
+        <div class="marquee-item"><span class="marquee-logo"><span>RAG Pipelines</span></span></div><span class="marquee-sep"></span>
+        <div class="marquee-item"><span class="marquee-logo"><span>Agent Orchestration</span></span></div><span class="marquee-sep"></span>
       </div>
-      <div class="marquee-content marquee-row-rev" aria-hidden="true"
-        style="animation-direction:reverse;animation-duration:42s">
-        <div class="marquee-item"><span class="marquee-logo"><span>Workflow Automation</span></span></div><span
-          class="marquee-sep"></span>
-        <div class="marquee-item"><span class="marquee-logo"><span>Lead Qualification</span></span></div><span
-          class="marquee-sep"></span>
-        <div class="marquee-item"><span class="marquee-logo"><span>Content Generation</span></span></div><span
-          class="marquee-sep"></span>
-        <div class="marquee-item"><span class="marquee-logo"><span>Data Enrichment</span></span></div><span
-          class="marquee-sep"></span>
-        <div class="marquee-item"><span class="marquee-logo"><span>CRM Integration</span></span></div><span
-          class="marquee-sep"></span>
-        <div class="marquee-item"><span class="marquee-logo"><span>Email Sequencing</span></span></div><span
-          class="marquee-sep"></span>
-        <div class="marquee-item"><span class="marquee-logo"><span>Voice AI Calls</span></span></div><span
-          class="marquee-sep"></span>
-        <div class="marquee-item"><span class="marquee-logo"><span>RAG Pipelines</span></span></div><span
-          class="marquee-sep"></span>
-        <div class="marquee-item"><span class="marquee-logo"><span>Agent Orchestration</span></span></div><span
-          class="marquee-sep"></span>
+      <div class="marquee-content" aria-hidden="true">
+        <div class="marquee-item"><span class="marquee-logo"><span>Workflow Automation</span></span></div><span class="marquee-sep"></span>
+        <div class="marquee-item"><span class="marquee-logo"><span>Lead Qualification</span></span></div><span class="marquee-sep"></span>
+        <div class="marquee-item"><span class="marquee-logo"><span>Content Generation</span></span></div><span class="marquee-sep"></span>
+        <div class="marquee-item"><span class="marquee-logo"><span>Data Enrichment</span></span></div><span class="marquee-sep"></span>
+        <div class="marquee-item"><span class="marquee-logo"><span>CRM Integration</span></span></div><span class="marquee-sep"></span>
+        <div class="marquee-item"><span class="marquee-logo"><span>Email Sequencing</span></span></div><span class="marquee-sep"></span>
+        <div class="marquee-item"><span class="marquee-logo"><span>Voice AI Calls</span></span></div><span class="marquee-sep"></span>
+        <div class="marquee-item"><span class="marquee-logo"><span>RAG Pipelines</span></span></div><span class="marquee-sep"></span>
+        <div class="marquee-item"><span class="marquee-logo"><span>Agent Orchestration</span></span></div><span class="marquee-sep"></span>
       </div>
     </div>
   </div>
@@ -2024,7 +2156,13 @@
           </a>
           <div class="book-details">
             <div><span>Duration</span>30 min</div>
-            <div><span>Format</span>Video</div>
+            <div>
+              <span>Format</span>
+              <div class="format-toggle">
+                <button class="format-btn active" data-format="video">Video</button>
+                <button class="format-btn" data-format="inperson">In-Person <small style="opacity:0.7">(GVA)</small></button>
+              </div>
+            </div>
             <div><span>Cost</span>Free</div>
           </div>
         </div>
@@ -2271,17 +2409,7 @@
       });
     });
 
-    // ─── Marquee kinetic ───
-    (function () {
-      var vel = 0;
-      ScrollTrigger.create({ onUpdate: function (self) { vel = Math.min(Math.max(self.getVelocity() / 400, -2), 2); } });
-      (function tick() {
-        vel *= 0.94;
-        var spd = Math.max(25, 35 - Math.abs(vel) * 5);
-        document.querySelectorAll('.marquee-content').forEach(function (c) { c.style.animationDuration = spd + 's'; });
-        requestAnimationFrame(tick);
-      })();
-    })();
+    // Marquee runs at fixed CSS speed — no kinetic override (avoids haywire on fast scroll)
 
     // ─── Hero glass parallax ───
     window.addEventListener('scroll', function () {
@@ -2321,6 +2449,27 @@
         });
       });
     }
+
+    // ─── Format toggle (book card) ───
+    (function () {
+      var btns = document.querySelectorAll('.format-btn');
+      var bookLink = document.querySelector('.btn-book');
+      var videoUrl = bookLink ? bookLink.getAttribute('href') : '#';
+      btns.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          btns.forEach(function (b) { b.classList.remove('active'); });
+          btn.classList.add('active');
+          if (bookLink) {
+            if (btn.dataset.format === 'inperson') {
+              bookLink.textContent = 'Book In-Person Session →';
+            } else {
+              bookLink.textContent = 'Book a Free Call →';
+              bookLink.setAttribute('href', videoUrl);
+            }
+          }
+        });
+      });
+    })();
   </script>
 </body>
 
