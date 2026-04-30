@@ -86,6 +86,19 @@
       transition: all .4s var(--ease)
     }
 
+    /* Top gradient mask — anchors the nav, fades the cube animation behind it */
+    nav::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 110px;
+      background: linear-gradient(180deg, rgba(3, 6, 10, 0.85) 0%, rgba(3, 6, 10, 0.45) 60%, rgba(3, 6, 10, 0) 100%);
+      pointer-events: none;
+      z-index: -1;
+    }
+
     nav.scrolled {
       background: rgba(3, 6, 10, 0.75);
       backdrop-filter: blur(24px);
@@ -287,17 +300,19 @@
     .hero-glass {
       position: relative;
       z-index: 2;
-      background: linear-gradient(135deg, rgba(255, 255, 255, 0.10) 0%, rgba(255, 255, 255, 0.05) 60%, rgba(255, 255, 255, 0.08) 100%);
-      backdrop-filter: blur(52px) saturate(240%) brightness(1.06);
-      -webkit-backdrop-filter: blur(52px) saturate(240%) brightness(1.06);
+      background:
+        linear-gradient(135deg, rgba(255, 255, 255, 0.10) 0%, rgba(255, 255, 255, 0.04) 60%, rgba(255, 255, 255, 0.07) 100%),
+        rgba(5, 10, 18, 0.55);
+      backdrop-filter: blur(48px) saturate(180%) brightness(0.85);
+      -webkit-backdrop-filter: blur(48px) saturate(180%) brightness(0.85);
       border: 1px solid rgba(255, 255, 255, 0.22);
       border-top: 1px solid rgba(255, 255, 255, 0.45);
       border-left: 1px solid rgba(255, 255, 255, 0.15);
       border-right: 1px solid rgba(255, 255, 255, 0.08);
       border-bottom: 1px solid rgba(255, 255, 255, 0.06);
       border-radius: 28px;
-      padding: 72px 80px;
-      max-width: 860px;
+      padding: 56px 72px;
+      max-width: 760px;
       width: 100%;
       text-align: center;
       box-shadow:
@@ -362,13 +377,13 @@
     .hero-h1 {
       font-family: 'Orbitron', monospace;
       font-weight: 900;
-      font-size: clamp(54px, 8vw, 112px);
-      line-height: 0.92;
+      font-size: clamp(44px, 6.2vw, 86px);
+      line-height: 0.88;
       letter-spacing: 0.03em;
       text-transform: uppercase;
       color: var(--text);
       text-shadow: 0 0 60px rgba(0, 229, 255, 0.08);
-      margin-bottom: 8px
+      margin-bottom: 24px
     }
 
     .hero-h1-line2 {
@@ -385,17 +400,18 @@
       font-size: clamp(16px, 2vw, 22px);
       letter-spacing: 0.1em;
       text-transform: uppercase;
-      color: rgba(170, 187, 208, 0.9);
-      margin-bottom: 10px
+      color: rgba(200, 215, 232, 0.95);
+      margin-top: 4px;
+      margin-bottom: 14px
     }
 
     .hero-body {
       font-family: 'Outfit', sans-serif;
-      font-size: clamp(15px, 1.5vw, 18px);
-      color: rgba(122, 143, 168, 0.9);
-      line-height: 1.7;
-      max-width: 500px;
-      margin: 0 auto 40px
+      font-size: clamp(16px, 1.4vw, 18px);
+      color: rgba(186, 200, 220, 0.92);
+      line-height: 1.65;
+      max-width: 520px;
+      margin: 0 auto 36px
     }
 
     .hero-ctas {
@@ -1598,9 +1614,6 @@
             <path d="M5 12h14M12 5l7 7-7 7" />
           </svg>
         </a>
-        <div class="btn-glow-wrap">
-          <a href="#contact" class="btn-ghost magnetic-btn" style="border:none">Let&rsquo;s Talk</a>
-        </div>
       </div>
     </div>
   </section>
@@ -1822,7 +1835,7 @@
       </div>
       <div class="stat-card reveal">
         <div class="odometer" data-value="4200" data-suffix="h+"></div>
-        <div class="stat-label">Hours Automated / Month</div>
+        <div class="stat-label">Hours Automated</div>
         <div class="stat-sub">across all client systems</div>
       </div>
       <div class="stat-card reveal">
