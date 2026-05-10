@@ -234,10 +234,18 @@
       z-index: 1
     }
 
-    .btn-primary,
+    /* ─────────────────────────────────────────────────────────────────────
+       BUTTON SYSTEM — 3 tiers ONLY. Do NOT add new .btn-* classes.
+         .btn-amber  — primary   (gradient + glow, single most-wanted action)
+         .btn-ghost  — secondary (outline, alternative actions)
+         .btn-text   — tertiary  (text + arrow, tangential links — add when needed)
+       Same Outfit typography, same 12px radius, same var(--ease) curve.
+       Variety comes from CONTENT, not chrome.
+       ───────────────────────────────────────────────────────────────────── */
+
     .btn-ghost {
       position: relative;
-      z-index: 2
+      z-index: 2;
     }
 
     @keyframes rotateBorder {
@@ -246,38 +254,15 @@
       }
     }
 
-    .btn-primary {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 12px;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      color: #000;
-      background: var(--accent);
-      padding: 13px 30px;
-      text-decoration: none;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      border: none;
-      cursor: pointer;
-      transition: all .3s var(--ease);
-      white-space: nowrap
-    }
-
-    .btn-primary:hover {
-      background: var(--text);
-      transform: translateY(-2px);
-      box-shadow: 0 12px 40px rgba(255, 176, 32, 0.25)
-    }
-
     .btn-ghost {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 12px;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
+      font-family: 'Outfit', sans-serif;
+      font-weight: 600;
+      font-size: 14px;
+      letter-spacing: 0.01em;
       color: var(--dim);
       background: transparent;
-      padding: 13px 30px;
+      padding: 13px 26px;
+      border-radius: 12px;
       text-decoration: none;
       display: inline-flex;
       align-items: center;
@@ -778,6 +763,18 @@
         0 0 60px rgba(255, 176, 32, 0.4),
         inset 0 1px 0 rgba(255, 255, 255, 0.4);
       filter: brightness(1.08);
+    }
+
+    .btn-amber:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+      filter: none;
+    }
+
+    /* Form submit sits below the textarea — small breathing space. */
+    #contactForm .btn-amber {
+      margin-top: 12px;
     }
 
     /* ─── MARQUEE ─── */
@@ -1745,42 +1742,8 @@
     }
 
     /* Amber submit (matches the .btn-amber pattern from post-hero) */
-    .btn-submit-amber {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      font-family: 'Outfit', sans-serif;
-      font-weight: 600;
-      font-size: 16px;
-      letter-spacing: 0.01em;
-      color: #fff4dd;
-      background: linear-gradient(180deg, #FF8A1C 0%, #FF6A00 100%);
-      padding: 14px 30px;
-      border-radius: 10px;
-      text-decoration: none;
-      border: 1px solid rgba(255, 244, 221, 0.18);
-      box-shadow:
-        0 10px 30px rgba(255, 138, 28, 0.25),
-        0 0 0 1px rgba(255, 138, 28, 0.35),
-        inset 0 1px 0 rgba(255, 255, 255, 0.25);
-      transition: all .3s var(--ease);
-      cursor: pointer;
-      margin-top: 12px;
-    }
-    .btn-submit-amber:hover {
-      transform: translateY(-2px);
-      filter: brightness(1.08);
-      box-shadow:
-        0 14px 40px rgba(255, 138, 28, 0.4),
-        0 0 0 1px rgba(255, 244, 221, 0.3),
-        0 0 56px rgba(255, 176, 32, 0.3),
-        inset 0 1px 0 rgba(255, 255, 255, 0.35);
-    }
-    .btn-submit-amber:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-      transform: none;
-    }
+    /* Form submit uses plain .btn-amber — disabled state lives with the
+       primary button definition (search ".btn-amber:disabled"). */
 
     .form-success {
       padding: 40px 32px;
@@ -2068,7 +2031,7 @@
         width: 100%;
       }
 
-      .nav-cta-mobile .btn-primary {
+      .nav-cta-mobile .btn-ghost {
         width: 100%;
         justify-content: center;
       }
@@ -2270,7 +2233,7 @@
         width: 100%;
       }
 
-      .hero-ctas .btn-primary,
+      .hero-ctas .btn-amber,
       .hero-ctas .btn-glow-wrap,
       .hero-ctas .btn-ghost {
         width: 100%;
@@ -2329,8 +2292,7 @@
     a:focus-visible,
     button:focus-visible,
     .btn-amber:focus-visible,
-    .btn-ghost:focus-visible,
-    .btn-primary:focus-visible {
+    .btn-ghost:focus-visible {
       outline-offset: 4px;
     }
 
@@ -2379,11 +2341,11 @@
       <li><a href="#process">Process</a></li>
       <li><a href="#contact">Contact</a></li>
       <li class="nav-cta-mobile">
-        <a href="#contact" class="btn-primary" data-open-form>Let&rsquo;s Talk</a>
+        <a href="#contact" class="btn-ghost" data-open-form>Let&rsquo;s Talk</a>
       </li>
     </ul>
     <div class="btn-glow-wrap">
-      <a href="#contact" class="btn-ghost magnetic-btn" style="border:none" data-open-form>Let&rsquo;s Talk</a>
+      <a href="#contact" class="btn-ghost magnetic-btn" data-open-form>Let&rsquo;s Talk</a>
     </div>
     <button class="nav-toggle" id="navToggle" aria-label="Open navigation menu" aria-expanded="false" aria-controls="navLinks">
       <span class="nav-toggle-line"></span>
@@ -2952,7 +2914,7 @@
           <textarea id="cf-detail" name="message" placeholder="What do you have in mind?"></textarea>
         </div>
 
-        <button type="submit" class="btn-amber btn-submit-amber" id="submitBtn">
+        <button type="submit" class="btn-amber" id="submitBtn">
           <span class="btn-label">Submit</span>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
             <path d="M7 7l10 10M17 7v10H7"/>
