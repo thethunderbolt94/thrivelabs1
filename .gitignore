@@ -8,6 +8,14 @@
 .idea/
 .vscode/
 
+# Backup files
+*.bak
+
+# Unused hero/logo variants kept locally only
+assets/hero-A.mp4
+assets/hero-still.png
+assets/logo-full-amber.png
+
 # Optional: large hero loop video (kept out of git, can re-add if needed)
 # assets/hero-loop.mp4
 
