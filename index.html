@@ -876,6 +876,225 @@
       margin: 0 8px
     }
 
+    /* ─── WORK — proof-of-craft showcase (Pocket Director AI) ─── */
+    .work-section {
+      padding: 120px 48px;
+      background: var(--bg);
+      position: relative;
+      overflow: hidden;
+    }
+    .work-section::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 600px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    }
+    .work-card {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 56px;
+      align-items: center;
+      max-width: 1100px;
+      margin: 0 auto;
+      background: linear-gradient(180deg, rgba(20, 10, 2, 0.85) 0%, rgba(10, 5, 0, 0.95) 100%);
+      border: 1px solid rgba(255, 176, 32, 0.15);
+      border-radius: 22px;
+      padding: 56px;
+      position: relative;
+      overflow: hidden;
+      transition: border-color .35s var(--ease), transform .45s var(--ease), box-shadow .35s var(--ease);
+    }
+    .work-card:hover {
+      border-color: rgba(255, 176, 32, 0.32);
+      transform: translateY(-4px);
+      box-shadow: 0 24px 80px rgba(255, 138, 28, 0.18);
+    }
+    .work-card-content { min-width: 0; }
+    .work-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      border: 1px solid rgba(255, 208, 96, 0.4);
+      border-radius: 100px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--accent-bright);
+      background: rgba(255, 208, 96, 0.06);
+      margin-bottom: 20px;
+    }
+    .work-badge::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent-bright);
+      box-shadow: 0 0 10px var(--accent-bright);
+      animation: workLivePulse 2s ease-in-out infinite;
+    }
+    @keyframes workLivePulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%      { opacity: 0.6; transform: scale(0.85); }
+    }
+    .work-card h3 {
+      font-family: 'Orbitron', monospace;
+      font-weight: 700;
+      font-size: clamp(28px, 3.4vw, 40px);
+      line-height: 1.05;
+      letter-spacing: 0.02em;
+      color: var(--text);
+      margin: 0 0 14px;
+    }
+    .work-card-tagline {
+      font-family: 'Outfit', sans-serif;
+      font-size: clamp(16px, 1.4vw, 18px);
+      line-height: 1.5;
+      color: var(--accent);
+      margin: 0 0 18px;
+      font-weight: 500;
+    }
+    .work-card-body {
+      font-family: 'Outfit', sans-serif;
+      font-size: 15px;
+      line-height: 1.7;
+      color: var(--muted);
+      margin: 0 0 28px;
+      max-width: 48ch;
+    }
+    .work-card-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* Visual mock — replace .work-card-visual contents with an <img src="assets/pocketdirector-product.png">
+       once a real screenshot is available. The mock below is CSS-only so the page ships without dependencies. */
+    .work-card-visual {
+      position: relative;
+      aspect-ratio: 4 / 3;
+      border-radius: 14px;
+      overflow: hidden;
+      background:
+        radial-gradient(ellipse at 30% 20%, rgba(255, 176, 32, 0.18), transparent 60%),
+        radial-gradient(ellipse at 70% 80%, rgba(255, 45, 85, 0.10), transparent 60%),
+        linear-gradient(160deg, #1a0d02 0%, #0a0500 100%);
+      border: 1px solid rgba(255, 176, 32, 0.18);
+      box-shadow: inset 0 1px 0 rgba(255, 244, 221, 0.08);
+    }
+    .work-mock-chrome {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 16px;
+      border-bottom: 1px solid rgba(255, 176, 32, 0.12);
+      background: rgba(0, 0, 0, 0.35);
+    }
+    .work-mock-chrome span {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: rgba(255, 176, 32, 0.35);
+    }
+    .work-mock-chrome span:first-child { background: rgba(255, 45, 85, 0.55); }
+    .work-mock-chrome span:nth-child(2) { background: rgba(255, 138, 28, 0.55); }
+    .work-mock-chrome span:nth-child(3) { background: rgba(255, 208, 96, 0.55); }
+    .work-mock-url {
+      flex: 1;
+      margin-left: 12px;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: rgba(255, 244, 221, 0.04);
+      border: 1px solid rgba(255, 176, 32, 0.10);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--muted);
+      letter-spacing: 0.04em;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .work-mock-stage {
+      padding: 28px 32px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 18px;
+      text-align: center;
+      height: calc(100% - 38px);
+    }
+    .work-mock-wordmark {
+      font-family: 'Orbitron', monospace;
+      font-weight: 800;
+      font-size: clamp(20px, 2.2vw, 28px);
+      letter-spacing: 0.08em;
+      background: var(--grad-wordmark);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      line-height: 1;
+    }
+    .work-mock-flow {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .work-mock-tile {
+      width: 44px;
+      height: 44px;
+      border-radius: 6px;
+      background: linear-gradient(135deg, rgba(255, 176, 32, 0.18), rgba(255, 106, 0, 0.10));
+      border: 1px solid rgba(255, 176, 32, 0.25);
+      box-shadow: inset 0 1px 0 rgba(255, 244, 221, 0.12);
+    }
+    .work-mock-tile.is-grid {
+      background:
+        linear-gradient(rgba(255, 176, 32, 0.22), rgba(255, 176, 32, 0.22)) 0 0 / 50% 50% no-repeat,
+        linear-gradient(rgba(255, 138, 28, 0.18), rgba(255, 138, 28, 0.18)) 100% 0 / 50% 50% no-repeat,
+        linear-gradient(rgba(255, 106, 0, 0.18), rgba(255, 106, 0, 0.18)) 0 100% / 50% 50% no-repeat,
+        linear-gradient(rgba(255, 208, 96, 0.22), rgba(255, 208, 96, 0.22)) 100% 100% / 50% 50% no-repeat,
+        rgba(10, 5, 0, 0.6);
+      background-clip: padding-box;
+      width: 56px;
+      height: 56px;
+    }
+    .work-mock-divider {
+      flex: 0 0 24px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255, 176, 32, 0.6), transparent);
+    }
+    .work-mock-caption {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .work-badge::before { animation: none; }
+      .work-card:hover { transform: none; }
+    }
+    @media (max-width: 860px) {
+      .work-section { padding: 80px 24px; }
+      .work-card {
+        grid-template-columns: 1fr;
+        gap: 40px;
+        padding: 40px 28px;
+      }
+      .work-card-body { max-width: 100%; }
+    }
+
     /* ─── SERVICES ─── */
     .services-section {
       padding: 120px 48px;
@@ -2574,8 +2793,8 @@
               <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
             </svg>
           </div>
-          <h3>Marketing Automation</h3>
-          <p>Campaign agents that run lead gen, nurture sequences, and publishing while your team focuses on the strategy work.</p>
+          <h3>Run lead gen on autopilot</h3>
+          <p>Campaign agents that handle outbound, nurture, and publishing so your team can spend its hours on the work that needs a human.</p>
           <span class="svc-tag">n8n &middot; Make &middot; OpenAI</span>
         </div>
       </div>
@@ -2591,8 +2810,8 @@
               <rect x="13" y="13" width="9" height="9" />
             </svg>
           </div>
-          <h3>Analytics Engines</h3>
-          <p>Data pipelines and dashboards that flag what matters before you have to go looking for it.</p>
+          <h3>See what matters before you go looking</h3>
+          <p>Data pipelines and dashboards that surface the signal in plain English. No analyst required to read them.</p>
           <span class="svc-tag">Supabase &middot; LangChain</span>
         </div>
       </div>
@@ -2607,8 +2826,8 @@
                 d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83" />
             </svg>
           </div>
-          <h3>Custom AI Agents</h3>
-          <p>Agents built around your actual workflow. Research, outreach, anything that's quietly eating your team's hours.</p>
+          <h3>Hand off the work eating your week</h3>
+          <p>Agents built around your real workflow. Research, outreach, ops, anything quietly burning your team's hours.</p>
           <span class="svc-tag">Claude &middot; GPT</span>
         </div>
       </div>
@@ -2621,8 +2840,8 @@
               <path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z" />
             </svg>
           </div>
-          <h3>MCP Server Dev</h3>
-          <p>We wire agents into your real stack with MCP. Databases, APIs, internal tools. They get context, not guesses.</p>
+          <h3>Plug your stack into Claude or GPT</h3>
+          <p>We wire your real systems into any AI assistant via MCP. Databases, APIs, internal tools. Context, not guesses.</p>
           <span class="svc-tag">MCP &middot; TypeScript</span>
         </div>
       </div>
@@ -2636,8 +2855,8 @@
               <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
             </svg>
           </div>
-          <h3>RAG Systems</h3>
-          <p>AI that actually knows your docs. No more answers stitched from random pages on the internet.</p>
+          <h3>AI that actually knows your company</h3>
+          <p>Searchable institutional memory. Stop losing tribal knowledge when people leave or pages get buried.</p>
           <span class="svc-tag">Pinecone &middot; Supabase</span>
         </div>
       </div>
@@ -2653,12 +2872,56 @@
               <line x1="8" y1="23" x2="16" y2="23" />
             </svg>
           </div>
-          <h3>AI Voice Agents</h3>
-          <p>Voice agents that take inbound calls, run outreach, and cover support shifts. Built on ElevenLabs and Retell.</p>
+          <h3>Pick up every call, day or night</h3>
+          <p>Voice agents that handle inbound, run outbound, and cover support shifts. Built on ElevenLabs and Retell.</p>
           <span class="svc-tag">ElevenLabs &middot; Retell</span>
         </div>
       </div>
     </div>
+  </section>
+
+  <!-- WORK — proof-of-craft (Pocket Director AI) -->
+  <section class="work-section reveal" id="work">
+    <div class="section-header reveal">
+      <span class="sect-label">Built By Thrive Labs</span>
+      <h2 class="sect-h2">What we build for <em>ourselves</em></h2>
+      <p class="sect-body">Pocket Director AI is in production today. Same standards, same stack, same craft we bring to every client engagement.</p>
+    </div>
+
+    <article class="work-card reveal">
+      <div class="work-card-content">
+        <span class="work-badge">Live in production</span>
+        <h3>Pocket Director AI</h3>
+        <p class="work-card-tagline">One product photo in. Ten lifestyle shots and a UGC-style video out, in minutes.</p>
+        <p class="work-card-body">Built end-to-end by Thrive Labs. Custom multi-modal pipeline, agent orchestration, zero-friction onboarding. Free 200 credits to start, no card required.</p>
+        <a href="https://pocketdirectorai.com" target="_blank" rel="noopener" class="btn-ghost magnetic-btn work-card-cta">
+          <span>Visit pocketdirectorai.com</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M7 7l10 10M17 7v10H7"/>
+          </svg>
+        </a>
+      </div>
+
+      <!-- Visual: CSS-only mock. Replace this whole div with
+           <img src="assets/pocketdirector-product.png" alt="Pocket Director AI product preview"
+                class="work-card-visual" style="aspect-ratio: 4 / 3; object-fit: cover;">
+           once a real screenshot is available. -->
+      <div class="work-card-visual" aria-hidden="true">
+        <div class="work-mock-chrome">
+          <span></span><span></span><span></span>
+          <div class="work-mock-url">pocketdirectorai.com</div>
+        </div>
+        <div class="work-mock-stage">
+          <div class="work-mock-wordmark">POCKET DIRECTOR AI</div>
+          <div class="work-mock-flow">
+            <div class="work-mock-tile"></div>
+            <div class="work-mock-divider"></div>
+            <div class="work-mock-tile is-grid"></div>
+          </div>
+          <div class="work-mock-caption">1 photo. 10 shots. 1 video.</div>
+        </div>
+      </div>
+    </article>
   </section>
 
   <!-- STATS -->
