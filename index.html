@@ -30,10 +30,10 @@
       --glass-border: rgba(255, 176, 32, 0.18);
       --glass-shine: rgba(255, 244, 221, 0.18);
       --text: #fff4dd;
-      --muted: #c1a48a;
-      --muted-soft: #a88e72;
-      --dim: #9e7e60;
-      --ink-mute: #785f4a;
+      --muted: #c1a48a;        /* WCAG AA: ~7.0:1 on --bg */
+      --muted-soft: #b89a7c;   /* bumped from #a88e72 — WCAG AA: ~5.6:1 on --bg */
+      --dim: #bf9c7e;          /* bumped from #9e7e60 — WCAG AA: ~5.8:1 on --bg (was 4.2:1) */
+      --ink-mute: #a88e72;     /* bumped from #785f4a — WCAG AA: ~5.0:1 on --bg (was 2.7:1) */
       --accent: #FFB020;          /* Recognizer Amber — primary */
       --accent-bright: #FFD060;   /* Bright Amber — highlight */
       --accent-dim: #a86e00;      /* Muted amber */
@@ -369,14 +369,16 @@
       50%      { transform: translateY(6px); opacity: 1; }
     }
 
-    /* Dark overlay for legibility behind glass card */
+    /* Dark overlay for legibility behind glass card.
+       Bottom stop fades fully to --bg so the hero dissolves into the post-hero
+       section instead of butting up against it with a hard horizontal seam. */
     .hero-overlay {
       position: absolute;
       inset: 0;
       z-index: 2;
       background:
         radial-gradient(ellipse 80% 70% at 50% 55%, transparent 0%, rgba(10, 5, 0, 0.55) 70%, rgba(0, 0, 0, 0.75) 100%),
-        linear-gradient(180deg, rgba(0, 0, 0, 0.35) 0%, transparent 30%, transparent 70%, rgba(0, 0, 0, 0.55) 100%);
+        linear-gradient(180deg, rgba(0, 0, 0, 0.35) 0%, transparent 30%, transparent 55%, rgba(10, 5, 0, 0.6) 80%, var(--bg) 100%);
       pointer-events: none;
     }
 
@@ -576,9 +578,29 @@
     .post-hero {
       position: relative;
       padding: 120px 64px 100px;
-      background: var(--void);
+      background: var(--bg);
       overflow: hidden;
       z-index: 2;
+    }
+
+    /* Amber horizon line at the seam — borrows the Tron grid language so the
+       hero exit reads as a deliberate boundary, not a render gap. */
+    .post-hero::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: min(1280px, 92%);
+      height: 1px;
+      background: var(--grad-edge);
+      box-shadow: 0 0 32px 2px rgba(255, 176, 32, 0.28);
+      opacity: 0.7;
+      pointer-events: none;
+      z-index: 3;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .post-hero::before { opacity: 0.5; box-shadow: none; }
     }
 
     .post-hero-floor {
@@ -2293,10 +2315,56 @@
         scroll-behavior: auto !important;
       }
     }
+
+    /* ─── Accessibility: focus-visible global ring ─── */
+    /* Visible 2px amber ring on keyboard focus only (not on mouse click). */
+    :focus { outline: none; }
+    :focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 3px;
+      border-radius: 4px;
+      box-shadow: 0 0 0 4px rgba(255, 176, 32, 0.18);
+    }
+    /* Buttons/links with their own rounded shape — keep ring tight to their radius. */
+    a:focus-visible,
+    button:focus-visible,
+    .btn-amber:focus-visible,
+    .btn-ghost:focus-visible,
+    .btn-primary:focus-visible {
+      outline-offset: 4px;
+    }
+
+    /* ─── Skip-to-content link (visible only on keyboard focus) ─── */
+    .skip-link {
+      position: absolute;
+      top: 0;
+      left: 0;
+      transform: translateY(-110%);
+      z-index: 10000;
+      padding: 12px 18px;
+      background: var(--bg);
+      color: var(--accent);
+      border: 1px solid var(--accent);
+      border-radius: 0 0 8px 0;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      letter-spacing: 0.08em;
+      text-decoration: none;
+      transition: transform .2s var(--ease);
+    }
+    .skip-link:focus,
+    .skip-link:focus-visible {
+      transform: translateY(0);
+      outline: 2px solid var(--accent-bright);
+      outline-offset: 2px;
+    }
   </style>
 </head>
 
 <body>
+
+  <!-- Skip-to-content link for keyboard / screen-reader users (WCAG 2.4.1) -->
+  <a href="#main" class="skip-link">Skip to main content</a>
 
   <div id="glow"></div>
 
@@ -2323,6 +2391,9 @@
       <span class="nav-toggle-line"></span>
     </button>
   </nav>
+
+  <!-- Main content landmark (WCAG 1.3.1, 2.4.1) -->
+  <main id="main">
 
   <!-- HERO — scroll-driven canvas frame sequence -->
   <section class="hero" id="hero">
@@ -2791,6 +2862,8 @@
 
     </div>
   </section>
+
+  </main>
 
   <!-- FOOTER -->
   <footer>
