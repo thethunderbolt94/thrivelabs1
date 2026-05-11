@@ -463,26 +463,16 @@
 
     .hero-h2-amber {
       font-family: 'Outfit', 'Rajdhani', sans-serif;
-      font-weight: 700;
-      font-size: clamp(22px, 2.6vw, 36px);
-      line-height: 1.15;
+      font-weight: 500;
+      font-size: clamp(18px, 2vw, 24px);
+      line-height: 1.4;
       letter-spacing: -0.005em;
-      background: linear-gradient(90deg, #FFD060 0%, #FFB020 35%, #FF8A1C 70%, #FF6A00 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      color: transparent;
-      filter: drop-shadow(0 0 18px rgba(255, 176, 32, 0.35));
-      margin: 0 0 28px
-    }
-
-    /* Legacy class kept for backwards-compat with anyone deep-linking */
-    .hero-h1-line2 {
-      background: var(--grad-wordmark);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      display: block
+      color: var(--accent);
+      filter: drop-shadow(0 0 18px rgba(255, 176, 32, 0.25));
+      margin: 0 0 28px;
+      max-width: 52ch;
+      margin-left: auto;
+      margin-right: auto;
     }
 
     .hero-tagline {
@@ -1034,10 +1024,7 @@
       font-weight: 800;
       font-size: clamp(20px, 2.2vw, 28px);
       letter-spacing: 0.08em;
-      background: var(--grad-wordmark);
-      -webkit-background-clip: text;
-      background-clip: text;
-      -webkit-text-fill-color: transparent;
+      color: var(--accent);
       line-height: 1;
     }
     .work-mock-flow {
@@ -1144,10 +1131,7 @@
 
     .sect-h2 em {
       font-style: normal;
-      background: linear-gradient(90deg, #FFB020, #FF6A00 60%, #FF2D55);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text
+      color: var(--accent-bright);
     }
 
     .sect-body {
@@ -2597,8 +2581,8 @@
           <div class="badge-dot"></div>
           System Online
         </div>
-        <h1 class="hero-h1">The Era of AI Is Here</h1>
-        <h2 class="hero-h2-amber">Thrive Labs helps you lead it</h2>
+        <h1 class="hero-h1">We build AI agents your team actually uses.</h1>
+        <h2 class="hero-h2-amber">Custom-built for your ops, sales, and support. Live in weeks, not quarters.</h2>
         <div class="hero-ctas">
           <a href="#post-hero" class="btn-amber magnetic-btn">
             <span class="btn-label">See what we build</span>
