@@ -1,0 +1,18 @@
+# Thrive Labs
+
+> Thrive Labs is an AI agents and automation studio based in Vancouver, BC. We build custom AI agents that teams actually use, and cinematic websites for local businesses.
+
+## Services
+
+- Custom AI agents for ops, sales, and support — built on tools like ElevenLabs and Retell for voice, plus custom workflow and orchestration pipelines.
+- Workflow automation — replacing manual, repetitive processes with agents that run reliably in production.
+- Cinematic websites for local businesses — high-craft, motion-driven sites (canvas hero animations, AI-generated visuals) built for restaurants, med spas, salons, and boutique hospitality brands.
+
+## About
+
+Thrive Labs ships production systems, not prototypes — live in weeks, not quarters. Pocket Director AI (pocketdirectorai.com) is a Thrive Labs product built and run end-to-end by the same team, used as proof of the standard we hold client work to.
+
+## Contact
+
+- Website: https://thrivelabs.ca/
+- Location: Vancouver, BC, Canada
