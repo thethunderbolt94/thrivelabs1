@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Privacy Policy · Thrive Labs</title>
+  <meta name="description" content="How Thrive Labs collects, uses, and protects your data — across this site, our AI products, and LinkedIn-connected tools. Plain language, no filler.">
+  <link rel="canonical" href="https://thrivelabs.ca/privacy/">
+  <link rel="icon" type="image/png" href="/assets/favicon-48.png">
+  <link rel="apple-touch-icon" href="/assets/favicon-180.png">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Thrive Labs">
+  <meta property="og:title" content="Privacy Policy · Thrive Labs">
+  <meta property="og:description" content="How Thrive Labs collects, uses, and protects your data. Plain language, no filler.">
+  <meta property="og:url" content="https://thrivelabs.ca/privacy/">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;800;900&family=Outfit:wght@300;400;500;600;700;800&family=Rajdhani:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap"
+    rel="stylesheet">
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       PRIVACY POLICY — drafted 2026-08-05.
+       Human / legal review pending before treating as final.
+       Search "TODO(Suhaas)" for every flagged decision:
+         1. LinkedIn OAuth scopes (confirm once app products are approved)
+         2. Retention windows (30-day defaults — confirm or change)
+         3. Subprocessor list (candidates to confirm are listed in a comment)
+       ══════════════════════════════════════════════════════════════════════ -->
+
+  <style>
+    @property --angle {
+      syntax: '<angle>';
+      initial-value: 0deg;
+      inherits: false;
+    }
+
+    :root {
+      --bg: #0a0500;
+      --void: #000000;
+      --card: #140a02;
+      --panel: #1f1408;
+      --glass: rgba(255, 176, 32, 0.06);
+      --glass-border: rgba(255, 176, 32, 0.18);
+      --glass-shine: rgba(255, 244, 221, 0.18);
+      --text: #fff4dd;
+      --muted: #c1a48a;
+      --muted-soft: #b89a7c;
+      --dim: #bf9c7e;
+      --ink-mute: #a88e72;
+      --accent: #FFB020;
+      --accent-bright: #FFD060;
+      --accent-dim: #a86e00;
+      --turbine: #FF8A1C;
+      --violet: #FF6A00;
+      --magenta: #FF2D55;
+      --green: #FFD060;
+      --ember: #281000;
+      --border: rgba(255, 176, 32, 0.15);
+      --border-strong: rgba(255, 176, 32, 0.35);
+      --grad-wordmark: linear-gradient(90deg, #ffd060 0%, #ffb020 35%, #ff6a00 65%, #ff2d55 100%);
+      --grad-edge: linear-gradient(90deg, transparent, #ffb020, transparent);
+      --txt-glow-sm: 0 0 6px rgba(255,176,32,.7), 0 0 14px rgba(255,176,32,.35);
+      --font-display: 'Orbitron', 'Eurostile', sans-serif;
+      --font-ui: 'Rajdhani', 'Outfit', 'Inter', sans-serif;
+      --font-mono: 'JetBrains Mono', 'IBM Plex Mono', monospace;
+      --ease: cubic-bezier(.16, 1, .3, 1);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box
+    }
+
+    html {
+      scroll-behavior: smooth;
+      color-scheme: dark;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Outfit', sans-serif;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden
+    }
+
+    ::selection {
+      background: #FFB020;
+      color: #000;
+    }
+
+    /* ─── NAV (mirrors index.html) ─── */
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 200;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 48px;
+      height: 72px;
+      transition: all .4s var(--ease)
+    }
+
+    nav::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 110px;
+      background: linear-gradient(180deg, rgba(10, 5, 0, 0.85) 0%, rgba(10, 5, 0, 0.45) 60%, rgba(10, 5, 0, 0) 100%);
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    nav.scrolled {
+      background: rgba(10, 5, 0, 0.75);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border-bottom: 1px solid var(--border)
+    }
+
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none
+    }
+
+    .nav-logo img {
+      width: 36px;
+      height: 36px;
+      filter: drop-shadow(0 0 12px rgba(255, 176, 32, 0.5))
+    }
+
+    .nav-logo-text {
+      font-family: 'Orbitron', monospace;
+      font-weight: 700;
+      font-size: 14px;
+      letter-spacing: 0.1em;
+      color: var(--accent);
+      text-shadow: 0 0 20px rgba(255, 176, 32, 0.4)
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 36px;
+      list-style: none
+    }
+
+    .nav-links a {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      color: var(--muted);
+      text-decoration: none;
+      text-transform: uppercase;
+      transition: color .2s
+    }
+
+    .nav-links a:hover {
+      color: var(--accent)
+    }
+
+    .nav-toggle {
+      display: none;
+      background: transparent;
+      border: 1px solid rgba(255, 176, 32, 0.25);
+      width: 40px;
+      height: 40px;
+      cursor: pointer;
+      padding: 0;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 5px;
+      border-radius: 4px;
+      transition: border-color .3s var(--ease);
+      z-index: 220;
+    }
+
+    .nav-toggle:hover {
+      border-color: var(--accent);
+    }
+
+    .nav-toggle-line {
+      display: block;
+      width: 18px;
+      height: 1.5px;
+      background: var(--accent);
+      transition: transform .3s var(--ease), opacity .2s var(--ease);
+      transform-origin: center;
+    }
+
+    .nav-toggle.open .nav-toggle-line:nth-child(1) {
+      transform: translateY(6.5px) rotate(45deg);
+    }
+
+    .nav-toggle.open .nav-toggle-line:nth-child(2) {
+      opacity: 0;
+    }
+
+    .nav-toggle.open .nav-toggle-line:nth-child(3) {
+      transform: translateY(-6.5px) rotate(-45deg);
+    }
+
+    .btn-glow-wrap {
+      position: relative;
+      display: inline-block;
+      border-radius: 2px
+    }
+
+    .btn-glow-wrap::before {
+      content: '';
+      position: absolute;
+      inset: -1.5px;
+      border-radius: 3px;
+      background: conic-gradient(from var(--angle), transparent 20%, #FFB020 40%, #FF6A00 70%, transparent 85%);
+      animation: rotateBorder 3s linear infinite;
+      z-index: 0;
+    }
+
+    .btn-glow-wrap::after {
+      content: '';
+      position: absolute;
+      inset: 1px;
+      background: var(--bg);
+      border-radius: 1px;
+      z-index: 1
+    }
+
+    @keyframes rotateBorder {
+      to {
+        --angle: 360deg
+      }
+    }
+
+    .btn-ghost {
+      position: relative;
+      z-index: 2;
+      font-family: 'Outfit', sans-serif;
+      font-weight: 600;
+      font-size: 14px;
+      letter-spacing: 0.01em;
+      color: var(--dim);
+      background: transparent;
+      padding: 13px 26px;
+      border-radius: 12px;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      border: 1px solid rgba(255, 176, 32, 0.25);
+      transition: all .3s var(--ease);
+      white-space: nowrap
+    }
+
+    .btn-ghost:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      transform: translateY(-2px)
+    }
+
+    /* ─── LEGAL CONTENT ─── */
+    .legal {
+      max-width: 780px;
+      margin: 0 auto;
+      padding: 152px 24px 100px;
+    }
+
+    .legal-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.3em;
+      color: var(--accent);
+      text-transform: uppercase;
+      font-weight: 600;
+      display: block;
+      margin-bottom: 16px
+    }
+
+    .legal-h1 {
+      font-family: 'Orbitron', monospace;
+      font-weight: 800;
+      font-size: clamp(30px, 4.5vw, 52px);
+      line-height: 0.95;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--text);
+      margin-bottom: 20px
+    }
+
+    .legal-h1 em {
+      font-style: normal;
+      color: var(--accent-bright);
+    }
+
+    .legal-stamp {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--ink-mute);
+      margin-bottom: 28px;
+    }
+
+    .legal-intro {
+      font-family: 'Outfit', sans-serif;
+      font-size: clamp(16px, 1.5vw, 18px);
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    .legal-section {
+      margin-top: 56px;
+      padding-top: 44px;
+      border-top: 1px solid var(--border);
+    }
+
+    .legal-section h2 {
+      display: flex;
+      align-items: baseline;
+      gap: 14px;
+      font-family: 'Orbitron', monospace;
+      font-weight: 700;
+      font-size: 15px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text);
+      margin-bottom: 22px;
+    }
+
+    .legal-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 500;
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      color: var(--accent);
+    }
+
+    .legal-section h3 {
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 600;
+      font-size: 14px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin: 26px 0 10px;
+    }
+
+    .legal-section p {
+      font-family: 'Outfit', sans-serif;
+      font-size: 16px;
+      color: var(--muted);
+      line-height: 1.75;
+      margin-bottom: 16px;
+    }
+
+    .legal-section strong {
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    .legal-section a {
+      color: var(--accent);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      text-decoration-color: rgba(255, 176, 32, 0.4);
+      transition: color .2s;
+    }
+
+    .legal-section a:hover {
+      color: var(--accent-bright);
+    }
+
+    .legal-list {
+      list-style: none;
+      margin: 0 0 16px;
+    }
+
+    .legal-list li {
+      position: relative;
+      padding-left: 24px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 16px;
+      color: var(--muted);
+      line-height: 1.75;
+      margin-bottom: 12px;
+    }
+
+    .legal-list li::before {
+      content: '▸';
+      position: absolute;
+      left: 0;
+      top: 0.12em;
+      color: var(--accent);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+    }
+
+    .vendor {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13.5px;
+      color: var(--text);
+    }
+
+    .legal-callout {
+      background: var(--panel);
+      border: 1px solid var(--border-strong);
+      border-left: 2px solid var(--accent);
+      border-radius: 12px;
+      padding: 26px 28px;
+      margin: 22px 0;
+    }
+
+    .legal-callout .legal-list li:last-child {
+      margin-bottom: 0;
+    }
+
+    /* ─── FOOTER (mirrors index.html) ─── */
+    footer {
+      padding: 40px 48px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--void)
+    }
+
+    .footer-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px
+    }
+
+    .footer-brand img {
+      width: 28px;
+      height: 28px;
+      filter: drop-shadow(0 0 8px rgba(255, 176, 32, 0.4));
+      opacity: 0.8
+    }
+
+    .footer-brand-text {
+      font-family: 'Orbitron', monospace;
+      font-weight: 700;
+      font-size: 12px;
+      letter-spacing: 0.12em;
+      color: var(--accent)
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 28px;
+      list-style: none
+    }
+
+    .footer-links a {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      color: var(--muted);
+      text-decoration: none;
+      text-transform: uppercase;
+      transition: color .2s
+    }
+
+    .footer-links a:hover {
+      color: var(--accent)
+    }
+
+    .footer-copy {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 0.15em;
+      color: var(--muted);
+      text-transform: uppercase
+    }
+
+    .footer-copy a {
+      color: var(--muted);
+      text-decoration: underline;
+      text-underline-offset: 2px;
+      transition: color .2s;
+    }
+
+    .footer-copy a:hover {
+      color: var(--accent);
+    }
+
+    /* ─── Tablet & Mobile Nav (hamburger) ─── */
+    @media(max-width:860px) {
+      nav {
+        padding: 0 24px;
+      }
+
+      .nav-toggle {
+        display: flex;
+      }
+
+      .nav-links {
+        position: fixed;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        width: min(82vw, 340px);
+        background: rgba(10, 5, 0, 0.96);
+        backdrop-filter: blur(28px);
+        -webkit-backdrop-filter: blur(28px);
+        border-left: 1px solid var(--border);
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: flex-start;
+        gap: 0;
+        padding: 96px 32px 32px;
+        transform: translateX(100%);
+        transition: transform .42s var(--ease);
+        z-index: 210;
+        box-shadow: -20px 0 60px rgba(0, 0, 0, 0.5);
+      }
+
+      .nav-links.open {
+        transform: translateX(0);
+      }
+
+      .nav-links li {
+        width: 100%;
+        border-bottom: 1px solid rgba(255, 176, 32, 0.08);
+      }
+
+      .nav-links a {
+        display: block;
+        font-size: 14px;
+        padding: 18px 0;
+        color: var(--text);
+      }
+
+      .nav-links a:hover,
+      .nav-links a:focus {
+        color: var(--accent);
+      }
+
+      nav .btn-glow-wrap {
+        display: none;
+      }
+
+      .nav-cta-mobile {
+        display: block;
+        margin-top: 28px;
+        width: 100%;
+      }
+
+      .nav-cta-mobile .btn-ghost {
+        width: 100%;
+        justify-content: center;
+      }
+
+      body.nav-open::after {
+        content: '';
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.55);
+        z-index: 205;
+        animation: fadeIn .3s ease both;
+      }
+
+      body.nav-open {
+        overflow: hidden;
+      }
+
+      @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+    }
+
+    @media(min-width:861px) {
+      .nav-cta-mobile {
+        display: none;
+      }
+    }
+
+    @media(max-width:640px) {
+      nav {
+        padding: 0 20px
+      }
+
+      .nav-logo-text {
+        font-size: 12px;
+      }
+
+      .nav-logo img {
+        width: 30px;
+        height: 30px;
+      }
+
+      .legal {
+        padding: 128px 20px 72px;
+      }
+
+      .legal-callout {
+        padding: 20px 20px;
+      }
+
+      footer {
+        flex-direction: column;
+        gap: 16px;
+        text-align: center
+      }
+
+      .footer-links {
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+    }
+
+    @media(prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important;
+        scroll-behavior: auto !important;
+      }
+    }
+
+    /* ─── Accessibility: focus-visible global ring ─── */
+    :focus { outline: none; }
+    :focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 3px;
+      border-radius: 4px;
+      box-shadow: 0 0 0 4px rgba(255, 176, 32, 0.18);
+    }
+    a:focus-visible,
+    button:focus-visible,
+    .btn-ghost:focus-visible {
+      outline-offset: 4px;
+    }
+
+    /* ─── Skip-to-content link ─── */
+    .skip-link {
+      position: absolute;
+      top: 0;
+      left: 0;
+      transform: translateY(-110%);
+      z-index: 10000;
+      padding: 12px 18px;
+      background: var(--bg);
+      color: var(--accent);
+      border: 1px solid var(--accent);
+      border-radius: 0 0 8px 0;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      letter-spacing: 0.08em;
+      text-decoration: none;
+      transition: transform .2s var(--ease);
+    }
+    .skip-link:focus,
+    .skip-link:focus-visible {
+      transform: translateY(0);
+      outline: 2px solid var(--accent-bright);
+      outline-offset: 2px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <a href="#main" class="skip-link">Skip to main content</a>
+
+  <!-- NAV -->
+  <nav id="nav">
+    <a href="/" class="nav-logo">
+      <img src="/assets/logo-mark-amber.png" alt="Thrive Labs">
+      <span class="nav-logo-text">THRIVE LABS</span>
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="/#services">Services</a></li>
+      <li><a href="/#process">Process</a></li>
+      <li><a href="/#contact">Contact</a></li>
+      <li class="nav-cta-mobile">
+        <a href="/#contact" class="btn-ghost">Let&rsquo;s Talk</a>
+      </li>
+    </ul>
+    <div class="btn-glow-wrap">
+      <a href="/#contact" class="btn-ghost">Let&rsquo;s Talk</a>
+    </div>
+    <button class="nav-toggle" id="navToggle" aria-label="Open navigation menu" aria-expanded="false" aria-controls="navLinks">
+      <span class="nav-toggle-line"></span>
+      <span class="nav-toggle-line"></span>
+      <span class="nav-toggle-line"></span>
+    </button>
+  </nav>
+
+  <main id="main">
+    <article class="legal">
+
+      <span class="legal-label">Legal // Data Handling</span>
+      <h1 class="legal-h1">Privacy <em>Policy</em></h1>
+      <p class="legal-stamp">Last updated: August 5, 2026</p>
+
+      <p class="legal-intro">This page explains what Thrive Labs collects, why we collect it, and what
+        you can do about it — in plain language. It covers visitors to this site, users of our products,
+        and anyone who connects a LinkedIn account to one of our tools. If anything here is unclear,
+        email us and a human will answer.</p>
+
+      <!-- 01 ──────────────────────────────────────────────────────────── -->
+      <section class="legal-section" id="who-we-are">
+        <h2><span class="legal-num">01</span> Who We Are</h2>
+        <p><strong>Thrive Labs Inc.</strong> is a company based in Vancouver, British Columbia, Canada.
+          We build custom AI agents for client operations, sales, and support — and we build our own AI
+          products in-house. <strong>Pocket Director AI</strong> is live today, and a LinkedIn
+          content-creation product is in development.</p>
+        <p>For anything privacy-related — questions, corrections, deletion requests — email
+          <a href="mailto:suhaas@thrivelabs.ca">suhaas@thrivelabs.ca</a>.</p>
+      </section>
+
+      <!-- 02 ──────────────────────────────────────────────────────────── -->
+      <section class="legal-section" id="what-we-collect">
+        <h2><span class="legal-num">02</span> What We Collect</h2>
+
+        <h3>Site Visitors</h3>
+        <p>Browsing this site requires no account and no personal information. If you submit the
+          <strong>Start a Project</strong> form, we receive what you type: your name, email, company
+          name, project details, and the investment range you select. Our hosting and form-delivery
+          providers see standard request data (IP address, browser type) as part of serving the site.</p>
+
+        <h3>Product Users</h3>
+        <p>When you use our products (Pocket Director AI today, future products as they launch), we
+          collect the account details you sign up with (name, email), the content you upload (photos,
+          brand assets, product details), and usage data — which features you use — so we can make the
+          product better.</p>
+
+        <h3>LinkedIn Integration Users</h3>
+        <p>If you connect your LinkedIn account to one of our products, we only receive what you
+          explicitly authorize on LinkedIn&rsquo;s own consent screen: your basic profile information
+          (name, photo, headline), your email address, and permission to publish posts on your behalf.
+          We never see your LinkedIn password.</p>
+        <!-- TODO(Suhaas): confirm the exact LinkedIn OAuth scopes here once the app's approved
+             products are finalized. Current wording assumes the standard self-serve stack:
+             openid + profile + email ("Sign In with LinkedIn using OpenID Connect") and
+             w_member_social ("Share on LinkedIn" — publish on the member's behalf).
+             NOTE: reading a member's post history (r_member_social) is CLOSED to new LinkedIn apps —
+             do not claim it. If Community Management API is approved later (organization posting /
+             analytics), extend this sentence and section 05 accordingly. -->
+      </section>
+
+      <!-- 03 ──────────────────────────────────────────────────────────── -->
+      <section class="legal-section" id="how-we-use-it">
+        <h2><span class="legal-num">03</span> How We Use It</h2>
+        <ul class="legal-list">
+          <li>To deliver the service you signed up for or asked about.</li>
+          <li>To generate AI content on your behalf — that&rsquo;s the product.</li>
+          <li>To improve our products, using aggregate usage patterns.</li>
+          <li>To respond to your inquiries.</li>
+        </ul>
+        <p><strong>We do not sell personal data. Not to advertisers, not to data brokers, not to
+          anyone.</strong></p>
+      </section>
+
+      <!-- 04 ──────────────────────────────────────────────────────────── -->
+      <section class="legal-section" id="third-parties">
+        <h2><span class="legal-num">04</span> Third Parties &amp; Subprocessors</h2>
+        <p>We run on a small set of infrastructure providers. Each one receives only what its job
+          requires:</p>
+        <ul class="legal-list">
+          <li><span class="vendor">Anthropic (Claude)</span> — powers AI content generation.</li>
+          <li><span class="vendor">OpenAI</span> — powers AI content generation for some features.</li>
+          <li><span class="vendor">LinkedIn API</span> — connects your LinkedIn account and publishes approved posts (LinkedIn-connected products only).</li>
+          <li><span class="vendor">Supabase</span> — database and authentication infrastructure.</li>
+          <li><span class="vendor">Vercel</span> — hosts our product applications.</li>
+          <li><span class="vendor">GitHub Pages</span> — hosts this website.</li>
+          <li><span class="vendor">Web3Forms</span> — delivers Start a Project form submissions to our inbox.</li>
+          <li><span class="vendor">n8n</span> — workflow automation moving data between our own systems.</li>
+          <li><span class="vendor">Clerk</span> — account sign-in and subscription billing for Pocket Director AI.</li>
+          <li><span class="vendor">Stripe</span> — payment processing.</li>
+          <li><span class="vendor">Mixpanel</span> — product usage analytics for Pocket Director AI.</li>
+        </ul>
+        <!-- TODO(Suhaas): keep this list honest as products ship. Candidates NOT listed because
+             unconfirmed as processors of end-user personal data/content: Replicate and Kie.ai
+             (AI media generation backends), RevenueCat. Add any provider that touches user
+             uploads or personal data. -->
+        <p>None of these providers are permitted to use your data for their own purposes beyond
+          providing their service to us.</p>
+      </section>
+
+      <!-- 05 ──────────────────────────────────────────────────────────── -->
+      <section class="legal-section" id="linkedin">
+        <h2><span class="legal-num">05</span> The LinkedIn Integration</h2>
+        <p>Our LinkedIn content product is built on LinkedIn&rsquo;s official developer platform. This
+          section exists so both you and LinkedIn know exactly where we stand:</p>
+        <div class="legal-callout">
+          <ul class="legal-list">
+            <li><strong>You approve every post.</strong> We draft content; nothing is published to your
+              LinkedIn account until you approve that specific post. There is no fully automatic
+              posting without your review.</li>
+            <li><strong>Official access only.</strong> We connect through LinkedIn&rsquo;s official
+              OAuth and APIs. We do not use browser automation, we never ask for your LinkedIn
+              password, and we do not scrape your LinkedIn account.</li>
+            <li><strong>You can pull the plug any time.</strong> Revoke our access directly on LinkedIn
+              under <em>Settings &amp; Privacy → Data privacy → Other applications → Permitted
+              services</em> — or disconnect inside the product, or email us.</li>
+            <li><strong>Disconnect means delete.</strong> When you disconnect your LinkedIn account,
+              close your account with us, or ask us to, we delete your LinkedIn access token and the
+              LinkedIn-derived data we hold within 30 days.</li>
+          </ul>
+        </div>
+        <!-- TODO(Suhaas): "within 30 days" is a default commitment — confirm or change before final.
+             LinkedIn's API Terms of Use §4.4 require deleting API-sourced data and the access token
+             on user request or account closure, so keep whatever number you choose honest and
+             implemented in the product. -->
+      </section>
+
+      <!-- 06 ──────────────────────────────────────────────────────────── -->
+      <section class="legal-section" id="retention">
+        <h2><span class="legal-num">06</span> Data Retention</h2>
+        <ul class="legal-list">
+          <li><strong>Project inquiries</strong> — kept while we&rsquo;re in conversation and for as
+            long as needed to follow up. Ask us to delete an inquiry and we will.</li>
+          <li><strong>Product accounts</strong> — kept while your account is active. Delete your
+            account and we delete your account data and uploaded content within 30 days, except
+            minimal records we&rsquo;re legally required to keep (like invoices for tax purposes).</li>
+          <li><strong>LinkedIn-derived data</strong> — covered in section 05: deleted within 30 days of
+            disconnection, account closure, or your request.</li>
+        </ul>
+        <!-- TODO(Suhaas): both 30-day windows above are defaults I set for consistency — confirm or
+             adjust before final. -->
+      </section>
+
+      <!-- 07 ──────────────────────────────────────────────────────────── -->
+      <section class="legal-section" id="your-rights">
+        <h2><span class="legal-num">07</span> Your Rights</h2>
+        <p>You can ask us to show you the personal information we hold about you, correct it, or
+          delete it. Email <a href="mailto:suhaas@thrivelabs.ca">suhaas@thrivelabs.ca</a> — no forms,
+          no fees, no runaround.</p>
+        <p>We&rsquo;re a Canadian company, so <strong>PIPEDA</strong> (Canada&rsquo;s federal privacy
+          law) governs how we handle personal information, and you can complain to the Office of the
+          Privacy Commissioner of Canada if you think we&rsquo;ve gotten something wrong. If
+          you&rsquo;re covered by another privacy law — like the GDPR in Europe or the CCPA in
+          California — we extend the same rights to you: access, correction, deletion, and a copy of
+          your data. Email us and we&rsquo;ll honor it.</p>
+      </section>
+
+      <!-- 08 ──────────────────────────────────────────────────────────── -->
+      <section class="legal-section" id="cookies">
+        <h2><span class="legal-num">08</span> Cookies &amp; Analytics</h2>
+        <p>This website runs <strong>no analytics and no tracking or advertising cookies</strong>.
+          There&rsquo;s no cookie banner because there&rsquo;s nothing to consent to.</p>
+        <p>Inside our products, we set the cookies needed to keep you signed in — functional, not
+          advertising — and we use Mixpanel to understand which product features get used, tied to
+          your account and used only to improve the product.</p>
+      </section>
+
+      <!-- 09 ──────────────────────────────────────────────────────────── -->
+      <section class="legal-section" id="changes">
+        <h2><span class="legal-num">09</span> Changes to This Policy</h2>
+        <p>When this policy changes, we update this page and the date at the top. If a change
+          materially affects how we handle product users&rsquo; data, we&rsquo;ll email you before it
+          takes effect.</p>
+      </section>
+
+      <!-- 10 ──────────────────────────────────────────────────────────── -->
+      <section class="legal-section" id="contact">
+        <h2><span class="legal-num">10</span> Contact</h2>
+        <p>Privacy questions, data requests, or anything else:
+          <a href="mailto:suhaas@thrivelabs.ca">suhaas@thrivelabs.ca</a> — or use the
+          <a href="/#contact">Start a Project</a> form on the homepage. A human reads both.</p>
+      </section>
+
+    </article>
+  </main>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-brand">
+      <img src="/assets/logo-mark-amber.png" alt="Thrive Labs">
+      <span class="footer-brand-text">THRIVE LABS</span>
+    </div>
+    <ul class="footer-links">
+      <li><a href="/#services">Services</a></li>
+      <li><a href="/#process">Process</a></li>
+      <li><a href="/#contact">Contact</a></li>
+    </ul>
+    <div class="footer-copy">&copy; 2026 Thrive Labs Inc. &middot; Vancouver, BC, Canada &middot; All rights reserved. &middot; <a href="/privacy/">Privacy Policy</a>
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      var nav = document.getElementById('nav');
+      var toggle = document.getElementById('navToggle');
+      var links = document.getElementById('navLinks');
+
+      function onScroll() {
+        nav.classList.toggle('scrolled', window.scrollY > 10);
+      }
+      window.addEventListener('scroll', onScroll, { passive: true });
+      onScroll();
+
+      function closeNav() {
+        links.classList.remove('open');
+        toggle.classList.remove('open');
+        document.body.classList.remove('nav-open');
+        toggle.setAttribute('aria-expanded', 'false');
+      }
+
+      toggle.addEventListener('click', function () {
+        var isOpen = !links.classList.contains('open');
+        links.classList.toggle('open', isOpen);
+        toggle.classList.toggle('open', isOpen);
+        document.body.classList.toggle('nav-open', isOpen);
+        toggle.setAttribute('aria-expanded', String(isOpen));
+      });
+
+      links.addEventListener('click', function (e) {
+        if (e.target.tagName === 'A') closeNav();
+      });
+
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') closeNav();
+      });
+    })();
+  </script>
+
+</body>
+
+</html>
