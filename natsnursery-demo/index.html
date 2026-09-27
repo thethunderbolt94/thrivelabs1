@@ -451,8 +451,26 @@ footer.site .legal{margin-top:36px;padding-top:18px;border-top:1px solid rgba(25
   .grow-sticky canvas{width:100%;height:calc(44svh - 18px);max-width:none;aspect-ratio:auto}
   .grow-steps{padding-block:2vh 16vh;gap:22vh}
 }
-.hero .photo video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 50%;display:none;z-index:1}
-.motion .hero .photo video.playing{display:block}
+.hero-sticky{position:relative;width:100%;height:100%;display:flex;align-items:flex-end;isolation:isolate}
+#heroCanvas{position:absolute;inset:0;width:100%;height:100%;display:block;z-index:-1;opacity:0;transition:opacity .6s ease}
+#heroCanvas.on{opacity:1}
+.scroll-hint,.hud{display:none}
+/* scrub mode: html.scrub is added by JS once the first frame has loaded (motion allowed). The hero grows into a
+   pinned range and scrolling plays the film frame by frame; the photo slideshow stays underneath as the fallback. */
+.scrub .hero{height:calc(100svh + 200vh);display:block;overflow:visible}
+.scrub .hero-sticky{position:sticky;top:calc(64px + env(safe-area-inset-top,0px));height:calc(100svh - 64px - env(safe-area-inset-top,0px));overflow:hidden}
+.scrub .scroll-hint{display:inline-flex;align-items:center;gap:10px;position:absolute;left:clamp(16px,4vw,40px);bottom:12px;z-index:2;color:rgba(243,244,236,.8);font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;transition:opacity .4s ease}
+.scrub .scroll-hint i{width:26px;height:1px;background:rgba(243,244,236,.5);position:relative;overflow:hidden}
+.scrub .scroll-hint i::after{content:"";position:absolute;inset:0;background:var(--sedum);animation:sweep 2.1s cubic-bezier(.2,.7,.2,1) infinite}
+@keyframes sweep{0%{transform:translateX(-100%)}60%,100%{transform:translateX(100%)}}
+.scrub .hud{display:block;position:absolute;left:0;right:0;bottom:0;height:3px;background:rgba(243,244,236,.16);z-index:2}
+.scrub .hud i{display:block;height:100%;width:0;background:var(--sedum);box-shadow:0 0 10px rgba(214,118,47,.7)}
+@media (max-width:600px){
+  .scrub .hero{height:calc(100svh + 140vh)}
+  .scrub .hero-inner{padding-bottom:110px}
+  .scrub .hero .tag{bottom:44px}
+  .scrub .scroll-hint{left:50%;transform:translateX(-50%);bottom:12px;white-space:nowrap}
+}
 .paths-pin{height:auto}
 @media (max-width:600px){
   .paths-section.linked{padding-block:0}
@@ -494,8 +512,10 @@ footer.site .legal{margin-top:36px;padding-top:18px;border-top:1px solid rgba(25
 
 <!-- ============ HOME ============ -->
 <div class="page active" id="page-home">
-  <section class="hero" aria-labelledby="heroTitle">
-    <div class="photo" id="heroPhotos"><video id="heroVideo" muted loop playsinline preload="metadata" poster="media/hero-plugs.jpg" aria-hidden="true"><source src="media/hero-plugs-9x16.mp4" type="video/mp4" media="(orientation: portrait)"><source src="media/hero-plugs-16x9.mp4" type="video/mp4"></video><img src="img/nursery.jpg" width="1000" height="750" fetchpriority="high" decoding="async" alt="Rows of container-grown native shrubs in autumn colour at the NATS nursery in Langley" class="on" data-cap="Autumn colour at the nursery, Langley"><img src="img/meadow.jpg" width="750" height="380" loading="lazy" decoding="async" alt="Wildflower meadow on the Vancouver Convention Centre green roof with the city behind" data-cap="Vancouver Convention Centre green roof, July"><img src="img/deepcove.jpg" width="1100" height="1009" loading="lazy" decoding="async" alt="Deep Cove home at dusk with a planted LiveRoof" data-cap="Deep Cove residence, LiveRoof at dusk"></div>
+  <section class="hero" id="hero" aria-labelledby="heroTitle">
+   <div class="hero-sticky">
+    <canvas id="heroCanvas" aria-hidden="true"></canvas>
+    <div class="photo" id="heroPhotos"><img src="img/nursery.jpg" width="1000" height="750" fetchpriority="high" decoding="async" alt="Rows of container-grown native shrubs in autumn colour at the NATS nursery in Langley" class="on" data-cap="Autumn colour at the nursery, Langley"><img src="img/meadow.jpg" width="750" height="380" loading="lazy" decoding="async" alt="Wildflower meadow on the Vancouver Convention Centre green roof with the city behind" data-cap="Vancouver Convention Centre green roof, July"><img src="img/deepcove.jpg" width="1100" height="1009" loading="lazy" decoding="async" alt="Deep Cove home at dusk with a planted LiveRoof" data-cap="Deep Cove residence, LiveRoof at dusk"></div>
     <div class="scrim" aria-hidden="true"></div>
     <div class="wrap hero-inner">
       <p class="eyebrow">Wholesale grower · Pacific Northwest natives · since 1988</p>
@@ -508,6 +528,9 @@ footer.site .legal{margin-top:36px;padding-top:18px;border-top:1px solid rgba(25
       <p class="hero-cap mono" id="heroCap" aria-hidden="true">1 / 3 · Autumn colour at the nursery, Langley</p>
     </div>
     <div class="tag"><span class="latin">Ribes sanguineum</span>PROVENANCE · FRASER VALLEY · SEED LOT 23-117</div>
+    <div class="scroll-hint mono" id="scrollHint" aria-hidden="true"><i></i>Scroll to lift the plug</div>
+    <div class="hud" aria-hidden="true"><i id="hudBar"></i></div>
+   </div>
   </section>
 
   <section class="facts" aria-label="NATS Nursery in numbers">
@@ -1179,14 +1202,29 @@ if(MOTION&&FINE){
   start(); document.addEventListener('visibilitychange',()=>{ if(document.hidden) clearInterval(iv); else start(); });
 })();
 
-// ---------- hero video (concept 4, hands and plugs): plays only when motion is allowed and the file loads; slideshow is the fallback ----------
+// ---------- hero film (concept 4, hands and plugs): pinned, scroll-scrubbed frame sequence on canvas ----------
+// Motion allowed + first frame loads -> html.scrub. Otherwise the photo slideshow above stays exactly as it was.
 (function(){
-  const v=$('#heroVideo'); if(!v||!MOTION) return;
-  const cap=$('#heroCap'), tag=document.querySelector('.hero .tag');
-  v.addEventListener('playing',()=>{ v.classList.add('playing'); if(cap) cap.textContent='Propagation house · lifting a sword-fern plug, 128-cell tray'; if(tag) tag.innerHTML='<span class="latin">Polystichum munitum</span>PLUG · TRAY OF 128 · MYCORRHIZAE INOCULATED'; },{once:true});
-  v.addEventListener('error',()=>v.remove(),{once:true});
-  const p=v.play(); if(p&&p.catch) p.catch(()=>{});
-  document.addEventListener('visibilitychange',()=>{ if(document.hidden) v.pause(); else if(v.classList.contains('playing')) v.play().catch(()=>{}); });
+  const cv=$('#heroCanvas'), hero=$('#hero'), stick=hero&&hero.querySelector('.hero-sticky'); if(!cv||!hero||!stick||!MOTION) return;
+  const portrait=matchMedia('(orientation: portrait)').matches;
+  const DIR=portrait?'media/frames-p/':'media/frames-l/', N=portrait?61:56;
+  const ctx=cv.getContext('2d',{alpha:false}); const frames=new Array(N); let last=-1, on=false, tick=false;
+  const hud=$('#hudBar'), hint=$('#scrollHint'), cap=$('#heroCap'), tag=document.querySelector('.hero .tag');
+  const headerH=()=>(document.querySelector('header.site')||{offsetHeight:64}).offsetHeight;
+  const ready=f=>f&&f.complete&&f.naturalWidth>0;
+  function size(){ const dpr=Math.min(2,window.devicePixelRatio||1), w=stick.clientWidth, h=stick.clientHeight; if(cv.width!==Math.round(w*dpr)||cv.height!==Math.round(h*dpr)){ cv.width=Math.round(w*dpr); cv.height=Math.round(h*dpr); last=-1; } }
+  function draw(i){ const f=frames[i]; if(!ready(f)) return; size(); last=i; const W=cv.width,H=cv.height, r=Math.max(W/f.naturalWidth,H/f.naturalHeight), w=f.naturalWidth*r, h=f.naturalHeight*r; ctx.drawImage(f,(W-w)/2,(H-h)/2,w,h); }
+  function nearest(i){ for(let k=i;k>=0;k--) if(ready(frames[k])) return k; for(let k=i+1;k<N;k++) if(ready(frames[k])) return k; return -1; }
+  function progress(){ const r=hero.getBoundingClientRect(), range=Math.max(1,hero.offsetHeight-stick.offsetHeight); return Math.max(0,Math.min(1,(headerH()-r.top)/range)); }
+  function update(){ tick=false; if(!on) return; const p=progress(), want=Math.round(p*(N-1)), i=nearest(want); if(i>=0&&i!==last) draw(i); if(hud) hud.style.width=(p*100).toFixed(1)+'%'; if(hint) hint.style.opacity=p>0.05?'0':'1'; window.__heroFilm={p:+p.toFixed(3),frame:last,want,N}; }
+  const onS=()=>{ if(!tick){ tick=true; requestAnimationFrame(update); } };
+  function enable(){ if(on) return; on=true; document.documentElement.classList.add('scrub'); cv.classList.add('on');
+    if(cap) cap.textContent='Propagation house · scroll to lift a sword-fern plug from its tray';
+    if(tag) tag.innerHTML='<span class="latin">Polystichum munitum</span>PLUG · TRAY OF 128 · MYCORRHIZAE INOCULATED';
+    window.addEventListener('scroll',onS,{passive:true}); window.addEventListener('resize',()=>{ size(); last=-1; onS(); },{passive:true}); update(); }
+  const src=i=>DIR+'f'+String(i+1).padStart(3,'0')+'.webp';
+  const first=new Image(); first.decoding='async'; first.onload=()=>{ frames[0]=first; enable(); loadRest(); }; first.src=src(0);
+  function loadRest(){ let k=1; const next=()=>{ if(k>=N) return; const i=k++; const im=new Image(); im.decoding='async'; im.onload=()=>{ frames[i]=im; if(Math.round(progress()*(N-1))===i) draw(i); next(); }; im.onerror=next; im.src=src(i); }; next(); next(); next(); }
 })();
 
 // ---------- pathway cards (phones): the block pins under the header and vertical scroll drives the cards sideways, 1 px for 1 px ----------
