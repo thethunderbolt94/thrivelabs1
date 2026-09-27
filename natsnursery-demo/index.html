@@ -259,6 +259,30 @@ section.tight{padding-block:clamp(28px,4vw,48px)}
 .chip{border:1px solid var(--line-strong);background:var(--surface);border-radius:999px;padding:6px 12px;font-size:.85rem}
 .chip[aria-pressed="true"]{background:var(--forest);color:var(--forest-ink);border-color:var(--forest)}
 
+.foot-logo{height:56px;width:auto;margin:6px 0 12px;border-radius:6px}
+.story-logo{display:block;height:44px;width:auto;margin-top:8px}
+/* grown for: client names */
+.grown{padding-block:18px 8px;border-bottom:1px solid var(--line)}
+.grown .eyebrow{margin-bottom:8px}
+.grown-marquee{display:flex;overflow:hidden;white-space:nowrap;-webkit-mask-image:linear-gradient(to right,transparent,#000 6%,#000 94%,transparent);mask-image:linear-gradient(to right,transparent,#000 6%,#000 94%,transparent)}
+.grown-track{display:flex;flex:none;align-items:center;padding-inline:8px}
+.grown-track span{font-family:var(--display);font-size:clamp(1.05rem,1.6vw,1.3rem);font-weight:500;color:var(--ink-2);letter-spacing:-.005em}
+.grown-track i{font-style:normal;color:var(--moss);padding:0 18px}
+.motion .grown-track{animation:marquee 80s linear infinite}
+.grown-marquee:hover .grown-track{animation-play-state:paused}
+/* affiliations */
+.affils{padding-block:clamp(28px,4vw,48px) clamp(36px,5vw,64px)}
+.affil-row{display:flex;flex-wrap:wrap;gap:10px}
+.affil{display:inline-flex;align-items:center;gap:12px;text-decoration:none;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 14px 10px 10px;min-height:56px;transition:transform .18s cubic-bezier(.2,.7,.2,1),box-shadow .2s ease}
+.affil:hover{transform:translateY(-2px);box-shadow:var(--shadow)}
+.affil img{height:34px;width:auto;max-width:130px;image-rendering:auto;border-radius:4px;background:#fff;padding:3px}
+.affil span{font-size:.82rem;color:var(--ink-2);max-width:16ch;line-height:1.25}
+.affil.text b{font-family:var(--display);font-size:1.05rem;font-weight:500;color:var(--forest-text);padding-left:6px}
+.affil.text{gap:8px;flex-direction:column;align-items:flex-start;justify-content:center;padding:8px 14px}
+.affil.text span{max-width:none}
+.affil-row.compact .affil{min-height:48px;padding:6px 10px 6px 6px}
+.affil-row.compact .affil img{height:28px}
+@media (max-width:600px){.affil{flex:1 1 calc(50% - 5px)}.affil span{font-size:.78rem}}
 /* reviews */
 .reviews{padding-block:clamp(40px,6vw,80px) clamp(32px,4vw,56px);overflow:hidden}
 .reviews .section-head{margin-bottom:22px}
@@ -522,7 +546,7 @@ footer.site .legal{margin-top:36px;padding-top:18px;border-top:1px solid rgba(25
   <div class="wrap bar">
     <a class="brand" href="#home" data-nav="home">
       <span class="mark" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 21V9"/><path d="M12 13c-4 0-7-3-7-7 4 0 7 3 7 7z"/><path d="M12 9c0-4 3-6 7-6 0 4-3 6-7 6z"/></svg></span>
-      <span>NATS Nursery<small>Native plants · Langley, BC · est. 1988</small></span>
+      <span>NATS Nursery<small>Native Plants Start Here · Langley, BC · est. 1988</small></span>
     </a>
     <button class="menu-toggle" id="menuToggle" aria-label="Open menu" aria-expanded="false"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
     <nav class="primary" id="primaryNav" aria-label="Primary">
@@ -574,6 +598,10 @@ footer.site .legal{margin-top:36px;padding-top:18px;border-top:1px solid rgba(25
     </div>
   </section>
 
+  <section class="grown" aria-label="Grown for">
+    <div class="wrap"><p class="eyebrow">Grown for</p></div>
+    <div class="grown-marquee"><div class="grown-track"><span>Vancouver Convention Centre</span><i aria-hidden="true">·</i><span>City of Port Coquitlam</span><i aria-hidden="true">·</i><span>Splatsin First Nation</span><i aria-hidden="true">·</i><span>California Academy of Sciences</span><i aria-hidden="true">·</i><span>Terra Dynamics</span><i aria-hidden="true">·</i><span>Satinflower Nurseries</span><i aria-hidden="true">·</i><span>Integral Ecology Group</span><i aria-hidden="true">·</i><span>PRYZM Environmental</span><i aria-hidden="true">·</i><span>Phantom Creek Estates</span><i aria-hidden="true">·</i><span>Langara College</span><i aria-hidden="true">·</i><span>North Shore Wetland Partners</span><i aria-hidden="true">·</i><span>Abbotsford Regional Hospital</span><i aria-hidden="true">·</i></div><div class="grown-track" aria-hidden="true"><span>Vancouver Convention Centre</span><i aria-hidden="true">·</i><span>City of Port Coquitlam</span><i aria-hidden="true">·</i><span>Splatsin First Nation</span><i aria-hidden="true">·</i><span>California Academy of Sciences</span><i aria-hidden="true">·</i><span>Terra Dynamics</span><i aria-hidden="true">·</i><span>Satinflower Nurseries</span><i aria-hidden="true">·</i><span>Integral Ecology Group</span><i aria-hidden="true">·</i><span>PRYZM Environmental</span><i aria-hidden="true">·</i><span>Phantom Creek Estates</span><i aria-hidden="true">·</i><span>Langara College</span><i aria-hidden="true">·</i><span>North Shore Wetland Partners</span><i aria-hidden="true">·</i><span>Abbotsford Regional Hospital</span><i aria-hidden="true">·</i></div></div>
+  </section>
   <section class="grow" id="grow" aria-label="From seed to site">
     <div class="wrap grow-wrap">
       <div class="grow-sticky">
@@ -661,6 +689,12 @@ footer.site .legal{margin-top:36px;padding-top:18px;border-top:1px solid rgba(25
     <div class="wrap"><p class="note" style="margin-top:14px">Testimonials from natsnursery.com, lightly shortened. Star ratings shown are illustrative for the demo; the finished site would pull live Google reviews.</p></div>
   </section>
 
+  <section class="affils" aria-label="Certifications and memberships">
+    <div class="wrap">
+      <div class="section-head" style="margin-bottom:18px"><div><p class="eyebrow">Certified and affiliated</p><h2 style="font-size:clamp(1.5rem,2.6vw,2rem)">The paperwork behind every plant.</h2></div><p class="note" style="max-width:40ch">Logos as published on natsnursery.com.</p></div>
+      <div class="affil-row"><a class="affil" href="https://agsafebc.ca/cor/" target="_blank" rel="noopener"><img src="media/logos/agsafe-cor.png" alt="AgSafe COR safety certified" loading="lazy"><span>AgSafe COR safety certified</span></a><a class="affil" href="http://www.bcsla.org" target="_blank" rel="noopener"><img src="media/logos/bcsla.png" alt="BC Society of Landscape Architects" loading="lazy"><span>BC Society of Landscape Architects</span></a><a class="affil" href="http://bclna.com" target="_blank" rel="noopener"><img src="media/logos/bclna.png" alt="BC Landscape & Nursery Association" loading="lazy"><span>BC Landscape & Nursery Association</span></a><a class="affil" href="https://www.ser.org/" target="_blank" rel="noopener"><img src="media/logos/ser.png" alt="Society for Ecological Restoration" loading="lazy"><span>Society for Ecological Restoration</span></a><a class="affil" href="https://bcinvasives.ca/" target="_blank" rel="noopener"><img src="media/logos/isc-bc.png" alt="Invasive Species Council of BC" loading="lazy"><span>Invasive Species Council of BC</span></a><a class="affil" href="https://havan.ca/" target="_blank" rel="noopener"><img src="media/logos/havan.png" alt="HAVAN" loading="lazy"><span>HAVAN</span></a><span class="affil text"><b>Clean Plants</b><span>Certified nursery</span></span></div>
+    </div>
+  </section>
   <section class="tight" style="padding-top:0">
     <div class="wrap">
       <div class="specimen" style="padding:22px 22px 24px"><div class="mono">FOR NATS</div><h3 style="margin:8px 0 6px">Like what you see? Let’s make it yours.</h3><p style="color:var(--ink-2);max-width:60ch">This demo was built from what is already on natsnursery.com. The real site starts with a conversation about where NATS is going.</p><div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px"><a class="btn btn-primary btn-sm" href="https://cal.com/suhaas-mv-euirze/30min?overlayCalendar=true" target="_blank" rel="noopener">Book a 30-minute chat</a><a class="btn btn-ghost btn-sm" href="#chat" data-nav="chat">How this would work</a></div></div>
@@ -904,7 +938,7 @@ footer.site .legal{margin-top:36px;padding-top:18px;border-top:1px solid rgba(25
       <div>
         <p class="eyebrow" style="margin-bottom:12px">The NATS story</p>
         <div class="story">
-          <div class="yr"><b>1988</b><span>Founded on Fraser Highway in Surrey as North American Tree Specialists.</span></div>
+          <div class="yr"><b>1988</b><span>Founded on Fraser Highway in Surrey as North American Tree Specialists. <img class="story-logo" src="media/logos/nats-logo.png" alt="The NATS globe logo" width="150" height="120" loading="lazy"></span></div>
           <div class="yr"><b>2002</b><span>Moved to 30 acres in Langley. New propagation facility, greenhouses, shipping yard.</span></div>
           <div class="yr"><b>2006</b><span>Awarded the Vancouver Convention Centre growing contract: 350,000 plants.</span></div>
           <div class="yr"><b>2010s</b><span>Became BC's licensed LiveRoof grower and Permaloc distributor. Began Christmas tree seedling program.</span></div>
@@ -916,7 +950,8 @@ footer.site .legal{margin-top:36px;padding-top:18px;border-top:1px solid rgba(25
         <p class="eyebrow" style="margin-bottom:12px">Indigenous relations</p>
         <div class="specimen"><p style="font-size:.98rem;color:var(--ink-2)">We conduct our business on the traditional lands of the Katzie, Kwantlen, Matsqui and Semiahmoo First Nations. We believe reclamation should return land to functioning habitat for wildlife and people, and that this requires the knowledge of the original inhabitants. NATS is proud to work with First Nations on land reclamation across BC, the North and Alberta.</p></div>
         <p class="eyebrow" style="margin:24px 0 12px">Memberships</p>
-        <div class="chips"><span class="chip">BC Landscape &amp; Nursery Association</span><span class="chip">BC Society of Landscape Architects</span><span class="chip">Society for Ecological Restoration</span><span class="chip">Invasive Species Council of BC</span><span class="chip">HAVAN</span><span class="chip">AgSafe COR certified</span><span class="chip">Clean Plants certified</span></div>
+        <div class="affil-row compact"><a class="affil" href="https://agsafebc.ca/cor/" target="_blank" rel="noopener"><img src="media/logos/agsafe-cor.png" alt="AgSafe COR safety certified" loading="lazy"><span>AgSafe COR safety certified</span></a><a class="affil" href="http://www.bcsla.org" target="_blank" rel="noopener"><img src="media/logos/bcsla.png" alt="BC Society of Landscape Architects" loading="lazy"><span>BC Society of Landscape Architects</span></a><a class="affil" href="http://bclna.com" target="_blank" rel="noopener"><img src="media/logos/bclna.png" alt="BC Landscape & Nursery Association" loading="lazy"><span>BC Landscape & Nursery Association</span></a><a class="affil" href="https://www.ser.org/" target="_blank" rel="noopener"><img src="media/logos/ser.png" alt="Society for Ecological Restoration" loading="lazy"><span>Society for Ecological Restoration</span></a><a class="affil" href="https://bcinvasives.ca/" target="_blank" rel="noopener"><img src="media/logos/isc-bc.png" alt="Invasive Species Council of BC" loading="lazy"><span>Invasive Species Council of BC</span></a><a class="affil" href="https://havan.ca/" target="_blank" rel="noopener"><img src="media/logos/havan.png" alt="HAVAN" loading="lazy"><span>HAVAN</span></a><span class="affil text"><b>Clean Plants</b><span>Certified nursery</span></span></div>
+        <div class="chips" hidden><span class="chip">BC Landscape &amp; Nursery Association</span><span class="chip">BC Society of Landscape Architects</span><span class="chip">Society for Ecological Restoration</span><span class="chip">Invasive Species Council of BC</span><span class="chip">HAVAN</span><span class="chip">AgSafe COR certified</span><span class="chip">Clean Plants certified</span></div>
       </div>
     </div>
   </section>
@@ -1007,7 +1042,7 @@ footer.site .legal{margin-top:36px;padding-top:18px;border-top:1px solid rgba(25
 <footer class="site">
   <div class="wrap">
     <div class="cols">
-      <div><b>NATS Nursery Ltd.</b><ul><li>24555 32nd Avenue</li><li>Langley, BC V2Z 2J5, Canada</li><li>604-530-9300 · Mon–Fri 8:00–4:30</li><li style="margin-top:8px;color:var(--footer-muted)">Clean Plants certified · AgSafe COR</li></ul></div>
+      <div><b>NATS Nursery Ltd.</b><img class="foot-logo" src="media/logos/nats-logo.png" alt="NATS Nursery logo" width="150" height="120" loading="lazy"><ul><li>24555 32nd Avenue</li><li>Langley, BC V2Z 2J5, Canada</li><li>604-530-9300 · Mon–Fri 8:00–4:30</li><li style="margin-top:8px;color:var(--footer-muted)">Clean Plants certified · AgSafe COR</li></ul></div>
       <div><b>Plants</b><ul><li><a href="#plants" data-nav="plants">Plant finder</a></li><li><a href="#plants" data-nav="plants">Starter plugs</a></li><li><a href="#plants" data-nav="plants">Finished containers</a></li><li><a href="#custom" data-nav="custom">Custom growing</a></li></ul></div>
       <div><b>Green roofs</b><ul><li><a href="#liveroof" data-nav="liveroof">LiveRoof®</a></li><li><a href="#liveroof" data-nav="liveroof">Plant mixes</a></li><li><a href="#projects" data-nav="projects">Projects</a></li><li><a href="#liveroof" data-nav="liveroof">Permaloc®</a></li></ul></div>
       <div><b>Company</b><ul><li><a href="#about" data-nav="about">About</a></li><li><a href="#about" data-nav="about">Indigenous relations</a></li><li><a href="#contact" data-nav="contact">Contact &amp; shipping</a></li><li><a href="#chat" data-nav="chat">Let’s chat</a></li></ul></div>
