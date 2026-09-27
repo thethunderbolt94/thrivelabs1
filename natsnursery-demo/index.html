@@ -261,6 +261,21 @@ section.tight{padding-block:clamp(28px,4vw,48px)}
 
 .foot-logo{height:56px;width:auto;margin:6px 0 12px;border-radius:6px}
 .story-logo{display:block;height:44px;width:auto;margin-top:8px}
+/* sticky quote bar (phones): follows the buyer through the catalogue */
+.qbar{display:none}
+@media (max-width:900px){
+  .qbar{position:fixed;left:10px;right:10px;bottom:calc(10px + env(safe-area-inset-bottom,0px));z-index:55;display:flex;align-items:center;gap:8px;padding:8px 8px 8px 10px;border-radius:16px;background:color-mix(in srgb,var(--surface) 82%,transparent);-webkit-backdrop-filter:blur(16px) saturate(1.4);backdrop-filter:blur(16px) saturate(1.4);border:1px solid var(--line-strong);box-shadow:inset 0 1px 0 color-mix(in srgb,#fff 55%,transparent),0 16px 40px -18px rgba(0,0,0,.5);transform:translateY(calc(100% + 24px));opacity:0;transition:transform .35s cubic-bezier(.2,.7,.2,1),opacity .3s ease;pointer-events:none}
+  .qbar.show{transform:none;opacity:1;pointer-events:auto}
+  .qbar-open{flex:1;min-width:0;display:flex;align-items:center;gap:10px;background:none;border:0;padding:4px 0;text-align:left;min-height:44px}
+  .qbar-open .count{background:var(--forest);color:var(--forest-ink);font-family:var(--mono);font-size:.8rem;min-width:28px;height:28px;border-radius:999px;display:grid;place-items:center;padding-inline:6px;flex:none}
+  .qbar-open .count.hot{background:var(--sedum);color:#1B120A}
+  .qbar-text{display:grid;min-width:0}
+  .qbar-text b{font-size:.92rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .qbar-text small{font-size:.74rem;color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .qbar .btn{flex:none}
+  html.qbar-on .toast{bottom:calc(84px + env(safe-area-inset-bottom,0px))}
+  html.qbar-on main{padding-bottom:84px}
+}
 /* grown for: client names */
 .grown{padding-block:18px 8px;border-bottom:1px solid var(--line)}
 .grown .eyebrow{margin-bottom:8px}
@@ -1067,6 +1082,7 @@ footer.site .legal{margin-top:36px;padding-top:18px;border-top:1px solid rgba(25
     </form>
   </div>
 </div>
+<div class="qbar" id="qbar" aria-live="polite"><button class="qbar-open" id="qbarOpen" type="button"><span class="count" id="qbarCount">0</span><span class="qbar-text"><b id="qbarTitle">Your quote list is empty</b><small id="qbarSub">Add plants or a roof and send one request</small></span></button><button class="btn btn-accent btn-sm" id="qbarSend" type="button">Send request</button></div>
 <div class="toast" id="toast" role="status"></div>
 
 <script>
@@ -1117,6 +1133,7 @@ function show(name){
   $('#primaryNav').classList.remove('open'); $('#menuToggle').setAttribute('aria-expanded','false');
   window.scrollTo({top:0,behavior:'instant'});
   requestAnimationFrame(()=>window.dispatchEvent(new Event('resize')));
+  if(typeof updateQbar==='function') updateQbar();
 }
 function route(){ const h=location.hash.replace('#',''); if(h==='planner'){ show('liveroof'); setTimeout(()=>document.getElementById('planner').scrollIntoView({behavior:'smooth'}),60); return; } show(h||'home'); }
 window.addEventListener('hashchange',route);
@@ -1163,7 +1180,7 @@ $('#clearFilters').addEventListener('click',()=>{ $('#q').value=''; $$('.filters
 // ---------- quote ----------
 function addToQuote(item){ const ex=quote.find(q=>q.l===item.l&&q.size===item.size); if(ex){ ex.qty+=item.qty; } else quote.push(item); saveQuote(); renderQuote(); toast(item.l+' added to quote list'); }
 function renderQuote(){
-  $('#qcount').textContent=quote.length;
+  $('#qcount').textContent=quote.length; updateQbar();
   const list=$('#qlist'); list.innerHTML='';
   if(!quote.length){ list.innerHTML='<div class="empty">Your list is empty. Add plants from the finder or a roof from the LiveRoof planner.</div>'; }
   quote.forEach((q,i)=>{ const d=document.createElement('div'); d.className='qitem'; d.innerHTML=`<div><div class="latin">${q.l}</div><small>${q.c} · ${q.size}</small></div><input type="number" min="1" value="${q.qty}" aria-label="Quantity" id="qty-${i}"><button class="rm" aria-label="Remove">×</button>`;
@@ -1171,9 +1188,19 @@ function renderQuote(){
   const reps=[...new Set(quote.map(q=>q.rep))].map(r=>REPS[r]);
   $('#routeNote').textContent= reps.length ? 'This request goes to: '+reps.join('; ')+'.' : 'Your request will be routed to the right salesperson based on what\'s in your list.';
 }
+function updateQbar(){
+  const bar=$('#qbar'); if(!bar) return; const n=quote.length, page=(location.hash.replace('#','')||'home');
+  const on=n>0||page==='plants'||page==='liveroof';
+  bar.classList.toggle('show',on); document.documentElement.classList.toggle('qbar-on',on);
+  $('#qbarCount').textContent=n; $('#qbarCount').classList.toggle('hot',n>0);
+  const reps=[...new Set(quote.map(q=>q.rep))].map(r=>REPS[r].split(' (')[0]);
+  $('#qbarTitle').textContent=n?n+(n===1?' item':' items')+' in your quote list':'Your quote list is empty';
+  $('#qbarSub').textContent=n?'Goes to '+reps.join(' and '):(page==='liveroof'?'Size a roof above and add it':'Pick a size on any plant and tap Add');
+  $('#qbarSend').textContent=n?'Send request':'Open list';
+}
 function openDrawer(){ $('#drawer').classList.add('open'); $('#drawer').setAttribute('aria-hidden','false'); }
 function closeDrawer(){ $('#drawer').classList.remove('open'); $('#drawer').setAttribute('aria-hidden','true'); }
-$('#openQuote').addEventListener('click',openDrawer); $('#openQuote2').addEventListener('click',openDrawer);
+$('#openQuote').addEventListener('click',openDrawer); $('#openQuote2').addEventListener('click',openDrawer); $('#qbarOpen').addEventListener('click',openDrawer); $('#qbarSend').addEventListener('click',()=>{ openDrawer(); if(quote.length){ setTimeout(()=>{ const f=$('#qf-name'); if(f) f.focus({preventScroll:false}); },250); } });
 $('#closeQuote').addEventListener('click',closeDrawer); $('#scrim').addEventListener('click',closeDrawer);
 document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeDrawer(); });
 $('#qform').addEventListener('submit',e=>{ e.preventDefault(); if(!quote.length){ toast('Add at least one item first'); return; } toast('Demo only: in the real site this emails the rep and logs the lead.'); });
