@@ -412,6 +412,45 @@ footer.site .legal{margin-top:36px;padding-top:18px;border-top:1px solid rgba(25
 .credits{margin-top:28px;font-size:.82rem;color:var(--ink-2)}
 .credits summary{cursor:pointer;font-weight:600;color:var(--ink);padding:8px 0}
 .credits ul{margin:8px 0 0;padding-left:18px;display:grid;gap:4px}
+
+/* ---- phone-first refinements ---- */
+.brand>span{white-space:nowrap}
+@media (max-width:400px){.brand{font-size:1.1rem;gap:8px}.brand .mark{width:30px;height:30px}.quote-btn{padding-inline:10px}}
+.hero{height:clamp(540px,82svh,860px)}
+.hero .tag{max-width:calc(100% - 2*clamp(16px,4vw,40px))}
+@media (max-width:600px){
+  .hero-cap{display:none}
+  .hero .scrim{background:linear-gradient(to top,rgba(8,14,10,.94) 0%,rgba(8,14,10,.8) 38%,rgba(8,14,10,.5) 62%,rgba(8,14,10,.06) 100%)}
+  .hero-inner{padding-bottom:84px}
+  .g4.paths{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:12px;margin-inline:calc(-1*clamp(16px,4vw,40px));padding-inline:clamp(16px,4vw,40px);padding-bottom:6px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+  .g4.paths::-webkit-scrollbar{display:none}
+  .g4.paths .path{flex:0 0 76vw;scroll-snap-align:start}
+  .g4.paths .path .ph{aspect-ratio:5/4}
+}
+.planner>*{min-width:0}
+.planner select,.planner input[type=range]{width:100%;max-width:100%;min-width:0}
+.planner .out .kv b{text-align:right}
+.timeline.five{grid-template-columns:repeat(5,1fr)}
+@media (max-width:600px){
+  .timeline,.timeline.five{grid-template-columns:1fr;border-top:0;border-left:2px solid var(--line-strong);margin-left:6px;gap:0}
+  .timeline div{padding:4px 0 18px 18px}
+  .timeline div:last-child{padding-bottom:4px}
+  .timeline div::before{top:8px;left:-6px}
+}
+@media (max-width:480px){.rep{grid-template-columns:1fr;gap:6px}.rep .copy{justify-self:start}}
+@media (max-width:480px){.qform .row{grid-template-columns:1fr}}
+.filters summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:10px;font-weight:600;padding:12px 14px;border:1px solid var(--line-strong);border-radius:6px;background:var(--surface);min-height:44px}
+.filters summary::-webkit-details-marker{display:none}
+.filters summary .fcount{font-family:var(--mono);font-size:.72rem;font-weight:400;color:var(--ink-3);margin-left:auto}
+.filters summary .chev{flex:none;transition:transform .2s ease}
+.filters details[open] summary .chev{transform:rotate(180deg)}
+.filters details>div{display:grid;gap:18px;padding-top:16px}
+@media (min-width:901px){.filters summary{display:none}.filters details>div{padding-top:0}}
+@media (max-width:900px){
+  .grow-sticky{height:44vh;height:44svh}
+  .grow-sticky canvas{width:100%;height:calc(44svh - 18px);max-width:none;aspect-ratio:auto}
+  .grow-steps{padding-block:2vh 16vh;gap:22vh}
+}
 </style>
 <style>:root{color-scheme:light dark} html,body{margin:0} [hidden]{display:none!important}</style>
 </head>
@@ -499,7 +538,7 @@ footer.site .legal{margin-top:36px;padding-top:18px;border-top:1px solid rgba(25
         <div><p class="eyebrow">Start with your project</p><h2>What are you building?</h2></div>
         <p class="lede" style="max-width:38ch;font-size:1rem">Every path leads to the right salesperson.</p>
       </div>
-      <div class="grid g4" data-reveal="children">
+      <div class="grid g4 paths" data-reveal="children">
         <a class="path" href="#plants" data-nav="plants" data-use="restoration"><div class="ph"><img src="img/colony.jpg" width="1000" height="750" loading="lazy" decoding="async" alt="Restored riverside trail with mature native plantings at Colony Farm"></div><div class="body"><h3>Habitat restoration</h3><p>Provenance-matched plugs and pots.</p><div class="who">Plugs · #1 to #5 pots · Michael</div></div></a>
         <a class="path" href="#liveroof" data-nav="liveroof"><div class="ph"><img src="img/residential.jpg" width="1000" height="562" loading="lazy" decoding="async" alt="Residential flat roof planted with a sedum LiveRoof system"></div><div class="body"><h3>Green roofs &amp; LiveRoof®</h3><p>Modules delivered 95% established.</p><div class="who">LiveRoof · sedum mats · Dean</div></div></a>
         <a class="path" href="#custom" data-nav="custom" data-use="reclamation"><div class="ph"><img src="img/greenhouse.jpg" width="750" height="380" loading="lazy" decoding="async" alt="Greenhouse benches filled with thousands of seedling trays"></div><div class="body"><h3>Mine &amp; land reclamation</h3><p>Seedlings by the hundred thousand.</p><div class="who">Custom growing · Ron</div></div></a>
@@ -568,6 +607,7 @@ footer.site .legal{margin-top:36px;padding-top:18px;border-top:1px solid rgba(25
     <div class="wrap finder">
       <aside class="filters" aria-label="Filters">
         <input type="search" id="q" placeholder="Search Latin or common name" aria-label="Search plants">
+        <details id="filterBox" open><summary>Filters <span class="fcount" id="fcount">All plants</span><svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></summary><div>
         <fieldset id="f-use"><legend>Project use</legend>
           <label><input type="checkbox" value="restoration"> Habitat restoration</label>
           <label><input type="checkbox" value="roof"> Green roof / living wall</label>
@@ -595,6 +635,7 @@ footer.site .legal{margin-top:36px;padding-top:18px;border-top:1px solid rgba(25
           <label><input type="checkbox" value="groundcover"> Groundcover</label>
         </fieldset>
         <button class="btn btn-ghost btn-sm" id="clearFilters" type="button">Clear filters</button>
+        </div></details>
       </aside>
       <div>
         <div class="results-bar"><span id="resultCount"></span><span>SAMPLE CATALOGUE · 24 OF 300+ SPECIES</span></div>
@@ -713,7 +754,7 @@ footer.site .legal{margin-top:36px;padding-top:18px;border-top:1px solid rgba(25
   <section class="tight" style="padding-top:0">
     <div class="wrap">
       <div class="section-head"><div><p class="eyebrow">How a custom grow works</p><h2>From seed to site in five steps</h2></div></div>
-      <div class="timeline" style="grid-template-columns:repeat(5,1fr)">
+      <div class="timeline five">
         <div><b>1 · Brief</b>Species list, counts, sizes, planting date, provenance zone</div>
         <div><b>2 · Seed</b>From your collection, our seed bank, or a NATS collection trip</div>
         <div><b>3 · Contract</b>Grow plan and deposit. 1 to 2 seasons depending on species</div>
@@ -989,6 +1030,7 @@ function render(){
     (!f.light.length || f.light.some(l=>p.light.includes(l))) &&
     (!f.type.length || f.type.includes(p.t)) );
   $('#resultCount').textContent=rows.length+' PLANT'+(rows.length===1?'':'S');
+  const nf=f.use.length+f.light.length+f.type.length+(f.form?1:0); const fc=$('#fcount'); if(fc) fc.textContent=nf?nf+' active · '+rows.length+' plants':'All plants';
   const g=$('#plantGrid'); g.innerHTML='';
   if(!rows.length){ g.innerHTML='<div class="empty" style="grid-column:1/-1">No plants match. Clear a filter, or ask us: we grow 300+ species and can custom grow most.</div>'; return; }
   rows.forEach(p=>{
@@ -1005,6 +1047,7 @@ function render(){
   });
 }
 ['#q','#f-use','#f-form','#f-light','#f-type'].forEach(s=>$(s).addEventListener('input',render));
+(function(){ const d=$('#filterBox'); if(!d) return; const mq=matchMedia('(min-width:901px)'); const sync=()=>{ if(mq.matches) d.open=true; else if(!d.dataset.touched) d.open=false; }; d.addEventListener('toggle',()=>{ if(!mq.matches) d.dataset.touched='1'; }); sync(); try{ mq.addEventListener('change',sync); }catch(e){} })();
 $('#clearFilters').addEventListener('click',()=>{ $('#q').value=''; $$('.filters input[type=checkbox]').forEach(i=>i.checked=false); $('#f-form input[value=""]').checked=true; render(); });
 
 // ---------- quote ----------
@@ -1134,7 +1177,7 @@ if(MOTION&&FINE){
   function leaf(x,y,ang,size,t,fill,stroke){ if(t<=0) return; ctx.save(); ctx.translate(x,y); ctx.rotate(ang); ctx.scale(t,t); ctx.fillStyle=fill; ctx.beginPath(); ctx.moveTo(0,0); ctx.bezierCurveTo(size*.35,-size*.5,size*.95,-size*.38,size,0); ctx.bezierCurveTo(size*.95,size*.38,size*.35,size*.5,0,0); ctx.fill(); ctx.strokeStyle=stroke; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(size*.1,0); ctx.lineTo(size*.9,0); ctx.stroke(); ctx.restore(); }
   function draw(p){
     if(Math.abs(p-last)<0.002) return; last=p;
-    const dpr=Math.min(2,window.devicePixelRatio||1), W=cv.clientWidth||300, H=W*4/3;
+    const dpr=Math.min(2,window.devicePixelRatio||1), W=cv.clientWidth||300, H=cv.clientHeight||W*4/3;
     if(cv.width!==Math.round(W*dpr)||cv.height!==Math.round(H*dpr)){ cv.width=Math.round(W*dpr); cv.height=Math.round(H*dpr); }
     ctx.setTransform(dpr,0,0,dpr,0,0); ctx.clearRect(0,0,W,H);
     const forest=tok('--forest')||'#22492C', moss=tok('--moss')||'#8AA352', ink3=tok('--ink-3')||'#5E6A5B', lineC=tok('--line-strong')||'#B9C1A6', soil=tok('--surface-2')||'#E9ECDF', sedum=tok('--sedum')||'#D6762F';
