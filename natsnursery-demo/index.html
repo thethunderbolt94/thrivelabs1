@@ -459,7 +459,7 @@ footer.site .legal{margin-top:36px;padding-top:18px;border-top:1px solid rgba(25
    pinned range and scrolling plays the film frame by frame; the photo slideshow stays underneath as the fallback. */
 .scrub .hero{height:calc(100svh + 200vh);display:block;overflow:visible}
 .scrub .hero-sticky{position:sticky;top:calc(64px + env(safe-area-inset-top,0px));height:calc(100svh - 64px - env(safe-area-inset-top,0px));overflow:hidden}
-.scrub .scroll-hint{display:inline-flex;align-items:center;gap:10px;position:absolute;left:clamp(16px,4vw,40px);bottom:12px;z-index:2;color:rgba(243,244,236,.8);font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;transition:opacity .4s ease}
+.scrub .scroll-hint{display:inline-flex;align-items:center;gap:10px;position:absolute;right:clamp(16px,4vw,40px);top:16px;z-index:2;padding:6px 10px;border-radius:999px;background:rgba(8,14,10,.45);backdrop-filter:blur(6px);color:rgba(243,244,236,.8);font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;transition:opacity .4s ease}
 .scrub .scroll-hint i{width:26px;height:1px;background:rgba(243,244,236,.5);position:relative;overflow:hidden}
 .scrub .scroll-hint i::after{content:"";position:absolute;inset:0;background:var(--sedum);animation:sweep 2.1s cubic-bezier(.2,.7,.2,1) infinite}
 @keyframes sweep{0%{transform:translateX(-100%)}60%,100%{transform:translateX(100%)}}
@@ -469,7 +469,7 @@ footer.site .legal{margin-top:36px;padding-top:18px;border-top:1px solid rgba(25
   .scrub .hero{height:calc(100svh + 140vh)}
   .scrub .hero-inner{padding-bottom:110px}
   .scrub .hero .tag{bottom:44px}
-  .scrub .scroll-hint{left:50%;transform:translateX(-50%);bottom:12px;white-space:nowrap}
+  .scrub .scroll-hint{white-space:nowrap;right:12px;top:12px}
 }
 .paths-pin{height:auto}
 @media (max-width:600px){
@@ -1197,7 +1197,7 @@ if(MOTION&&FINE){
 (function(){
   const imgs=$$('#heroPhotos img'), cap=$('#heroCap'); if(imgs.length<2||!MOTION) return;
   let i=0, iv=0;
-  const go=()=>{ imgs[i].classList.remove('on'); i=(i+1)%imgs.length; imgs[i].classList.add('on'); if(cap) cap.textContent=(i+1)+' / '+imgs.length+' · '+imgs[i].dataset.cap; };
+  const go=()=>{ if(document.documentElement.classList.contains('scrub')) return; imgs[i].classList.remove('on'); i=(i+1)%imgs.length; imgs[i].classList.add('on'); if(cap) cap.textContent=(i+1)+' / '+imgs.length+' · '+imgs[i].dataset.cap; };
   const start=()=>{ clearInterval(iv); iv=setInterval(go,6500); };
   start(); document.addEventListener('visibilitychange',()=>{ if(document.hidden) clearInterval(iv); else start(); });
 })();
