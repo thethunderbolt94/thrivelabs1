@@ -451,6 +451,10 @@ footer.site .legal{margin-top:36px;padding-top:18px;border-top:1px solid rgba(25
   .grow-sticky canvas{width:100%;height:calc(44svh - 18px);max-width:none;aspect-ratio:auto}
   .grow-steps{padding-block:2vh 16vh;gap:22vh}
 }
+.hero .photo video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 50%;display:none;z-index:1}
+.motion .hero .photo video.playing{display:block}
+.paths-dots{display:none}
+@media (max-width:600px){.paths-dots{display:flex;gap:6px;justify-content:center;margin-top:12px}.paths-dots i{display:block;width:6px;height:6px;border-radius:3px;background:var(--line-strong);transition:width .3s ease,background .3s ease}.paths-dots i.on{width:20px;background:var(--forest)}}
 </style>
 <style>:root{color-scheme:light dark} html,body{margin:0} [hidden]{display:none!important}</style>
 </head>
@@ -484,7 +488,7 @@ footer.site .legal{margin-top:36px;padding-top:18px;border-top:1px solid rgba(25
 <!-- ============ HOME ============ -->
 <div class="page active" id="page-home">
   <section class="hero" aria-labelledby="heroTitle">
-    <div class="photo" id="heroPhotos"><img src="img/nursery.jpg" width="1000" height="750" fetchpriority="high" decoding="async" alt="Rows of container-grown native shrubs in autumn colour at the NATS nursery in Langley" class="on" data-cap="Autumn colour at the nursery, Langley"><img src="img/meadow.jpg" width="750" height="380" loading="lazy" decoding="async" alt="Wildflower meadow on the Vancouver Convention Centre green roof with the city behind" data-cap="Vancouver Convention Centre green roof, July"><img src="img/deepcove.jpg" width="1100" height="1009" loading="lazy" decoding="async" alt="Deep Cove home at dusk with a planted LiveRoof" data-cap="Deep Cove residence, LiveRoof at dusk"></div>
+    <div class="photo" id="heroPhotos"><video id="heroVideo" muted loop playsinline preload="metadata" poster="media/hero-plugs.jpg" aria-hidden="true"><source src="media/hero-plugs-9x16.mp4" type="video/mp4" media="(orientation: portrait)"><source src="media/hero-plugs-16x9.mp4" type="video/mp4"></video><img src="img/nursery.jpg" width="1000" height="750" fetchpriority="high" decoding="async" alt="Rows of container-grown native shrubs in autumn colour at the NATS nursery in Langley" class="on" data-cap="Autumn colour at the nursery, Langley"><img src="img/meadow.jpg" width="750" height="380" loading="lazy" decoding="async" alt="Wildflower meadow on the Vancouver Convention Centre green roof with the city behind" data-cap="Vancouver Convention Centre green roof, July"><img src="img/deepcove.jpg" width="1100" height="1009" loading="lazy" decoding="async" alt="Deep Cove home at dusk with a planted LiveRoof" data-cap="Deep Cove residence, LiveRoof at dusk"></div>
     <div class="scrim" aria-hidden="true"></div>
     <div class="wrap hero-inner">
       <p class="eyebrow">Wholesale grower · Pacific Northwest natives · since 1988</p>
@@ -544,6 +548,7 @@ footer.site .legal{margin-top:36px;padding-top:18px;border-top:1px solid rgba(25
         <a class="path" href="#custom" data-nav="custom" data-use="reclamation"><div class="ph"><img src="img/greenhouse.jpg" width="750" height="380" loading="lazy" decoding="async" alt="Greenhouse benches filled with thousands of seedling trays"></div><div class="body"><h3>Mine &amp; land reclamation</h3><p>Seedlings by the hundred thousand.</p><div class="who">Custom growing · Ron</div></div></a>
         <a class="path" href="#plants" data-nav="plants" data-use="garden"><div class="ph"><img src="img/mahonia.jpg" width="1000" height="301" loading="lazy" decoding="async" alt="Mahonia foliage turning red with clusters of white berries"></div><div class="body"><h3>Garden centres &amp; landscapers</h3><p>Ferns, shrubs and groundcovers, delivered.</p><div class="who">Finished plants · Michael</div></div></a>
       </div>
+      <div class="paths-dots" id="pathsDots" aria-hidden="true"></div>
     </div>
   </section>
 
@@ -915,7 +920,7 @@ footer.site .legal{margin-top:36px;padding-top:18px;border-top:1px solid rgba(25
           <a class="btn btn-accent" href="https://thrivelabs.ca/#contact" target="_blank" rel="noopener">Book a 30-minute chat</a>
           <a class="btn btn-ghost" href="https://thrivelabs.ca/" target="_blank" rel="noopener">About Thrive Labs</a>
         </div>
-        <p class="note" style="margin-top:14px">Suhaas · Thrive Labs · Vancouver, BC. No pitch deck, no obligation.</p>
+        <p class="note" style="margin-top:14px">Suhaas · Thrive Labs · Vancouver, BC.</p>
       </div>
       <div class="grid" style="gap:12px">
         <div class="specimen"><div class="mono">WE WILL ASK</div><h3 style="margin:6px 0 4px">Where NATS is headed</h3><p style="color:var(--ink-2);font-size:.95rem">Three years out: which product lines grow, which regions, which customers.</p></div>
@@ -1163,6 +1168,34 @@ if(MOTION&&FINE){
   const go=()=>{ imgs[i].classList.remove('on'); i=(i+1)%imgs.length; imgs[i].classList.add('on'); if(cap) cap.textContent=(i+1)+' / '+imgs.length+' · '+imgs[i].dataset.cap; };
   const start=()=>{ clearInterval(iv); iv=setInterval(go,6500); };
   start(); document.addEventListener('visibilitychange',()=>{ if(document.hidden) clearInterval(iv); else start(); });
+})();
+
+// ---------- hero video (concept 4, hands and plugs): plays only when motion is allowed and the file loads; slideshow is the fallback ----------
+(function(){
+  const v=$('#heroVideo'); if(!v||!MOTION) return;
+  const cap=$('#heroCap'), tag=document.querySelector('.hero .tag');
+  v.addEventListener('playing',()=>{ v.classList.add('playing'); if(cap) cap.textContent='Propagation house · lifting a sword-fern plug, 128-cell tray'; if(tag) tag.innerHTML='<span class="latin">Polystichum munitum</span>PLUG · TRAY OF 128 · MYCORRHIZAE INOCULATED'; },{once:true});
+  v.addEventListener('error',()=>v.remove(),{once:true});
+  const p=v.play(); if(p&&p.catch) p.catch(()=>{});
+  document.addEventListener('visibilitychange',()=>{ if(document.hidden) v.pause(); else if(v.classList.contains('playing')) v.play().catch(()=>{}); });
+})();
+
+// ---------- pathway carousel (phones): advances on its own every 3.5 s until the visitor touches it ----------
+(function(){
+  const c=document.querySelector('#page-home .paths'), dots=$('#pathsDots'); if(!c) return;
+  const mq=matchMedia('(max-width:600px)'); const cards=[...c.children]; if(cards.length<2) return;
+  dots.innerHTML=cards.map((_,i)=>'<i'+(i?'':' class="on"')+'></i>').join('');
+  const step=()=>cards[1].offsetLeft-cards[0].offsetLeft;
+  const current=()=>Math.round(c.scrollLeft/Math.max(1,step()));
+  c.addEventListener('scroll',()=>{ const i=current(); [...dots.children].forEach((d,k)=>d.classList.toggle('on',k===i)); },{passive:true});
+  if(!MOTION) return;
+  let iv=0, user=false, visible=false;
+  const go=()=>{ if(user||!mq.matches||document.hidden||!visible) return; const i=(current()+1)%cards.length; c.scrollTo({left:i*step(),behavior:'smooth'}); };
+  const start=()=>{ clearInterval(iv); if(!user&&mq.matches) iv=setInterval(go,3500); };
+  const stop=()=>{ clearInterval(iv); iv=0; };
+  ['touchstart','pointerdown','wheel','keydown'].forEach(ev=>c.addEventListener(ev,()=>{ user=true; stop(); },{passive:true,once:true}));
+  if(HAS_IO){ new IntersectionObserver(es=>{ visible=es.some(e=>e.isIntersecting); if(visible) start(); else stop(); },{threshold:.4}).observe(c); } else { visible=true; start(); }
+  try{ mq.addEventListener('change',()=>{ if(mq.matches) start(); else stop(); }); }catch(e){}
 })();
 
 // ---------- from seed to site: scroll-driven growth drawn on canvas ----------
