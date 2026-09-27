@@ -453,6 +453,13 @@ footer.site .legal{margin-top:36px;padding-top:18px;border-top:1px solid rgba(25
 }
 .hero .photo video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 50%;display:none;z-index:1}
 .motion .hero .photo video.playing{display:block}
+.paths-pin{height:auto}
+@media (max-width:600px){
+  .paths-section.linked{padding-block:0}
+  .paths-section.linked .paths-pin{height:var(--pin-h,auto)}
+  .paths-section.linked .paths-stick{position:sticky;top:calc(64px + env(safe-area-inset-top,0px));padding-block:clamp(28px,4vw,48px)}
+  .paths-section.linked .paths{scroll-snap-type:none}
+}
 .paths-dots{display:none}
 @media (max-width:600px){.paths-dots{display:flex;gap:6px;justify-content:center;margin-top:12px}.paths-dots i{display:block;width:6px;height:6px;border-radius:3px;background:var(--line-strong);transition:width .3s ease,background .3s ease}.paths-dots i.on{width:20px;background:var(--forest)}}
 </style>
@@ -536,7 +543,8 @@ footer.site .legal{margin-top:36px;padding-top:18px;border-top:1px solid rgba(25
     </div>
   </section>
 
-  <section class="tight">
+  <section class="tight paths-section">
+    <div class="paths-pin" id="pathsPin"><div class="paths-stick" id="pathsStick">
     <div class="wrap">
       <div class="section-head">
         <div><p class="eyebrow">Start with your project</p><h2>What are you building?</h2></div>
@@ -550,6 +558,7 @@ footer.site .legal{margin-top:36px;padding-top:18px;border-top:1px solid rgba(25
       </div>
       <div class="paths-dots" id="pathsDots" aria-hidden="true"></div>
     </div>
+    </div></div>
   </section>
 
   <section class="band">
@@ -593,7 +602,7 @@ footer.site .legal{margin-top:36px;padding-top:18px;border-top:1px solid rgba(25
 
   <section class="tight" style="padding-top:0">
     <div class="wrap">
-      <div class="specimen" style="padding:22px 22px 24px"><div class="mono">FOR NATS</div><h3 style="margin:8px 0 6px">Like what you see? Let’s make it yours.</h3><p style="color:var(--ink-2);max-width:60ch">This demo was built from what is already on natsnursery.com. The real site starts with a conversation about where NATS is going.</p><div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px"><a class="btn btn-primary btn-sm" href="https://thrivelabs.ca/#contact" target="_blank" rel="noopener">Book a 30-minute chat</a><a class="btn btn-ghost btn-sm" href="#chat" data-nav="chat">How this would work</a></div></div>
+      <div class="specimen" style="padding:22px 22px 24px"><div class="mono">FOR NATS</div><h3 style="margin:8px 0 6px">Like what you see? Let’s make it yours.</h3><p style="color:var(--ink-2);max-width:60ch">This demo was built from what is already on natsnursery.com. The real site starts with a conversation about where NATS is going.</p><div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px"><a class="btn btn-primary btn-sm" href="https://cal.com/suhaas-mv-euirze/30min?overlayCalendar=true" target="_blank" rel="noopener">Book a 30-minute chat</a><a class="btn btn-ghost btn-sm" href="#chat" data-nav="chat">How this would work</a></div></div>
     </div>
   </section>
 </div>
@@ -917,7 +926,7 @@ footer.site .legal{margin-top:36px;padding-top:18px;border-top:1px solid rgba(25
         <h1 style="font-size:clamp(2rem,4.5vw,3.4rem);margin-top:10px">Let’s make it yours.</h1>
         <p class="lede" style="margin-top:14px">Everything on this demo came from what is already on natsnursery.com. The real site starts with a conversation: how you see NATS growing, which customers matter most, and what your sales team needs from a website every day. We customize every step of the way, but first we want to understand.</p>
         <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:26px">
-          <a class="btn btn-accent" href="https://thrivelabs.ca/#contact" target="_blank" rel="noopener">Book a 30-minute chat</a>
+          <a class="btn btn-accent" href="https://cal.com/suhaas-mv-euirze/30min?overlayCalendar=true" target="_blank" rel="noopener">Book a 30-minute chat</a>
           <a class="btn btn-ghost" href="https://thrivelabs.ca/" target="_blank" rel="noopener">About Thrive Labs</a>
         </div>
         <p class="note" style="margin-top:14px">Suhaas · Thrive Labs · Vancouver, BC.</p>
@@ -1180,22 +1189,33 @@ if(MOTION&&FINE){
   document.addEventListener('visibilitychange',()=>{ if(document.hidden) v.pause(); else if(v.classList.contains('playing')) v.play().catch(()=>{}); });
 })();
 
-// ---------- pathway carousel (phones): advances on its own every 3.5 s until the visitor touches it ----------
+// ---------- pathway cards (phones): the block pins under the header and vertical scroll drives the cards sideways, 1 px for 1 px ----------
 (function(){
-  const c=document.querySelector('#page-home .paths'), dots=$('#pathsDots'); if(!c) return;
+  const sec=document.querySelector('#page-home .paths-section'), pin=$('#pathsPin'), stick=$('#pathsStick'), c=document.querySelector('#page-home .paths'), dots=$('#pathsDots'); if(!sec||!c) return;
   const mq=matchMedia('(max-width:600px)'); const cards=[...c.children]; if(cards.length<2) return;
   dots.innerHTML=cards.map((_,i)=>'<i'+(i?'':' class="on"')+'></i>').join('');
-  const step=()=>cards[1].offsetLeft-cards[0].offsetLeft;
-  const current=()=>Math.round(c.scrollLeft/Math.max(1,step()));
-  c.addEventListener('scroll',()=>{ const i=current(); [...dots.children].forEach((d,k)=>d.classList.toggle('on',k===i)); },{passive:true});
+  const step=()=>Math.max(1,cards[1].offsetLeft-cards[0].offsetLeft);
+  c.addEventListener('scroll',()=>{ const i=Math.round(c.scrollLeft/step()); [...dots.children].forEach((d,k)=>d.classList.toggle('on',k===i)); },{passive:true});
   if(!MOTION) return;
-  let iv=0, user=false, visible=false;
-  const go=()=>{ if(user||!mq.matches||document.hidden||!visible) return; const i=(current()+1)%cards.length; c.scrollTo({left:i*step(),behavior:'smooth'}); };
-  const start=()=>{ clearInterval(iv); if(!user&&mq.matches) iv=setInterval(go,3500); };
-  const stop=()=>{ clearInterval(iv); iv=0; };
-  ['touchstart','pointerdown','wheel','keydown'].forEach(ev=>c.addEventListener(ev,()=>{ user=true; stop(); },{passive:true,once:true}));
-  if(HAS_IO){ new IntersectionObserver(es=>{ visible=es.some(e=>e.isIntersecting); if(visible) start(); else stop(); },{threshold:.4}).observe(c); } else { visible=true; start(); }
-  try{ mq.addEventListener('change',()=>{ if(mq.matches) start(); else stop(); }); }catch(e){}
+  const headerH=()=>(document.querySelector('header.site')||{offsetHeight:64}).offsetHeight;
+  let X=0, on=false, tick=false;
+  function measure(){
+    if(!mq.matches){ if(on){ sec.classList.remove('linked'); pin.style.removeProperty('--pin-h'); on=false; } return; }
+    sec.classList.add('linked'); on=true;
+    X=Math.max(0,c.scrollWidth-c.clientWidth);
+    pin.style.setProperty('--pin-h',(stick.offsetHeight+X)+'px');
+  }
+  function update(){
+    tick=false; if(!on||!X) return;
+    const r=pin.getBoundingClientRect(); const p=Math.max(0,Math.min(1,(headerH()-r.top)/X));
+    c.scrollLeft=p*X;
+  }
+  const onScroll=()=>{ if(!tick){ tick=true; requestAnimationFrame(update); } };
+  window.addEventListener('scroll',onScroll,{passive:true});
+  window.addEventListener('resize',()=>{ measure(); onScroll(); },{passive:true});
+  try{ mq.addEventListener('change',()=>{ measure(); onScroll(); }); }catch(e){}
+  window.addEventListener('load',()=>{ measure(); onScroll(); });
+  measure(); update();
 })();
 
 // ---------- from seed to site: scroll-driven growth drawn on canvas ----------
