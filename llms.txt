@@ -10,7 +10,7 @@
 
 ## About
 
-Thrive Labs ships production systems, not prototypes — live in weeks, not quarters. Pocket Director AI (pocketdirectorai.com) is a Thrive Labs product built and run end-to-end by the same team, used as proof of the standard we hold client work to.
+Thrive Labs ships production systems, not prototypes — live in weeks, not quarters. Pocket Chief (pocketchief.app) is a Thrive Labs product built and run end-to-end by the same team, used as proof of the standard we hold client work to.
 
 ## Contact
 
