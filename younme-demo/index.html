@@ -11,7 +11,8 @@
 <meta property="og:site_name" content="You N Me’ Café">
 <meta property="og:title" content="You N Me' Café · New Westminster">
 <meta property="og:description" content="BC’s first Humanity Café, on 12th Street in New Westminster. Coffee, chai, bubble tea and food like any café, and one free item on the menu: Order a Conversation.">
-<meta property="og:image" content="assets/storefront-daytime.jpg">
+<meta property="og:image" content="https://thrivelabs.ca/younme-demo/assets/storefront-daytime.jpg">
+<meta property="og:url" content="https://thrivelabs.ca/younme-demo/">
 <meta property="og:image:alt" content="The You N Me’ Café storefront on 12th Street, New Westminster">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" type="image/png" sizes="512x512" href="assets/mark-square-512.png">
@@ -19,7 +20,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,100..900,0..100,0..1;1,9..144,100..900,0..100,0..1&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-<script>window.YNM_INIT = window.YNM_INIT || [];</script>
+<script>if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+window.YNM_INIT = window.YNM_INIT || [];</script>
 <style>
 :root{
   --espresso:#2b1a11; --cocoa:#6e3410; --gold:#b4834a; --gold-soft:#d9b98c; --gold-wash:#f0e2cd;
@@ -42,10 +44,10 @@ html.lenis,html.lenis body{height:auto}
 .lenis.lenis-stopped{overflow:hidden}
 
 /* paper grain, tactile not a gradient */
-body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:90;opacity:.45;mix-blend-mode:multiply;
+body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:90;opacity:.36;mix-blend-mode:normal;
   background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .17  0 0 0 0 .10  0 0 0 0 .07  0 0 0 .09 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>")}
-/* touch screens: plain alpha instead of a whole-screen multiply blend on every scroll frame (same paper, no re-blend) */
-@media (hover:none),(max-width:760px){body::after{mix-blend-mode:normal;opacity:.3}}
+/* plain alpha, not a whole-screen multiply blend: the same paper without re-blending every scrolled frame */
+@media (hover:none),(max-width:760px){body::after{opacity:.3}}
 
 .hm{display:inline-block;flex:none;background:currentColor;
   -webkit-mask:url(assets/mark.svg) center/contain no-repeat;mask:url(assets/mark.svg) center/contain no-repeat}
@@ -72,10 +74,16 @@ html.no-gsap .nav.scrolled,html.reduce .nav.scrolled{background-color:rgba(252,2
 .sheet-open .burger i:last-child{transform:translateY(-3.25px) rotate(-45deg)}
 .right{display:flex;align-items:center;gap:10px}
 .sheet{position:fixed;left:0;right:0;top:0;z-index:59;padding:calc(var(--navH) + 12px) 20px 28px;background:var(--linen);
-  box-shadow:0 30px 60px -30px rgba(43,26,17,.45);transform:translateY(-102%);transition:transform .5s cubic-bezier(.2,.8,.2,1);visibility:hidden}
-.sheet-open .sheet{transform:none;visibility:visible}
+  box-shadow:0 30px 60px -30px rgba(43,26,17,.45);transform:translateY(-102%);visibility:hidden;
+  transition:transform .5s cubic-bezier(.2,.8,.2,1),visibility 0s linear .5s}
+.sheet-open .sheet{transform:none;visibility:visible;transition:transform .5s cubic-bezier(.2,.8,.2,1),visibility 0s}
 .sheet a.sl-link{display:block;font-family:Fraunces,Georgia,serif;font-size:30px;line-height:1.25;padding:6px 0;border-bottom:1px solid var(--hair);font-variation-settings:"SOFT" 50}
 .sheet .sl-ctas{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px}
+/* the links deal in one after another as the sheet drops; the delay lives only on the open state, so closing stays quick */
+.sheet a.sl-link,.sheet .sl-ctas,.sheet .sl-foot{opacity:0;transform:translateY(14px);transition:opacity .3s,transform .5s cubic-bezier(.2,.8,.2,1)}
+.sheet-open .sheet a.sl-link,.sheet-open .sheet .sl-ctas,.sheet-open .sheet .sl-foot{opacity:1;transform:none;transition-delay:calc(.08s + .045s*var(--i,0))}
+.sheet .sl-foot{font-size:14px;line-height:1.45;color:var(--ink-3);margin-top:18px}
+.sheet .sl-foot a{color:var(--cocoa);font-weight:500;white-space:nowrap;border-bottom:1px solid rgba(180,131,74,.45)}
 .sheet .pill{height:48px;font-size:15px}
 .sheet .pill-line{background:transparent;color:var(--espresso);box-shadow:inset 0 0 0 1.5px rgba(43,26,17,.22)}
 .sheet .pill-line:hover{background:rgba(240,226,205,.6)}
@@ -194,6 +202,9 @@ svg.ink.light path{stroke:var(--cream)}
 .is-tall .h-ctas{gap:8px;margin-top:16px}
 .is-tall .h-ctas .btn{height:46px;padding:0 17px;font-size:14px;gap:8px}
 .is-tall .h-ctas .btn-fill .hm{width:17px;height:17px}
+.is-tall .cue{justify-content:flex-start;padding-left:16px}
+.is-tall .cue-in{align-items:flex-start}
+.is-tall .cue-line{margin-left:4px}
 
 /* ---------------- scene 2: order a conversation ---------------- */
 .s2{position:relative;height:100vh;height:100svh;min-height:640px;background:var(--linen);overflow:hidden;z-index:1}
@@ -211,7 +222,7 @@ svg.ink.light path{stroke:var(--cream)}
 .s2-h .it .mi{position:relative}
 .swash{position:absolute;left:.04em;bottom:-.16em;width:3.6em;height:.3em;overflow:visible;pointer-events:none}
 .swash path{fill:none;stroke:var(--gold);stroke-width:3.4;stroke-linecap:round;vector-effect:non-scaling-stroke}
-.s2-p{margin-top:clamp(18px,3.2vh,30px);font-size:clamp(16px,1.25vw,18.5px);line-height:1.55;color:var(--ink-2);max-width:40ch}
+.s2-p{margin-top:clamp(18px,3.2vh,30px);font-size:clamp(16px,1.25vw,18.5px);line-height:1.55;color:var(--ink-2);max-width:40ch;text-wrap:pretty}
 .nos{margin-top:clamp(14px,2.4vh,22px);font-family:Fraunces,Georgia,serif;font-style:italic;font-weight:420;font-size:clamp(22px,2vw,30px);line-height:1.2;letter-spacing:-.012em;color:var(--terra);font-variation-settings:"SOFT" 100,"WONK" 1}
 .nos .no{display:inline-block;margin-right:.28em}
 .q{margin-top:clamp(16px,2.8vh,26px);padding-left:18px;border-left:2px solid var(--gold-soft)}
@@ -272,6 +283,9 @@ svg.ink.light path{stroke:var(--cream)}
 @keyframes dot{0%,60%,100%{transform:translateY(0);opacity:.45}30%{transform:translateY(-4px);opacity:1}}
 .c-row .c-av{position:absolute;right:0;bottom:0;width:29px;height:29px;box-shadow:0 0 0 1px rgba(180,131,74,.35),0 4px 10px -4px rgba(43,26,17,.25)}
 .c-row .c-av .hm{width:19px;height:19px}
+/* Amrin's replies (and the card header) wear her own face; the H mark stays on the café's hello */
+.c-head>.c-av,.c-row.me .c-av{background:url(assets/amrin-at-the-table.jpg) 47% 31%/300% auto no-repeat,var(--linen)}
+.c-head>.c-av .hm,.c-row.me .c-av .hm{display:none}
 .cup{display:inline-block;width:1.25em;height:1.25em;vertical-align:-.28em;margin-left:.15em;overflow:visible}
 .cup path{fill:none;stroke:var(--gold-soft);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
 .cup .steam{stroke-dasharray:7 7;animation:steam 1.8s linear infinite}
@@ -296,6 +310,8 @@ svg.ink.light path{stroke:var(--cream)}
 /* ---------------- menu: sticker pop on terracotta ---------------- */
 #menu{position:relative;height:100vh;height:100svh;min-height:600px;overflow:hidden;background:var(--terra);color:var(--cream);isolation:isolate;z-index:1}
 .mn-vig{position:absolute;inset:0;pointer-events:none;background:radial-gradient(130% 95% at 62% 46%,rgba(120,40,12,0) 52%,rgba(92,30,8,.34) 100%)}
+.mn-wmw{position:absolute;inset:0;pointer-events:none;
+  -webkit-mask-image:linear-gradient(90deg,rgba(0,0,0,.32) 0,rgba(0,0,0,.32) 38vw,#000 50vw);mask-image:linear-gradient(90deg,rgba(0,0,0,.32) 0,rgba(0,0,0,.32) 38vw,#000 50vw)}
 .mn-wm{position:absolute;left:0;top:0;white-space:nowrap;pointer-events:none;font-family:Fraunces,serif;font-weight:600;line-height:.84;letter-spacing:-.035em;
   font-variation-settings:"SOFT" 30,"WONK" 0;color:transparent;-webkit-text-stroke:1.6px rgba(247,237,225,.3);will-change:transform}
 .mn-copy{position:absolute;z-index:3;left:6vw;top:var(--navH);bottom:0;width:34vw;display:flex;flex-direction:column;justify-content:center;pointer-events:none}
@@ -304,7 +320,7 @@ svg.ink.light path{stroke:var(--cream)}
 .mn-eyebrow .hm{width:20px;height:20px;color:var(--gold-soft)}
 .mn-h2{font-family:Fraunces,serif;font-weight:420;font-size:clamp(42px,min(5vw,9.2vh),88px);line-height:1;letter-spacing:-.03em;color:var(--cream);
   font-variation-settings:"opsz" 144,"SOFT" 40,"WONK" 0;max-width:8.2em}
-.mn-h2 em{font-style:italic;font-weight:380;color:var(--gold-wash);font-variation-settings:"opsz" 144,"SOFT" 100,"WONK" 1}
+.mn-h2 em{font-style:italic;font-weight:380;color:var(--gold-wash);font-variation-settings:"opsz" 144,"SOFT" 100,"WONK" 1;margin-left:.16em;margin-right:.16em}
 .mn-h2 .w{display:inline-block;overflow:hidden;vertical-align:top;padding:0 .08em .14em;margin:0 -.08em -.14em}
 .mn-h2 .wi{display:inline-block}
 .mn-sub{margin-top:26px;font-size:clamp(15px,1.2vw,18px);line-height:1.55;color:rgba(247,237,225,.88);max-width:36ch}
@@ -331,6 +347,7 @@ svg.ink.light path{stroke:var(--cream)}
   background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1.1 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>")}
 @media (max-width:700px), (max-aspect-ratio:9/10){
   .mn-copy{left:16px;right:16px;width:auto;top:calc(var(--navH) + 10px);bottom:46px;justify-content:flex-start}
+  .mn-wmw{-webkit-mask-image:none;mask-image:none}
   .mn-eyebrow{font-size:13.5px;margin-bottom:12px;gap:8px}
   #menu .lab .nt{display:none}
   .mn-eyebrow .hm{width:17px;height:17px}
@@ -431,7 +448,8 @@ svg.ink.light path{stroke:var(--cream)}
 html.js:not(.ready) .h-type,html.js:not(.ready) .ticker{opacity:0}
 @media (prefers-reduced-motion:reduce){
   .c-dots i,.c-status .pulse::after,.cup .steam,.o-stat i,.cue-line i{animation:none}
-  .sheet,.scrim,.sheet-open .scrim,.links a::after,.pill,.btn,.mbtn,.s3-cta .ar{transition:none}
+  .sheet,.sheet-open .sheet,.scrim,.sheet-open .scrim,.links a::after,.pill,.btn,.mbtn,.s3-cta .ar{transition:none}
+  .sheet a.sl-link,.sheet .sl-ctas,.sheet .sl-foot{opacity:1;transform:none;transition:none}
 }
 </style>
 </head>
@@ -454,22 +472,23 @@ html.js:not(.ready) .h-type,html.js:not(.ready) .ticker{opacity:0}
   </div>
 </header>
 <div class="sheet" id="sheet">
-  <a class="sl-link" href="#s2">Order a Conversation</a>
-  <a class="sl-link" href="#menu">Menu</a>
-  <a class="sl-link" href="#s3">Kindness</a>
-  <a class="sl-link" href="#events">Events</a>
-  <a class="sl-link" href="#story">Our story</a>
-  <a class="sl-link" href="#visit">Visit</a>
-  <div class="sl-ctas">
+  <a class="sl-link" href="#s2" style="--i:0">Order a Conversation</a>
+  <a class="sl-link" href="#menu" style="--i:1">Menu</a>
+  <a class="sl-link" href="#s3" style="--i:2">Kindness</a>
+  <a class="sl-link" href="#events" style="--i:3">Events</a>
+  <a class="sl-link" href="#story" style="--i:4">Our story</a>
+  <a class="sl-link" href="#visit" style="--i:5">Visit</a>
+  <div class="sl-ctas" style="--i:6">
     <a class="pill" href="https://younme.ca/order" target="_blank" rel="noopener">Order for pickup</a>
     <a class="pill pill-line" href="https://younme.ca/membership#join" target="_blank" rel="noopener">Join free</a>
   </div>
+  <p class="sl-foot" style="--i:7">921 12th Street, New Westminster · <a href="tel:6723356858">672-335-6858</a></p>
 </div>
 <div class="scrim" id="scrim" aria-hidden="true"></div>
 
 <main>
   <!-- ============ HERO: pinned, scroll-scrubbed manifesto inside the sticker collage ============ -->
-  <section class="hero" id="hero" aria-label="BC’s first Humanity Café, New Westminster. Order a coffee. Or a conversation. Both are on the menu. Only one of them costs money. Here you are a person before you are a customer.">
+  <section class="hero" id="hero" aria-label="BC’s first Humanity Café, New Westminster. Order a coffee. Or a conversation. Both are on the menu. Only one of them costs money. You are not a customer. You are a Human.">
     <div class="h-layer" id="hStk" aria-hidden="true"></div>
     <svg class="h-layer ink" id="hInk" aria-hidden="true"></svg>
     <div class="h-layer" id="hLab" aria-hidden="true"></div>
@@ -509,7 +528,7 @@ html.js:not(.ready) .h-type,html.js:not(.ready) .ticker{opacity:0}
         </div>
         <div class="seal-mark" id="sealMark"><i class="hm"></i></div>
       </div>
-      <div class="seal-cap"><span class="cw">Here</span> <span class="cw">you</span> <span class="cw">are</span> <span class="cw">a</span> <span class="cw">person</span> <span class="cw">before</span> <span class="cw">you</span> <span class="cw">are</span> <span class="cw">a</span> <span class="cw">customer.</span></div>
+      <div class="seal-cap"><span class="cw">You</span> <span class="cw">are</span> <span class="cw">not</span> <span class="cw">a</span> <span class="cw">customer.</span> <span class="cw">You</span> <span class="cw">are</span> <span class="cw">a</span> <span class="cw">Human.</span></div>
     </div>
     <div class="cue" id="cue" aria-hidden="true"><div class="cue-in" id="cueIn"><span class="cue-t">Scroll</span><span class="cue-line"><i></i></span></div></div>
     <div class="ticker" id="ticker" aria-hidden="true"><div class="track" id="track"></div></div>
@@ -521,7 +540,7 @@ html.js:not(.ready) .h-type,html.js:not(.ready) .ticker{opacity:0}
       <div class="s2-copy">
         <p class="eyebrow"><i class="hm" aria-hidden="true"></i><span>Order a Conversation <span class="sep">·</span> free, always</span></p>
         <h2 class="s2-h" id="s2h"><span class="mw"><span class="mi">Pull up</span></span><span class="mw it"><span class="mi">a chair.<svg class="swash" viewBox="0 0 300 20" preserveAspectRatio="none" aria-hidden="true"><path d="M3 15 C 60 9, 122 6, 182 8 C 232 10, 268 14, 297 6"/></svg></span></span></h2>
-        <p class="s2-p">Need to vent? Celebrate a win? Or just want company, so today feels a little less heavy? Ask for a conversation and I will come and sit with you.</p>
+        <p class="s2-p">Need to vent? Celebrate a win? Or just want company, so today feels a little less heavy? Ask for a conversation and I will come and sit with&nbsp;you.</p>
         <p class="nos"><span class="no">No advice.</span><span class="no">No judgment.</span><span class="no">No fixing.</span></p>
         <blockquote class="q"><p id="qText">“Company is not something anyone should have to buy.”</p><cite>Amrin Satani, founder</cite></blockquote>
         <div class="s2-cta"><a class="btn btn-fill" href="https://younme.ca/order-a-conversation" target="_blank" rel="noopener"><i class="hm" aria-hidden="true"></i>Order a conversation<span class="sheen"></span></a></div>
@@ -568,7 +587,7 @@ html.js:not(.ready) .h-type,html.js:not(.ready) .ticker{opacity:0}
   <!-- ============ MENU: sticker pop ============ -->
   <section id="menu" aria-labelledby="mn-title">
     <div class="mn-vig" aria-hidden="true"></div>
-    <div class="mn-wm" aria-hidden="true">You N Me’</div>
+    <div class="mn-wmw" aria-hidden="true"><div class="mn-wm">You N Me’</div></div>
     <div class="mn-collage" id="mn-collage">
       <div id="mn-stickers"></div>
       <svg class="mn-ink" id="mn-ink" aria-hidden="true"></svg>
@@ -609,7 +628,10 @@ html.js:not(.ready) .h-type,html.js:not(.ready) .ticker{opacity:0}
 <!-- YNM:SECTIONS -->
 <!-- section:humanity -->
 <style>
-#humanity{position:relative;background:var(--cream);color:var(--espresso);overflow-x:clip;isolation:isolate;
+#humanity{position:relative;z-index:2;background:var(--cream);color:var(--espresso);overflow-x:clip;isolation:isolate;
+  /* the same sheet language as #s3, Events and Story: a cream card that slides up over the Kindness band */
+  margin-top:-28px;border-radius:28px 28px 0 0;
+  box-shadow:0 -22px 44px -24px rgba(43,26,17,.42),inset 0 1px 0 rgba(255,255,255,.55);
   --hu-cardW:min(620px,44vw);--hu-cardH:min(640px,calc(100svh - var(--navH) - 96px));
   --hu-ink:#B4502A;--hu-paper:#fffaf3;--hu-sticky:#f3e2a2;--hu-kraft:#d2b289;--hu-noteW:168px;--hu-noteH:150px;--hu-photoW:190px;--hu-ins:7px}
 #humanity *,#humanity *::before,#humanity *::after{box-sizing:border-box}
@@ -689,14 +711,17 @@ html.js:not(.ready) .h-type,html.js:not(.ready) .ticker{opacity:0}
 #humanity .hu-back{background:var(--cocoa);color:var(--cream);transform:rotateY(180deg);padding:clamp(9px,6cqw,13px) clamp(9px,6.4cqw,14px);display:flex;flex-direction:column;gap:4px;
   box-shadow:inset 0 1px 0 rgba(255,225,190,.14)}
 #humanity .hu-no{position:relative;z-index:1;font-size:11px;font-weight:600;letter-spacing:.1em;color:var(--gold);font-variant-numeric:tabular-nums;line-height:1}
-#humanity .hu-t{position:relative;z-index:1;margin:0;font-family:Fraunces,Georgia,serif;font-weight:450;font-size:clamp(13px,10.2cqw,21px);line-height:1.08;letter-spacing:-.015em;
-  font-variation-settings:"opsz" 36,"SOFT" 60;max-width:9.5em;text-wrap:balance}
+/* the title sits above the stamp (z 3 over z 2) inside a soft linen halo, so a stray ink speck or dot always passes
+   behind the letters instead of over them */
+#humanity .hu-t{position:relative;z-index:3;margin:0;font-family:Fraunces,Georgia,serif;font-weight:450;font-size:clamp(13px,10.2cqw,21px);line-height:1.08;letter-spacing:-.015em;
+  font-variation-settings:"opsz" 36,"SOFT" 60;max-width:9.5em;text-wrap:balance;
+  text-shadow:0 0 2px var(--linen),0 0 6px var(--linen),0 0 12px var(--linen)}
 #humanity .hu-nb{white-space:nowrap}
-/* "open-to-company" never splits at its hyphens; only a narrow cell (phone, small laptop) needs it set tighter.
-   A roomy desktop cell keeps the same size and tracking as the other eight titles. */
+/* "open-to-company" stays on one line in a roomy cell. A narrow cell (phone, small laptop) lets it break once,
+   after "open-to-", so the title keeps the same size and tracking as the other eight. */
 @container (max-width:185px){
-  #humanity .hu-tlong{font-size:clamp(11px,9.6cqw,21px)}
-  #humanity .hu-tlong .hu-nb{letter-spacing:-.035em}
+  #humanity .hu-tlong .hu-nb{white-space:normal}
+  #humanity .hu-tlong .hu-nb2{white-space:nowrap}
 }
 @container (max-width:132px){
   #humanity .hu-c-long .hu-front{padding-left:6px;padding-right:6px}
@@ -713,7 +738,10 @@ html.js:not(.ready) .h-type,html.js:not(.ready) .ticker{opacity:0}
 #humanity.hu-expand .hu-cell.is-big .hu-back{padding:16px 18px;box-shadow:inset 0 1px 0 rgba(255,225,190,.14),0 30px 50px -20px rgba(43,26,17,.55)}
 
 /* stamps */
-#humanity .hu-stamp{position:absolute;right:3%;top:3%;width:min(55%,64cqh);aspect-ratio:1;pointer-events:none;z-index:2}
+/* sized by the smaller of cell width and cell height, so a short window (MacBook Air, 720-780px) never lets the ink
+   reach the titles; the three-line "open-to-company" cell gets a slightly smaller stamp */
+#humanity .hu-stamp{position:absolute;right:3%;top:2%;width:min(50%,52cqh);aspect-ratio:1;pointer-events:none;z-index:2}
+#humanity .hu-c-long .hu-stamp{width:min(44%,44cqh)}
 #humanity .hu-target{position:absolute;inset:7%;border-radius:50%;border:1.5px dashed rgba(110,52,16,.24)}
 #humanity .hu-shadow{position:absolute;inset:6%;border-radius:50%;background:rgba(43,26,17,.55);filter:blur(9px);opacity:0}
 #humanity .hu-imp,#humanity .hu-bleed{position:absolute;inset:0;mix-blend-mode:multiply}
@@ -827,6 +855,10 @@ html.js:not(.ready) .h-type,html.js:not(.ready) .ticker{opacity:0}
 }
 /* phone: inset the tilted card so its rotated corners (and the paper ring) keep a clear gutter */
 @media (max-width:760px){
+  /* phone: the Kindness band's "full room" photo sticker rests ~16px above the band's bottom edge, so the sheet
+     tucks up only 12px (a full 28px overlap would crop her photo); below the band the page is cream too, so the
+     18px corner still reads as a clean rounded card edge */
+  #humanity{margin-top:-12px;border-radius:18px 18px 0 0}
   #humanity .hu-cardwrap{width:calc(100% - 20px);margin-inline:auto}
 }
 
@@ -874,7 +906,7 @@ html.js:not(.ready) .h-type,html.js:not(.ready) .ticker{opacity:0}
   <div class="hu-a">
     <div class="hu-a-in">
       <div class="hu-copy">
-        <p class="hu-eyebrow"><i class="hu-hm" aria-hidden="true"></i><span>BC’s first Humanity Café</span></p>
+        <p class="hu-eyebrow"><i class="hu-hm" aria-hidden="true"></i><span>The idea behind the café</span></p>
         <h2 class="hu-h2" id="humanity-h"><span class="mw"><span class="mi">It’s a café.</span></span><span class="mw it"><span class="mi">The rest is</span></span><span class="mw it"><span class="mi">on purpose.<svg class="hu-swash" viewBox="0 0 300 20" preserveAspectRatio="none" aria-hidden="true"><path pathLength="1" d="M3 15 C 60 9, 122 6, 182 8 C 232 10, 268 14, 297 6"/></svg></span></span></h2>
         <p class="hu-lede">Most cafés are built for people who already have someone to sit with.</p>
         <p class="hu-p">We just decided not to use the default, which is how You N Me’ ended up being BC’s first Humanity Café.</p>
@@ -890,7 +922,7 @@ html.js:not(.ready) .h-type,html.js:not(.ready) .ticker{opacity:0}
           <ol class="hu-grid">
             <li class="hu-cell" style="--r:-14deg"><div class="hu-inner"><div class="hu-face hu-front"><span class="hu-no">01</span><h4 class="hu-t">Order a Conversation</h4><div class="hu-stamp" aria-hidden="true"><i class="hu-target"></i><i class="hu-shadow"></i><div class="hu-bleed"><svg viewBox="0 0 120 120"><use href="#humanity-stamp"/></svg></div><div class="hu-imp"><svg viewBox="0 0 120 120"><use href="#humanity-stamp" filter="url(#humanity-distress)"/></svg></div></div></div><div class="hu-face hu-back"><span class="hu-no">01</span><span class="hu-bt" aria-hidden="true">Order a Conversation</span><p class="hu-desc">It’s on the menu and it costs nothing.</p></div></div><button class="hu-flip" type="button" aria-pressed="false" aria-label="Order a Conversation: turn the square over"></button></li>
             <li class="hu-cell" style="--r:9deg"><div class="hu-inner"><div class="hu-face hu-front"><span class="hu-no">02</span><h4 class="hu-t">The Kindness Sleeve</h4><div class="hu-stamp" aria-hidden="true"><i class="hu-target"></i><i class="hu-shadow"></i><div class="hu-bleed"><svg viewBox="0 0 120 120"><use href="#humanity-stamp"/></svg></div><div class="hu-imp"><svg viewBox="0 0 120 120"><use href="#humanity-stamp" filter="url(#humanity-distress)"/></svg></div></div></div><div class="hu-face hu-back"><span class="hu-no">02</span><span class="hu-bt" aria-hidden="true">The Kindness Sleeve</span><p class="hu-desc">Buy a sleeve for any amount and write a message on it for a stranger.</p></div></div><button class="hu-flip" type="button" aria-pressed="false" aria-label="The Kindness Sleeve: turn the square over"></button></li>
-            <li class="hu-cell hu-c-long" style="--r:-5deg"><div class="hu-inner"><div class="hu-face hu-front"><span class="hu-no">03</span><h4 class="hu-t hu-tlong">The <span class="hu-nb">open-to-company</span> marker</h4><div class="hu-stamp" aria-hidden="true"><i class="hu-target"></i><i class="hu-shadow"></i><div class="hu-bleed"><svg viewBox="0 0 120 120"><use href="#humanity-stamp"/></svg></div><div class="hu-imp"><svg viewBox="0 0 120 120"><use href="#humanity-stamp" filter="url(#humanity-distress)"/></svg></div></div></div><div class="hu-face hu-back"><span class="hu-no">03</span><span class="hu-bt" aria-hidden="true">The <span class="hu-nb">open-to-company</span> marker</span><p class="hu-desc">Turn it over and you’re open to being joined.</p></div></div><button class="hu-flip" type="button" aria-pressed="false" aria-label="The open-to-company marker: turn the square over"></button></li>
+            <li class="hu-cell hu-c-long" style="--r:-5deg"><div class="hu-inner"><div class="hu-face hu-front"><span class="hu-no">03</span><h4 class="hu-t hu-tlong">The <span class="hu-nb"><span class="hu-nb2">open-to-</span>company</span> marker</h4><div class="hu-stamp" aria-hidden="true"><i class="hu-target"></i><i class="hu-shadow"></i><div class="hu-bleed"><svg viewBox="0 0 120 120"><use href="#humanity-stamp"/></svg></div><div class="hu-imp"><svg viewBox="0 0 120 120"><use href="#humanity-stamp" filter="url(#humanity-distress)"/></svg></div></div></div><div class="hu-face hu-back"><span class="hu-no">03</span><span class="hu-bt" aria-hidden="true">The <span class="hu-nb">open-to-company</span> marker</span><p class="hu-desc">Turn it over and you’re open to being joined.</p></div></div><button class="hu-flip" type="button" aria-pressed="false" aria-label="The open-to-company marker: turn the square over"></button></li>
             <li class="hu-cell" style="--r:16deg"><div class="hu-inner"><div class="hu-face hu-front"><span class="hu-no">04</span><h4 class="hu-t">A long table, on purpose</h4><div class="hu-stamp" aria-hidden="true"><i class="hu-target"></i><i class="hu-shadow"></i><div class="hu-bleed"><svg viewBox="0 0 120 120"><use href="#humanity-stamp"/></svg></div><div class="hu-imp"><svg viewBox="0 0 120 120"><use href="#humanity-stamp" filter="url(#humanity-distress)"/></svg></div></div></div><div class="hu-face hu-back"><span class="hu-no">04</span><span class="hu-bt" aria-hidden="true">A long table, on purpose</span><p class="hu-desc">One big shared table in the middle of the room.</p></div></div><button class="hu-flip" type="button" aria-pressed="false" aria-label="A long table, on purpose: turn the square over"></button></li>
             <li class="hu-cell" style="--r:-10deg"><div class="hu-inner"><div class="hu-face hu-front"><span class="hu-no">05</span><h4 class="hu-t">Events with a low bar</h4><div class="hu-stamp" aria-hidden="true"><i class="hu-target"></i><i class="hu-shadow"></i><div class="hu-bleed"><svg viewBox="0 0 120 120"><use href="#humanity-stamp"/></svg></div><div class="hu-imp"><svg viewBox="0 0 120 120"><use href="#humanity-stamp" filter="url(#humanity-distress)"/></svg></div></div></div><div class="hu-face hu-back"><span class="hu-no">05</span><span class="hu-bt" aria-hidden="true">Events with a low bar</span><p class="hu-desc">Things where turning up alone is the expected way to turn up, not the brave option.</p></div></div><button class="hu-flip" type="button" aria-pressed="false" aria-label="Events with a low bar: turn the square over"></button></li>
             <li class="hu-cell" style="--r:4deg"><div class="hu-inner"><div class="hu-face hu-front"><span class="hu-no">06</span><h4 class="hu-t">We try to remember you</h4><div class="hu-stamp" aria-hidden="true"><i class="hu-target"></i><i class="hu-shadow"></i><div class="hu-bleed"><svg viewBox="0 0 120 120"><use href="#humanity-stamp"/></svg></div><div class="hu-imp"><svg viewBox="0 0 120 120"><use href="#humanity-stamp" filter="url(#humanity-distress)"/></svg></div></div></div><div class="hu-face hu-back"><span class="hu-no">06</span><span class="hu-bt" aria-hidden="true">We try to remember you</span><p class="hu-desc">Your name, your usual, the thing you mentioned last week.</p></div></div><button class="hu-flip" type="button" aria-pressed="false" aria-label="We try to remember you: turn the square over"></button></li>
@@ -1034,12 +1066,14 @@ html.js:not(.ready) .h-type,html.js:not(.ready) .ticker{opacity:0}
       dots: [], dv: [], on: true, flipped: false, tl: null, ftl: null };
     const sizes = [5.5, 3.2, 4.2, 2.6];
     sizes.forEach((sz, k) => {
-      const a = (28 + k * 93 + i * 41) * Math.PI / 180, rr = 52 + ((i + k) % 3) * 4;
+      const a = (28 + k * 93 + i * 41) * Math.PI / 180, below = Math.sin(a) > .2;
+      /* splatter that lands below the stamp stays on its rim, so it never sits in the title like an accent mark */
+      const rr = below ? 50 : 52 + ((i + k) % 3) * 4;
       const d = document.createElement('i'); d.className = 'hu-dot';
       d.style.width = d.style.height = sz + 'px';
       d.style.left = 'calc(' + (50 + Math.cos(a) * rr) + '% - ' + sz / 2 + 'px)';
       d.style.top = 'calc(' + (50 + Math.sin(a) * rr) + '% - ' + sz / 2 + 'px)';
-      st.appendChild(d); c.dots.push(d); c.dv.push([Math.cos(a) * (5 + k), Math.sin(a) * (5 + k)]);
+      st.appendChild(d); c.dots.push(d); c.dv.push([Math.cos(a) * (5 + k), Math.sin(a) * (below ? 1.5 : 5 + k)]);
     });
     return c;
   });
@@ -1417,13 +1451,15 @@ html.js:not(.ready) .h-type,html.js:not(.ready) .ticker{opacity:0}
 
     /* coming alone */
     gsap.fromTo(aloneMi, { yPercent: 112 }, { yPercent: 0, stagger: .14, ease: 'none', scrollTrigger: { trigger: '.hu-alone', start: 'top 92%', end: 'top 55%', scrub: .6 } });
-    gsap.fromTo(good, { opacity: 0, x: -18 }, { opacity: 1, x: 0, ease: 'none', scrollTrigger: { trigger: good, start: 'top 92%', end: 'top 72%', scrub: .6 } });
+    /* the subline waits until "alone?" has fully risen out of its mask (the h3 tween ends at 'top 55%'),
+       so it never sits under half-clipped glyphs */
+    gsap.fromTo(good, { opacity: 0, x: -18 }, { opacity: 1, x: 0, ease: 'none', scrollTrigger: { trigger: '.hu-alone', start: 'top 58%', end: 'top 45%', scrub: .6 } });
     gsap.timeline({ scrollTrigger: { trigger: chairsSvg, start: 'top 90%', end: 'top 42%', scrub: .6 } })
       .to(floor, { strokeDashoffset: 0, duration: .35, ease: 'none' }, 0)
       .to(lampLines, { strokeDashoffset: 0, duration: .3, ease: 'none', stagger: .05 }, .05)
       .to(chairLines, { strokeDashoffset: 0, duration: .22, ease: 'none', stagger: .022 }, .12);
     ScrollTrigger.create({ trigger: chairsSvg, start: 'top 46%', onEnter: lightOn, onLeaveBack: lightOff });
-    gsap.fromTo(statBig, { opacity: 0, y: 26, rotation: -3 }, { opacity: 1, y: 0, rotation: 0, ease: 'none', scrollTrigger: { trigger: stat, start: 'top 94%', end: 'top 70%', scrub: .6 } });
+    gsap.fromTo(statBig, { opacity: 0, y: 10, rotation: -3 }, { opacity: 1, y: 0, rotation: 0, ease: 'none', scrollTrigger: { trigger: stat, start: 'top 94%', end: 'top 70%', scrub: .6 } });
     gsap.fromTo(statWords, { opacity: .16 }, { opacity: 1, stagger: .06, ease: 'none', scrollTrigger: { trigger: stat, start: 'top 88%', end: 'top 55%', scrub: .6 } });
     gsap.fromTo(aloneCta, { opacity: 0, y: 18 }, { opacity: 1, y: 0, ease: 'none', scrollTrigger: { trigger: aloneCta, start: 'top 98%', end: 'top 82%', scrub: .6 } });
 
@@ -2095,7 +2131,7 @@ html.js:not(.ready) .h-type,html.js:not(.ready) .ticker{opacity:0}
     };
     ScrollTrigger.create({
       animation: tl, trigger: stage, start: 'top top', end: () => '+=' + Math.round(window.innerHeight * 1.25),
-      pin: true, scrub: .9, onUpdate: self => check(self.progress), onRefresh: self => check(self.progress)
+      pin: true, scrub: .6, onUpdate: self => check(self.progress), onRefresh: self => check(self.progress)
     });
 
     ScrollTrigger.create({ trigger: root, start: 'top 75%', end: 'bottom top', toggleClass: { targets: root, className: 'ev-brew' } });
@@ -2215,7 +2251,7 @@ html.js:not(.ready) .h-type,html.js:not(.ready) .ticker{opacity:0}
 #story .st-ct em{font-style:italic;font-weight:380;color:var(--cocoa);letter-spacing:-.016em;font-variation-settings:"opsz" 96,"SOFT" 100,"WONK" 1}
 #story .st-cp{margin-top:clamp(12px,2vh,18px);font-size:clamp(16px,1.2vw,18.5px);line-height:1.58;color:var(--ink-2);max-width:44ch;text-wrap:pretty}
 #story .st-w{display:inline-block}
-/* chapter 03: an office date stamp that dials from one July to the other */
+/* chapter 03: an office date stamp that dials the year from one July to the other */
 #story .st-date{display:inline-flex;align-items:center;gap:.5em;margin:clamp(12px,1.8vh,16px) 0 2px;padding:.5em .85em .46em;border-radius:5px;transform:rotate(-2.5deg);transform-origin:0 60%;
   font-family:Inter,system-ui,sans-serif;font-weight:700;font-size:14px;line-height:1.1;letter-spacing:.15em;text-transform:uppercase;color:var(--ink);font-variant-numeric:tabular-nums;
   box-shadow:inset 0 0 0 1.6px var(--ink),inset 0 0 0 4px var(--cream),inset 0 0 0 5px rgba(180,80,42,.5)}
@@ -2298,6 +2334,9 @@ html.js:not(.ready) .h-type,html.js:not(.ready) .ticker{opacity:0}
 #story.is-pin .st-txt{z-index:5}
 #story.is-pin .st-pol{position:absolute;left:calc(var(--offX) + var(--deckW) / 2);top:calc(var(--navH) + 16px + (100% - var(--navH) - 40px) / 2);margin:0;transform:none}
 #story.is-pin .st-end{margin-top:clamp(14px,3vh,30px)}
+/* the scrubbed head starts hidden in CSS: a refresh reverts the timeline, and anything not yet reached by the
+   playhead falls back to this, never to a landed letter sitting on the baseline before its turn */
+#story.is-pin .st-head .st-eyebrow,#story.is-pin .st-lede,#story.is-pin .st-h .st-c{opacity:0}
 
 /* ---------- press: grateful for ---------- */
 #story .st-press{position:relative;background:var(--sand);padding:clamp(60px,10vh,104px) 0 clamp(60px,10vh,96px);overflow:hidden;
@@ -2315,7 +2354,7 @@ html.js:not(.ready) .h-type,html.js:not(.ready) .ticker{opacity:0}
   box-shadow:0 0 0 5px #fffaf3,0 0 0 6.5px rgba(43,26,17,.1),0 18px 26px -12px rgba(43,26,17,.5)}
 #story .st-award-l{font-family:Fraunces,Georgia,serif;font-style:italic;font-weight:420;font-size:21px;line-height:1.15;color:var(--cocoa);max-width:17em;
   font-variation-settings:"opsz" 24,"SOFT" 100,"WONK" 1}
-#story .st-award-l small{display:block;margin-top:6px;font-family:Inter,sans-serif;font-style:normal;font-size:12.5px;font-weight:500;letter-spacing:.01em;color:var(--ink-3)}
+#story .st-award-l small{display:block;margin-top:6px;font-family:Inter,sans-serif;font-style:normal;font-size:12.5px;font-weight:500;letter-spacing:.01em;color:var(--ink-3);text-wrap:pretty}
 #story .st-award-ink{position:absolute;overflow:visible;pointer-events:none}
 
 /* marquee: a static wrap until JS turns it into an endless strip */
@@ -2365,10 +2404,14 @@ html.js:not(.ready) .h-type,html.js:not(.ready) .ticker{opacity:0}
   /* phone with motion: one sticky pile at the top, her words scroll up beneath it (set by JS) */
   #story.is-stack .st-chaps{gap:60px;margin-top:20px}
   /* sticky stops at the content box: the last chapter carries the run-out so it slips fully under the pile before the pile leaves */
-  #story.is-stack .st-ch:last-child{padding-bottom:84px}
+  #story.is-stack .st-ch:last-child{padding-bottom:116px}
   #story.is-stack .st-mdeck{--polW:min(224px,58vw,calc((min(44svh,390px) - 56px) / 1.306));position:sticky;top:var(--navH);z-index:4;
-    height:44vh;height:min(44svh,390px);margin:0 -16px -12px;pointer-events:none;
-    background:linear-gradient(to bottom,var(--cream) 0,var(--cream) 89%,rgba(247,237,225,0) 100%)}
+    height:44vh;height:min(44svh,390px);margin:0 -16px -28px;pointer-events:none;
+    /* solid cream down to the pile's lowest edge, then a long, even tail that runs on below the deck:
+       copy dissolves over ~3 lines before it can meet a photo's edge, and is never sliced beside it */
+    background:linear-gradient(to bottom,var(--cream) 0,var(--cream) 88%,rgba(247,237,225,.5) 100%)}
+  #story.is-stack .st-mdeck::after{content:"";position:absolute;left:0;right:0;top:100%;height:40px;pointer-events:none;
+    background:linear-gradient(to bottom,rgba(247,237,225,.5),rgba(247,237,225,0))}
   #story.is-stack .st-mdeck .st-pol{position:absolute;left:50%;top:46%;margin:0;transform:none}
   #story.is-stack .st-ch{position:relative;z-index:1}
   #story .st-ch:nth-child(odd) .st-pol{left:-5%}
@@ -2470,8 +2513,8 @@ html.js:not(.ready) .h-type,html.js:not(.ready) .ticker{opacity:0}
           <div class="st-txt">
             <p class="st-cn" aria-hidden="true">03 <span>/ 05</span></p>
             <h3 class="st-ct" id="story-c3">The same date, <em>twice.</em></h3>
-            <p class="st-date" aria-hidden="true"><span>Jul</span><span class="st-dn">1<span class="st-dw"><span class="st-dc"><span>7</span><span>8</span></span></span></span><span class="st-dn">20<span class="st-dw"><span class="st-dc"><span>1</span><span>2</span></span></span><span class="st-dw"><span class="st-dc"><span>8</span><span>9</span><span>0</span><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></span></span></span></p>
-            <p class="st-cp">On July 17, 2018, the day before my birthday, I was asked to leave Canada. On July 18, 2025, my birthday, I signed the papers for a café at 921 12th Street in New Westminster.</p>
+            <p class="st-date" aria-hidden="true"><span>Jul</span><span class="st-dn">20<span class="st-dw"><span class="st-dc st-dc-dec"><span>1</span><span>2</span></span></span><span class="st-dw"><span class="st-dc st-dc-yr"><span>8</span><span>9</span><span>0</span><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></span></span></span></p>
+            <p class="st-cp">It was the day before my birthday when I was told my time was up. Years later, on that exact same date, my birthday, I was handed a very different piece of paper. A lease, for this café.</p>
           </div>
         </article>
 
@@ -2531,7 +2574,7 @@ html.js:not(.ready) .h-type,html.js:not(.ready) .ticker{opacity:0}
       </div>
       <a class="st-award" href="https://younme.ca/media" target="_blank" rel="noopener">
         <span class="st-badge" role="img" aria-label="Restaurant Guru 2026 certificate"></span>
-        <span class="st-award-l">A Top 10 café in New Westminster<small>Restaurant Guru 2026 · named 30 September 2026</small></span>
+        <span class="st-award-l">A Top 10 café in New Westminster<small>Restaurant Guru 2026 · named 30&nbsp;September&nbsp;2026</small></span>
       </a>
     </div>
     <div class="st-mq">
@@ -2539,13 +2582,13 @@ html.js:not(.ready) .h-type,html.js:not(.ready) .ticker{opacity:0}
         <ul class="st-set" aria-label="Press and recognition">
           <li><a class="st-pill e" href="https://younme.ca/media" target="_blank" rel="noopener"><span class="st-pbadge" aria-hidden="true"></span><span class="st-po">Restaurant Guru 2026</span><span class="st-pt">A Top 10 café in New Westminster</span></a></li>
           <li class="st-msep st-hm" aria-hidden="true"></li>
-          <li><a class="st-pill" href="https://younme.ca/media" target="_blank" rel="noopener"><span class="st-po">CityNews</span><span class="st-pt">A New West café spreading kindness</span></a></li>
+          <li><a class="st-pill" href="https://vancouver.citynews.ca/video/2026/10/06/new-west-cafe-spreading-kindness/" target="_blank" rel="noopener"><span class="st-po">CityNews</span><span class="st-pt">A New West café spreading kindness</span></a></li>
           <li class="st-msep st-hm" aria-hidden="true"></li>
-          <li><a class="st-pill t" href="https://younme.ca/media" target="_blank" rel="noopener"><span class="st-po">Daily Hive</span><span class="st-pt"><em>“Conversations are on the menu at new Metro Vancouver cafe”</em></span></a></li>
+          <li><a class="st-pill t" href="https://dailyhive.com/vancouver/you-n-me-cafe-new-westminster" target="_blank" rel="noopener"><span class="st-po">Daily Hive</span><span class="st-pt"><em>“Conversations are on the menu at new Metro Vancouver cafe”</em></span></a></li>
           <li class="st-msep st-hm" aria-hidden="true"></li>
-          <li><a class="st-pill" href="https://younme.ca/media" target="_blank" rel="noopener"><span class="st-pt">Featured by <em>Yelp</em></span></a></li>
+          <li><a class="st-pill" href="https://www.instagram.com/reel/Dcbks2RCaOI/" target="_blank" rel="noopener"><span class="st-pt">Featured by <em>Yelp</em></span></a></li>
           <li class="st-msep st-hm" aria-hidden="true"></li>
-          <li><a class="st-pill" href="https://younme.ca/media" target="_blank" rel="noopener"><span class="st-pt">Covered by <em>BCIT News</em></span></a></li>
+          <li><a class="st-pill" href="https://www.instagram.com/reel/DdrjpNpykE-/" target="_blank" rel="noopener"><span class="st-pt">Covered by <em>BCIT News</em></span></a></li>
           <li class="st-msep st-hm" aria-hidden="true"></li>
           <li><a class="st-pill e" href="https://younme.ca/media" target="_blank" rel="noopener"><span class="st-po">Vancity</span><span class="st-pt">Vancity grant</span></a></li>
           <li class="st-msep st-hm" aria-hidden="true"></li>
@@ -2620,7 +2663,7 @@ html.js:not(.ready) .h-type,html.js:not(.ready) .ticker{opacity:0}
   }
   /* the date stamp rides along with its chapter's words (in document order) */
   const words = chaps.map(c => $$('.st-w, .st-date', c));
-  const dateEl = $('.st-date'), dateCols = $$('.st-dc');
+  const dateEl = $('.st-date');
   const dateCh = dateEl ? chaps.findIndex(c => c.contains(dateEl)) : -1;
   const hChars = $$('.st-h .st-c');
   const hWords = $$('.st-h .st-hw');
@@ -2651,10 +2694,11 @@ html.js:not(.ready) .h-type,html.js:not(.ready) .ticker{opacity:0}
   const WIPE0 = 'inset(-80% 100% -80% 0%)', WIPE1 = 'inset(-80% -6% -80% -6%)';
   const wipe = (tl, el, at, d, ease) => tl.fromTo(el, { clipPath: WIPE0 }, { clipPath: WIPE1, duration: d, ease: ease || 'power2.inOut', immediateRender: false }, at);
 
-  /* heading: letters drop in with weight (the hero's drop, scrubbed) */
+  /* heading: letters drop in with weight (the hero's drop, scrubbed).
+     The eyebrow arrives only once the full stop of "Amrin." has landed, so no letter ever falls through a line you are reading */
   function addHeading(tl, at, sp) {
-    const S = sp || 1;
-    tl.fromTo($('.st-eyebrow'), { opacity: 0, y: 22 }, { opacity: 1, y: 0, duration: .22 * S, ease: 'power3.out' }, at);
+    const S = sp || 1, landed = .04 + (hChars.length - 1) * .035 + .16;
+    tl.fromTo($('.st-head .st-eyebrow'), { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: .22 * S, ease: 'power3.out' }, at + landed * S);
     hChars.forEach((c, i) => {
       const t = at + (.04 + i * .035) * S, rot = ((i * 37) % 11 - 5) * 1.1, F = .16 * S;
       tl.fromTo(c, { opacity: 0, yPercent: -75, scaleX: .9, scaleY: 1.18, rotation: rot },
@@ -2683,14 +2727,16 @@ html.js:not(.ready) .h-type,html.js:not(.ready) .ticker{opacity:0}
     tl.fromTo(btn, { autoAlpha: 0, y: 18, scale: .92 }, { autoAlpha: 1, y: 0, scale: 1, duration: .3 * S, ease: 'back.out(2)' }, at + .62 * S);
   }
 
-  /* chapter 03's stamp dials JUL 17 2018 over to JUL 18 2025, the year ticking through all seven, then lands */
+  /* chapter 03's stamp keeps the month and dials only the year, JUL 2018 over to JUL 2025: the same date, twice.
+     The units wheel ticks through all seven years; the tens wheel carries 1 -> 2 exactly as the units pass 9 -> 0 */
   function addDateRoll(tl, at, d) {
     if (!dateEl) return;
-    dateCols.forEach((c, i) => {
-      const n = c.children.length, long = n > 2;
-      tl.fromTo(c, { yPercent: 0 }, { yPercent: -100 * (n - 1) / n, duration: d * (long ? .78 : .42), ease: long ? 'power2.inOut' : 'back.out(2.4)', immediateRender: false },
-        at + (long ? d * .08 : i * d * .12));
-    });
+    const yr = $('.st-dc-yr', dateEl), dec = $('.st-dc-dec', dateEl);
+    if (yr) {
+      const n = yr.children.length;
+      tl.fromTo(yr, { yPercent: 0 }, { yPercent: -100 * (n - 1) / n, duration: d * .78, ease: 'power2.inOut', immediateRender: false }, at + d * .08);
+    }
+    if (dec) tl.fromTo(dec, { yPercent: 0 }, { yPercent: -50, duration: d * .1, ease: 'power2.inOut', immediateRender: false }, at + d * .28);
     tl.fromTo(dateEl, { scale: 1 }, { scale: 1.09, duration: d * .08, ease: 'power2.out', immediateRender: false }, at + d * .8)
       .to(dateEl, { scale: 1, duration: d * .2, ease: 'elastic.out(1,.38)' }, at + d * .88);
   }
@@ -2734,7 +2780,7 @@ html.js:not(.ready) .h-type,html.js:not(.ready) .ticker{opacity:0}
     /* rest state, before the scroll reaches us */
     gsap.set(pols, { xPercent: -50, yPercent: -50, transformOrigin: '50% 50%' });
     pols.forEach((p, i) => { const D = DEAL(i); gsap.set(p, { xPercent: -50 + D.x, yPercent: -50 + D.y, rotation: D.r, scale: 1.08, zIndex: 2 + i }); });
-    gsap.set(flips, { rotationY: -180, transformPerspective: 1700 });
+    gsap.set(flips, { rotationY: 18, transformPerspective: 1700 });
     gsap.set(tilts, { transformPerspective: 1300 });
     gsap.set(shs, { opacity: .3, yPercent: 14, scale: 1.06 });
     gsap.set(dims, { opacity: 0 });
@@ -2748,8 +2794,10 @@ html.js:not(.ready) .h-type,html.js:not(.ready) .ticker{opacity:0}
     DD.forEach(o => { gsap.set(o.g, { scale: 0, svgOrigin: o.org }); gsap.set([o.sp, ...o.bu], { strokeDashoffset: 1, opacity: 0 }); });
 
     /* one timeline from "section enters" to "pin ends"; time is measured in viewport heights */
-    /* each chapter is fully lit from about at(.45) until the next turn, so her words can actually be read */
-    const LEAD = .85, PIN = 2.1, HOLD0 = .22, SEG = .40;
+    /* each chapter is fully lit from about at(.3) until the next turn (about 270px of scroll at 810 tall),
+       so one trackpad flick can't skip a chapter of her story */
+    /* SEG .48 with PIN 2.65 leaves the signed ending about .3 viewport heights of rest before the pin lets go */
+    const LEAD = .85, PIN = 2.65, HOLD0 = .22, SEG = .48;
     const tl = gsap.timeline({ defaults: { ease: 'none' } });
 
     function dealCard(i, T, L) {
@@ -2761,7 +2809,8 @@ html.js:not(.ready) .h-type,html.js:not(.ready) .ticker{opacity:0}
         .fromTo(p, { rotation: D.r }, { rotation: TOP[i], duration: L, ease: 'back.out(1.25)', immediateRender: false }, T)
         .fromTo(p, { scale: 1.08 }, { scale: 1.07, duration: L * .6, ease: 'power1.out', immediateRender: false }, T)
         .to(p, { scale: 1, duration: L * .4, ease: 'power2.in' }, T + L * .6)
-        .fromTo(flips[i], { rotationY: -180 }, { rotationY: 0, duration: L * .82, ease: 'power2.inOut', immediateRender: false }, T)
+        /* face-up the whole way (Events already flips its tickets): just a small turn in the air that settles flat */
+        .fromTo(flips[i], { rotationY: 18 }, { rotationY: 0, duration: L * .6, ease: 'power2.out', immediateRender: false }, T)
         .fromTo(shs[i], { opacity: .3, yPercent: 14, scale: 1.06 }, { opacity: 1, yPercent: 0, scale: 1, duration: L, ease: 'power2.in', immediateRender: false }, T)
         /* landing: squash, then a springy settle */
         .to(p, { scaleX: 1.04, scaleY: .955, duration: L * .06, ease: 'power2.out' }, T + L)
@@ -2793,12 +2842,12 @@ html.js:not(.ready) .h-type,html.js:not(.ready) .ticker{opacity:0}
     lightWords(words[0], .5, .2);
 
     /* --- pinned: four turns of the page --- */
-    /* the hand-off is strictly sequential: chapter k-1 is fully gone by at(.11), chapter k only ghosts in at at(.12),
+    /* the hand-off is strictly sequential: chapter k-1 is fully gone by at(.09), chapter k only ghosts in at at(.1),
        so two paragraphs never share the box, whatever the scroll speed or scrub lag */
     for (let k = 1; k < N; k++) {
       const T = LEAD + HOLD0 + (k - 1) * SEG, at = t => T + t * SEG, d = t => t * SEG;
       const prev = words[k - 1];
-      tl.to(prev, { opacity: 0, yPercent: -40, duration: d(.08), stagger: d(.03) / prev.length, ease: 'power2.in' }, at(0));
+      tl.to(prev, { opacity: 0, yPercent: -40, duration: d(.07), stagger: d(.02) / prev.length, ease: 'power2.in' }, at(0));
       /* yesterday's doodles leave */
       const po = DD[k - 1];
       tl.to(po.sp, { strokeDashoffset: -1, opacity: 0, duration: d(.16), ease: 'power2.in' }, at(0))
@@ -2807,7 +2856,7 @@ html.js:not(.ready) .h-type,html.js:not(.ready) .ticker{opacity:0}
       tl.to(ccol, { yPercent: -100 * k / N, duration: d(.22), ease: 'expo.inOut' }, at(0))
         .to(bgcol, { yPercent: -100 * k / N, duration: d(.34), ease: 'power3.inOut' }, at(0))
         .to(segs[k].querySelector('i'), { scaleX: 1, duration: d(.3), ease: 'power2.out' }, at(.08));
-      /* the next photo is dealt, flipping over in the air */
+      /* the next photo slides in face-up onto the pile */
       dealCard(k, at(.02), d(.4));
       /* the card it lands on gets knocked into the pile */
       const prevP = pols[k - 1], s = SLOT[k - 1], tHit = at(.42);
@@ -2820,9 +2869,9 @@ html.js:not(.ready) .h-type,html.js:not(.ready) .ticker{opacity:0}
           .to(pols[j], { rotation: sj.r, duration: d(.4), ease: 'elastic.out(1,.3)' }, tHit + d(.07));
       }
       /* her words ghost in, then light up one by one */
-      ghostWords(words[k], at(.12), d(.1));
-      lightWords(words[k], at(.17), d(.24));
-      if (k === dateCh) addDateRoll(tl, at(.3), d(.24));
+      ghostWords(words[k], at(.1), d(.08));
+      lightWords(words[k], at(.14), d(.15));
+      if (k === dateCh) addDateRoll(tl, at(.2), d(.22));
     }
 
     /* --- the end: welcome home, signed --- */
@@ -2891,7 +2940,7 @@ html.js:not(.ready) .h-type,html.js:not(.ready) .ticker{opacity:0}
 
     gsap.set(pols, { xPercent: -50, yPercent: -50, transformOrigin: '50% 50%' });
     pols.forEach((p, i) => { const D = PDEAL(i); gsap.set(p, { xPercent: -50 + D.x, yPercent: -50 + D.y, rotation: D.r, scale: 1.06, autoAlpha: 0, zIndex: 2 + i }); });
-    gsap.set(flips, { rotationY: -180, transformPerspective: 1400 });
+    gsap.set(flips, { rotationY: 18, transformPerspective: 1400 });
     gsap.set(shs, { opacity: .3, yPercent: 14, scale: 1.06 });
     gsap.set(dims, { opacity: 0 });
 
@@ -2941,7 +2990,7 @@ html.js:not(.ready) .h-type,html.js:not(.ready) .ticker{opacity:0}
         gsap.set(flips[i], { transformPerspective: 1400 });
         gsap.timeline({ scrollTrigger: { trigger: p, start: 'top 98%', end: 'top 48%', scrub: .7 } })
           .fromTo(p, { yPercent: 34, xPercent: dir * 14, rotation: dir * 20, scale: .86 }, { yPercent: 0, xPercent: 0, rotation: r, scale: 1, duration: 1, ease: 'back.out(1.35)' }, 0)
-          .fromTo(flips[i], { rotationY: dir * -170 }, { rotationY: 0, duration: .8, ease: 'power2.inOut' }, 0)
+          .fromTo(flips[i], { rotationY: dir * 18 }, { rotationY: 0, duration: .6, ease: 'power2.out' }, 0)
           .fromTo(shs[i], { opacity: .3, yPercent: 14 }, { opacity: 1, yPercent: 0, duration: 1, ease: 'power2.in' }, 0);
       }
       /* under the pile the reading band is short: light the words early so they are whole while you read */
@@ -3092,13 +3141,14 @@ html.js:not(.ready) .h-type,html.js:not(.ready) .ticker{opacity:0}
    the night either side is the same photo, defocused, so the frame stays full without upscaling the sign */
 #visit .v-face{position:absolute;top:0;bottom:0;width:199.402%;overflow:hidden;background:#160d08}
 #visit .v-face::before{content:"";position:absolute;inset:-90px;
-  background:linear-gradient(90deg,rgba(14,8,4,.8) 0,rgba(14,8,4,0) 17%,rgba(14,8,4,0) 83%,rgba(14,8,4,.8) 100%),url(assets/storefront-at-night.jpg) 50% 30%/cover no-repeat;
-  filter:blur(38px) brightness(.6) saturate(1.2)}
+  background:linear-gradient(90deg,rgba(14,8,4,.94) 0,rgba(14,8,4,.35) 24%,rgba(14,8,4,0) 40%,rgba(14,8,4,0) 60%,rgba(14,8,4,.35) 76%,rgba(14,8,4,.94) 100%),url(assets/storefront-at-night.jpg) 50% 30%/cover no-repeat;
+  filter:blur(48px) brightness(.36) saturate(.5)}
 #visit .v-stage.is-tall .v-face::before{display:none}
 #visit .v-face::after{content:"";position:absolute;left:var(--fx,0px);top:var(--fy,0px);width:var(--fw,100%);height:var(--fh,100%);
   background:url(assets/storefront-at-night.jpg) 0 0/100% 100% no-repeat;
-  -webkit-mask-image:linear-gradient(90deg,transparent 0,#000 var(--fm,0px),#000 calc(100% - var(--fm,0px)),transparent 100%);
-  mask-image:linear-gradient(90deg,transparent 0,#000 var(--fm,0px),#000 calc(100% - var(--fm,0px)),transparent 100%)}
+  --fmask:linear-gradient(90deg,transparent 0,rgba(0,0,0,.1) calc(var(--fm,0px)*.2),rgba(0,0,0,.35) calc(var(--fm,0px)*.4),rgba(0,0,0,.65) calc(var(--fm,0px)*.6),rgba(0,0,0,.9) calc(var(--fm,0px)*.8),#000 var(--fm,0px),
+    #000 calc(100% - var(--fm,0px)),rgba(0,0,0,.9) calc(100% - var(--fm,0px)*.8),rgba(0,0,0,.65) calc(100% - var(--fm,0px)*.6),rgba(0,0,0,.35) calc(100% - var(--fm,0px)*.4),rgba(0,0,0,.1) calc(100% - var(--fm,0px)*.2),transparent 100%);
+  -webkit-mask-image:var(--fmask);mask-image:var(--fmask)}
 #visit .v-leaf.l .v-face{left:0}
 #visit .v-leaf.r .v-face{right:0}
 /* the leaf edge only exists once the doors move, so no hairline crosses the sign at rest */
@@ -3220,8 +3270,9 @@ html.js:not(.ready) .h-type,html.js:not(.ready) .ticker{opacity:0}
 #visit .c-first{grid-column:8/13;grid-row:1}
 #visit .c-grab{grid-column:8/13;grid-row:2}
 
-/* house notes: one paper sheet in the stamp-card family, dotted rules, her one-liners */
-#visit .v-notes{grid-column:1/-1;position:relative;margin:clamp(20px,2.6vw,34px) clamp(6px,1vw,14px) 0;rotate:-.7deg;background:var(--linen);border-radius:20px;
+/* house notes: one paper sheet in the stamp-card family, dotted rules, her one-liners. It rests square on desktop so its
+   small type sits on whole pixels on 1x screens; the phone keeps the tilt (its retina hides the resampling) */
+#visit .v-notes{grid-column:1/-1;position:relative;margin:clamp(20px,2.6vw,34px) clamp(6px,1vw,14px) 0;rotate:0deg;background:var(--linen);border-radius:20px;
   padding:0 clamp(16px,2vw,30px) clamp(4px,.8vw,10px);
   box-shadow:0 0 0 9px #fffaf3,0 0 0 10.5px rgba(43,26,17,.075),0 2px 4px rgba(43,26,17,.05),0 26px 44px -24px rgba(43,26,17,.42),0 60px 100px -50px rgba(110,52,16,.32)}
 #visit .v-notes-hd{position:relative;display:flex;align-items:center;gap:12px;height:clamp(56px,7.4vh,66px);padding:0 4px;border-bottom:1.5px solid rgba(110,52,16,.2)}
@@ -3236,7 +3287,7 @@ html.js:not(.ready) .h-type,html.js:not(.ready) .ticker{opacity:0}
 #visit .v-ni{width:22px;height:22px;flex:none;overflow:visible}
 #visit .v-ni path{stroke:var(--terra);stroke-width:1.7}
 #visit .v-nt{font-family:Fraunces,Georgia,serif;font-style:italic;font-weight:420;font-size:clamp(21px,1.75vw,25px);line-height:1.1;letter-spacing:-.012em;color:var(--terra);font-variation-settings:"opsz" 30,"SOFT" 100,"WONK" 1}
-#visit .v-nr p{margin-top:10px;font-size:15px;line-height:1.56;color:var(--ink-2);max-width:46ch}
+#visit .v-nr p{margin-top:10px;font-size:15px;line-height:1.56;color:var(--ink-2);max-width:46ch;text-wrap:pretty}
 #visit .v-nr p a{color:var(--cocoa);font-weight:600;text-decoration:underline;text-decoration-color:rgba(180,131,74,.55);text-underline-offset:3px;white-space:nowrap;padding:13px 0;margin:-13px 0}
 #visit .v-chip{display:inline-flex;align-items:center;gap:8px;margin-top:12px;font-size:13px;font-weight:500;color:var(--cocoa)}
 #visit .v-chip i{width:7px;height:7px;border-radius:50%;background:var(--gold)}
@@ -3288,6 +3339,12 @@ html.js:not(.ready) .h-type,html.js:not(.ready) .ticker{opacity:0}
   #visit .v-nr p a:hover{text-decoration-color:var(--terra)}
 }
 
+/* laptop widths: the "Good to know" cells are narrow enough that the last pill of each row drops alone; keep each set on one line */
+@media (min-width:761px) and (max-width:1400px){
+  #visit .v-pills{gap:6px}
+  #visit .v-pill{padding:0 10px;gap:5px;font-size:13.5px}
+  #visit .v-pills span.v-pill{padding:0 9px;font-size:13.5px}
+}
 /* ---------- tablet ---------- */
 @media (max-width:1080px){
   #visit .v-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
@@ -3318,13 +3375,13 @@ html.js:not(.ready) .h-type,html.js:not(.ready) .ticker{opacity:0}
   #visit .v-mlab .v-mbr{display:inline}
   #visit .v-map-wrap{position:relative;inset:auto;height:204px;flex:none}
   #visit .v-map-copy{position:static;padding:16px 22px 20px;background:none}
-  #visit .v-map-addr{display:none}
+  #visit .v-map-addr{display:block;font-size:26px!important;line-height:1.05!important;margin-top:6px!important}
   #visit .v-map-note{margin-top:6px!important;font-size:15px}
   #visit .v-go{position:absolute;right:12px;top:148px;z-index:5;margin:0;min-height:44px;padding:0 17px;font-size:14px;gap:8px}
   #visit .c-map:hover .v-go{top:146px}
   #visit .c-grab h3{font-size:24px}
   #visit .v-gt{font-size:36px}
-  #visit .v-notes{margin:22px 4px 0;rotate:-.5deg;padding:0 16px 2px;border-radius:18px;box-shadow:0 0 0 7px #fffaf3,0 0 0 8.5px rgba(43,26,17,.075),0 2px 4px rgba(43,26,17,.05),0 22px 36px -22px rgba(43,26,17,.42)}
+  #visit .v-notes{margin:22px 4px 0;rotate:-1.1deg;padding:0 16px 2px;border-radius:18px;box-shadow:0 0 0 7px #fffaf3,0 0 0 8.5px rgba(43,26,17,.075),0 2px 4px rgba(43,26,17,.05),0 22px 36px -22px rgba(43,26,17,.42)}
   #visit .v-notes-hd{height:54px}
   #visit .v-nl{grid-template-columns:minmax(0,1fr)}
   #visit .v-nr,#visit .v-nr:nth-child(odd),#visit .v-nr:not(:nth-child(3n)),#visit .v-nr:nth-child(-n+3),#visit .v-nr:nth-child(-n+4){border-right:0;border-bottom:2px dotted rgba(110,52,16,.26);padding:11px 2px 12px}
@@ -3339,6 +3396,9 @@ html.js:not(.ready) .h-type,html.js:not(.ready) .ticker{opacity:0}
   #visit .v-fin{padding:36px 0 48px}
   #visit .v-tag{font-size:clamp(23px,6.4vw,28px)}
 }
+/* touch: once Safari's toolbar collapses the viewport outgrows the 100svh stage while it is pinned; the strip below it is the
+   spacer, so give the spacer the stage's own night instead of the section's cream (same fallback the hero and menu use) */
+@media (hover:none){#visit .pin-spacer:has(> .v-stage){background:#160d08}}
 @media (prefers-reduced-motion:reduce){
   #visit .v-ring,#visit .v-route{animation:none}
   #visit .v-ring{opacity:.5;transform:scale(1.1)}
@@ -3460,7 +3520,7 @@ html.js:not(.ready) .h-type,html.js:not(.ready) .ticker{opacity:0}
           </li>
           <li class="v-nr">
             <div class="v-nhd"><svg class="v-ni ink" viewBox="0 0 32 32" aria-hidden="true"><path pathLength="1" d="M3.5 12.5a18 18 0 0 1 25 0"/><path pathLength="1" d="M7.5 17a12.2 12.2 0 0 1 17 0"/><path pathLength="1" d="M11.6 21.4a6.3 6.3 0 0 1 8.8 0"/><path pathLength="1" d="M16 26h.6"/></svg><h4 class="v-nt">Free Wi-Fi</h4></div>
-            <p><span class="v-x">Bring your laptop, a book, a journal or the latest idea. </span>Board games and books are on the shelf and free to use. Wi-Fi is free. Nobody will rush you.</p>
+            <p><span class="v-x">Bring your laptop, a book, a journal or the latest idea. </span>Board games and books are on the shelf and free to use. Wi-Fi is free. Nobody will rush&nbsp;you.</p>
           </li>
           <li class="v-nr">
             <div class="v-nhd"><svg class="v-ni ink" viewBox="0 0 32 32" aria-hidden="true"><path pathLength="1" d="M6 11h20l-1.6 17H7.6z"/><path pathLength="1" d="M11.5 11V8.5a4.5 4.5 0 0 1 9 0V11"/></svg><h4 class="v-nt">Delivery</h4></div>
@@ -3730,7 +3790,7 @@ html.js:not(.ready) .h-type,html.js:not(.ready) .ticker{opacity:0}
     let fx = W / 2 - MULL * fw;
     if (fw >= W) fx = clamp(fx, W - fw, 0);
     const fy = tall ? (H - fh) * .5 : Math.min(0, navH() + 16 - .1 * fh);
-    const fm = fx > 0 ? Math.round(fw * .16) : 0;
+    const fm = fx > 0 ? Math.round(fw * .22) : 0;
     stage.style.setProperty('--fx', f2(fx) + 'px'); stage.style.setProperty('--fy', f2(fy) + 'px');
     stage.style.setProperty('--fw', f2(fw) + 'px'); stage.style.setProperty('--fh', f2(fh) + 'px');
     stage.style.setProperty('--fm', fm + 'px');
@@ -3911,7 +3971,7 @@ html.js:not(.ready) .h-type,html.js:not(.ready) .ticker{opacity:0}
 
   /* pinned: the doors swing in, the light spills, the room comes up, the words land */
   const door = gsap.timeline({ defaults: { ease: 'none' }, scrollTrigger: {
-    trigger: stage, start: 'top top', end: () => '+=' + Math.round(stage.offsetHeight * (innerWidth < 761 ? .85 : 1)), pin: true, scrub: .8, anticipatePin: 1, invalidateOnRefresh: true } });
+    trigger: stage, start: 'top top', end: () => '+=' + Math.round(stage.offsetHeight * (innerWidth < 761 ? 1.05 : 1.25)), pin: true, scrub: .8, anticipatePin: 1, invalidateOnRefresh: true } });
   door.fromTo([leafL, leafR], { '--seam': 0 }, { '--seam': 1, duration: .03 }, .02)
       .fromTo(leafL, { xPercent: 0, rotationY: 0 }, { xPercent: -1.6, duration: .06, ease: 'power2.out' }, .02)
       .fromTo(leafR, { xPercent: 0, rotationY: 0 }, { xPercent: 1.6, duration: .06, ease: 'power2.out' }, .02)
@@ -3924,16 +3984,17 @@ html.js:not(.ready) .h-type,html.js:not(.ready) .ticker{opacity:0}
       .to(spill, { opacity: 0, duration: .24, ease: 'power1.in' }, .36)
       .fromTo(dim, { opacity: .94 }, { opacity: 0, duration: .46, ease: 'power2.inOut' }, .07)
       .fromTo(roomImg, { scale: 1.08 }, { scale: 1, duration: .8, ease: 'power3.out' }, .05)
-      .fromTo(eyebrow, { autoAlpha: 0, x: -24 }, { autoAlpha: 1, x: 0, duration: .12, ease: 'power2.out' }, .34)
-      .fromTo(headWords, { yPercent: 132, rotation: 6, transformOrigin: '0% 100%' }, { yPercent: 0, rotation: 0, duration: .2, stagger: .045, ease: 'back.out(1.6)' }, .36);
-  draw(door, swash, .6, .14);
-  door.fromTo(addr, { autoAlpha: 0, y: 28 }, { autoAlpha: 1, y: 0, duration: .13, ease: 'power3.out' }, .6)
-      .fromTo(sub, { autoAlpha: 0, y: 22 }, { autoAlpha: 1, y: 0, duration: .13, ease: 'power3.out' }, .65)
-      .fromTo(ctas, { autoAlpha: 0, y: 26, scale: .92 }, { autoAlpha: 1, y: 0, scale: 1, duration: .15, stagger: .05, ease: 'back.out(1.9)' }, .69)
-      .fromTo($('.v-copy-r .sheen'), { xPercent: -130 }, { xPercent: 330, duration: .14, ease: 'power2.inOut' }, .84)
+      .fromTo(eyebrow, { autoAlpha: 0, x: -24 }, { autoAlpha: 1, x: 0, duration: .12, ease: 'power2.out' }, .44)
+      .fromTo(headWords, { yPercent: 132, rotation: 6, transformOrigin: '0% 100%' }, { yPercent: 0, rotation: 0, duration: .2, stagger: .045, ease: 'back.out(1.6)' }, .46);
+  draw(door, swash, .68, .14);
+  door.fromTo(addr, { autoAlpha: 0, y: 28 }, { autoAlpha: 1, y: 0, duration: .13, ease: 'power3.out' }, .64)
+      .fromTo(sub, { autoAlpha: 0, y: 22 }, { autoAlpha: 1, y: 0, duration: .13, ease: 'power3.out' }, .69)
+      .fromTo(ctas, { autoAlpha: 0, y: 26, scale: .92 }, { autoAlpha: 1, y: 0, scale: 1, duration: .15, stagger: .05, ease: 'back.out(1.9)' }, .73)
+      .fromTo($('.v-copy-r .sheen'), { xPercent: -130 }, { xPercent: 330, duration: .14, ease: 'power2.inOut' }, .88)
       .fromTo(rlabCh, { opacity: 0, y: 14, rotation: -9 }, { opacity: 1, y: 0, rotation: 0, duration: .1, stagger: .004, ease: 'back.out(2.4)' }, .74);
   draw(door, rarrow, .8, .1);
-  door.to({}, { duration: .06 }, .94);
+  /* the composed frame (headline, address, both buttons, the window-seat label) holds for a beat before the sheet slides over it */
+  door.to({}, { duration: .3 }, .94);
 
   /* depth: the room and the doors drift against the cursor */
   if (fine) {
@@ -4002,7 +4063,7 @@ html.js:not(.ready) .h-type,html.js:not(.ready) .ticker{opacity:0}
   });
   /* the house-notes sheet lands like paper, its rows ink in, the pill stickers slap on */
   const ntl = gsap.timeline({ scrollTrigger: { trigger: notes, start: LAND, end: END, toggleActions: 'play none none reverse' } });
-  ntl.fromTo(notes, { y: 110, rotation: 2.6, scale: .96, transformOrigin: '50% 100%' }, { y: 0, rotation: -.6, scale: 1, duration: 1.1, ease: 'back.out(1.25)' }, 0)
+  ntl.fromTo(notes, { y: 110, rotation: 2.6, scale: .96, transformOrigin: '50% 100%' }, { y: 0, rotation: 0, scale: 1, duration: 1.1, ease: 'back.out(1.25)' }, 0)
      .fromTo(notes, { opacity: 0 }, { opacity: 1, duration: .35, ease: 'power1.out' }, 0)
      .fromTo(noteRows, { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: .6, stagger: .07, ease: 'power3.out' }, .3);
   draw(ntl, $$('.v-ni path', notes), .45, .5, 'power2.inOut', .035);
@@ -4016,10 +4077,12 @@ html.js:not(.ready) .h-type,html.js:not(.ready) .ticker{opacity:0}
   gsap.fromTo(chai.knock, { y: 18, rotation: -4 }, { y: -18, rotation: 4, ease: 'none', scrollTrigger: { trigger: '#visit .c-grab', start: 'top bottom', end: 'bottom top', scrub: .6 } });
 
   /* =====================================================================
-     3 · FINALE: her logo slaps on like a sticker, then leans toward you
+     3 · FINALE: her logo is pressed down slowly (the page's last beat gets its own verb, not the slap), then leans toward you
      ===================================================================== */
   const finTl = gsap.timeline({ paused: true });
-  addSlap(finTl, logo, .05, 1.7);
+  finTl.fromTo(logo.body, { opacity: 0, scale: 1.18, rotation: logo.r - 10 }, { opacity: 1, scale: 1, rotation: logo.r, duration: 1.1, ease: 'expo.out', immediateRender: true }, .05)
+       .fromTo(logo.shadow, { y: logo.h * .2, opacity: 0, transformOrigin: '50% 50%' }, { y: logo.h * .035, opacity: logo.theme.shadow, duration: 1.1, ease: 'expo.out', immediateRender: true }, .05)
+       .fromTo(logo.sheen, { x: -logo.w * .2 }, { x: logo.w * 1.6, duration: 1.2, ease: 'power2.inOut' }, .6);
   finTl.fromTo(tagWords, { yPercent: 130, rotation: 5, transformOrigin: '0% 100%' }, { yPercent: 0, rotation: 0, duration: .9, stagger: .07, ease: 'expo.out', immediateRender: true }, .55);
   draw(finTl, wave, 1.05, .7);
   finTl.add(() => {}, 1.3);
@@ -4142,8 +4205,7 @@ html.js:not(.ready) .h-type,html.js:not(.ready) .ticker{opacity:0}
     if (lenis) open ? lenis.stop() : lenis.start();
     document.body.style.overflow = open ? 'hidden' : '';
   };
-  burger.addEventListener('click', () => setSheet(!root.classList.contains('sheet-open')));
-  $('#scrim').addEventListener('click', () => setSheet(false));
+  burger.addEventListener('click', () => setSheet(!root.classList.contains('sheet-open')));  $('#scrim').addEventListener('click', () => setSheet(false));
   $$('#sheet a:not([href^="#"])').forEach(a => a.addEventListener('click', () => setSheet(false)));
   addEventListener('keydown', e => { if (e.key === 'Escape' && root.classList.contains('sheet-open')) { setSheet(false); burger.focus(); } });
   const wideMQ = matchMedia('(min-width:1101px)');
@@ -4264,7 +4326,9 @@ html.js:not(.ready) .h-type,html.js:not(.ready) .ticker{opacity:0}
     }
     const sw = Math.min(w, h) / 140;
     const ring = svgEl('path', { d, fill: 'none', stroke: theme.ring, 'stroke-width': f2(Math.max(1.4, 2 * sw)), opacity: 0 }, svg);
-    const shadow = svgEl('g', {}, svg);
+    /* two owners, two wrappers: the slap owns `shadow`, the scroll knock owns `shK` (one tween owner per element) */
+    const shK = svgEl('g', {}, svg);
+    const shadow = svgEl('g', {}, shK);
     svgEl('path', { d, fill: '#2b1a11', filter: `url(#bl-${id})` }, shadow);
     const bw = Math.min(w, h) * .085;
     svgEl('path', { d, fill: theme.border, stroke: theme.border, 'stroke-width': f2(bw), 'stroke-linejoin': 'round' }, svg);
@@ -4284,7 +4348,7 @@ html.js:not(.ready) .h-type,html.js:not(.ready) .ticker{opacity:0}
     const sheen = svgEl('rect', { x: f2(-w * .35), y: f2(-h * .5), width: f2(w * .35), height: f2(h * 2), fill: `url(#sh-${id})`, transform: `rotate(22 ${w / 2} ${h / 2})` }, art);
     svgEl('path', { d, fill: 'none', stroke: 'rgba(43,26,17,.12)', 'stroke-width': f2(Math.max(.7, sw * .8)) }, svg);
     host.appendChild(wrap);
-    return { id: c.id, c, wrap, par, knock, flt, body, shadow, ring, sheen, w, h, pad, ox: w / 2 + pad, oy: h / 2 + pad, theme, r: 0, cx: 0, cy: 0 };
+    return { id: c.id, c, wrap, par, knock, flt, body, shadow, shK, ring, sheen, w, h, pad, ox: w / 2 + pad, oy: h / 2 + pad, theme, r: 0, cx: 0, cy: 0 };
   }
   function placeSticker(S, cx, cy, r) {
     S.cx = cx; S.cy = cy; S.r = r;
@@ -4396,7 +4460,8 @@ html.js:not(.ready) .h-type,html.js:not(.ready) .ticker{opacity:0}
     { id: 'chai',   shape: 'circle',   img: 'assets/menu-masala-chai.jpg',      fx: .33, fy: .47, zoom: 1.55, spin: -16 },
     { id: 'matcha', shape: 'pill',     img: 'assets/menu-blueberry-matcha.jpg', fx: .5,  fy: .5,  zoom: 1.0,  spin: -12 },
     { id: 'cocoa',  shape: 'scallop',  img: 'assets/menu-cocoa-protein.jpg',    fx: .47, fy: .56, zoom: 1.18, spin: -14 },
-    { id: 'talk',   shape: 'bubble',   mark: true,                                                         spin: 12 },
+    /* "Or a conversation." points at the person you'd be having it with: Amrin, in a speech bubble */
+    { id: 'talk',   shape: 'bubble',   img: 'assets/amrin-at-the-table.jpg',  fx: .48, fy: .44, zoom: 2.3,  spin: 12 },
   ];
 
   /* split the headline into letters, then restore the font's own kerning */
@@ -4520,6 +4585,11 @@ html.js:not(.ready) .h-type,html.js:not(.ready) .ticker{opacity:0}
       if (tall) typeRects.push(inkBox(shiftY(R.orderA, dy), fs, 8), inkBox(shiftY(R.co, dy), fs, 8));
       else typeRects.push({ l: R.l1.l - 14 * s, r: R.l1.r + 14 * s, t: R.l1.t + fs * .16 - 14 * s, b: R.l1.t + dy + fs * .86 + 14 * s });   // the whole path it travels
     }
+    /* phone: the scroll cue waits just under the first line, in the slot "Or a conversation." will fill (it leaves on the first scroll) */
+    const cueTop = Math.round(R.l1.b + dy + 52 * Math.min(1.15, s)), cueLine = $('.cue-line', cue);
+    cue.style.top = tall ? cueTop + 'px' : '';
+    cue.style.bottom = tall ? 'auto' : '';
+    cueLine.style.height = tall ? Math.round(clamp((tickT - cueTop - 22) * .5, 30, 100)) + 'px' : '';   // the hairline reaches down into the room
     const protects = [...typeRects, grow(R.sub, 12 * s), grow(R.ctas, 14 * s), grow(rel(cueIn), 10 * s)];
     const B = { l: 8, r: W - 8, t: navB + 6, b: tickT - 8 };
 
@@ -4602,6 +4672,36 @@ html.js:not(.ready) .h-type,html.js:not(.ready) .ticker{opacity:0}
       const T = HS.talk;
       tIt.cx = T.cx + T.w * .45 - tIt.L.w / 2; tIt.cy = T.cy - T.h * .5 - lsz * .7;
       solve([tIt], [...labProtects, ...labItems.filter(o => o !== tIt).map(itRect)], B);
+    }
+    /* guard: on a short laptop screen "blueberry cloud matcha" gets boxed in between its sticker, the small print and the
+       buttons (the solver gives up still overlapping). Try it stacked on two lines beside the sticker (right, then left),
+       then centred under it, then over the cups; if none is clean the photo goes unlabelled rather than sit on the words */
+    const mIt = labItems.find(it => it.id === 'matcha');
+    if (mIt && !tall) {
+      const overlaps = (a, b) => Math.min(a.r, b.r) - Math.max(a.l, b.l) > 1 && Math.min(a.b, b.b) - Math.max(a.t, b.t) > 1;
+      const others = () => [...labProtects, ...labItems.filter(o => o !== mIt).map(itRect)];
+      const clean = () => { const r = itRect(mIt); return r.l >= B.l && r.r <= B.r && r.t >= B.t && r.b <= B.b && !others().some(p => overlaps(r, p)); };
+      if (!clean()) {
+        const Mt = HS.matcha, Cp = HS.cups;
+        let txt = labPlan.matcha.text;
+        const relabel = (text, align) => {
+          if (text !== txt) {
+            mIt.L.el.remove();
+            mIt.L = LB.matcha = makeLabel(hLab, text, lsz);
+            mIt.hw = mIt.L.w / 2 + 4; mIt.hh = mIt.L.h / 2 + 2; txt = text;
+          }
+          mIt.L.el.classList.toggle('r', align === 'r');
+        };
+        const tries = [
+          () => { relabel('blueberry\ncloud matcha', 'l'); mIt.cx = Mt.cx + Mt.w * .6 + mIt.L.w / 2; mIt.cy = Mt.cy + Mt.h * .22; },
+          () => { relabel('blueberry\ncloud matcha', 'r'); mIt.cx = Mt.cx - Mt.w * .6 - mIt.L.w / 2; mIt.cy = Mt.cy + Mt.h * .22; },
+          () => { relabel(labPlan.matcha.text, 'l'); mIt.cx = Mt.cx; mIt.cy = Mt.cy + Mt.h * .5 + lsz * .95; },
+          ...(Cp ? [() => { relabel(labPlan.matcha.text, 'l'); mIt.cx = Cp.cx - Cp.w * .5 + mIt.L.w / 2; mIt.cy = Cp.cy - Cp.h * .5 - lsz * 1.05; }] : []),
+        ];
+        let ok = false;
+        for (const t of tries) { t(); solve([mIt], others(), B); if ((ok = clean())) break; }
+        if (!ok) { mIt.L.el.remove(); delete LB.matcha; labItems.splice(labItems.indexOf(mIt), 1); }
+      }
     }
     labItems.forEach(it => {
       it.L.el.style.left = (it.cx - it.L.w / 2) + 'px';
@@ -4720,7 +4820,8 @@ html.js:not(.ready) .h-type,html.js:not(.ready) .ticker{opacity:0}
     /* the eyebrow says where you are: BC's first Humanity Café, New Westminster */
     it.fromTo(hEyeBits, { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 1.0, ease: 'expo.out', stagger: .08 }, .95);
     it.to(ticker, { yPercent: 0, duration: 1.15, ease: 'expo.out' }, 1.25)
-      .to(cueIn, { opacity: 1, y: 0, duration: 1.0, ease: 'power3.out' }, 2.15);
+      .call(() => { if (!autoOK || userMoved || (autoDone && !autoPending && !autoGliding)) showCue(); }, null, 2.15)
+      .call(armAuto, null, 2.3);
     it.set({}, {}, 3.0);
     introTl = it;
 
@@ -4758,8 +4859,8 @@ html.js:not(.ready) .h-type,html.js:not(.ready) .ticker{opacity:0}
       const hitV = { x: ux * push + skid, y: uy * push, rotation: rot, scale: 1 + .05 * k };
       tl.fromTo(S.knock, { x: 0, y: 0, rotation: 0, scale: 1 }, { ...hitV, duration: .11, ease: 'power3.out', immediateRender: IR }, at)
         .fromTo(S.knock, hitV, { x: ux * push * .32 + skid * .7, y: uy * push * .32, rotation: rot * .3, scale: 1, duration: 1.3, ease: 'elastic.out(1,.32)', immediateRender: IR }, at + .11)
-        .fromTo(S.shadow, { y: S.h * .035 }, { y: S.h * (.035 + .09 * k), duration: .11, ease: 'power3.out', immediateRender: IR }, at)
-        .fromTo(S.shadow, { y: S.h * (.035 + .09 * k) }, { y: S.h * .035, duration: .9, ease: 'power2.out', immediateRender: IR }, at + .11);
+        .fromTo(S.shK, { y: 0 }, { y: S.h * .09 * k, duration: .11, ease: 'power3.out', immediateRender: IR }, at)
+        .fromTo(S.shK, { y: S.h * .09 * k }, { y: 0, duration: .9, ease: 'power2.out', immediateRender: IR }, at + .11);
     });
 
     /* the line makes room, "Or a conversation." writes in */
@@ -4788,12 +4889,12 @@ html.js:not(.ready) .h-type,html.js:not(.ready) .ticker{opacity:0}
     tl.addLabel('composed', B3 + 1.6);
 
     /* BEAT 4: the page folds up like turned paper, the stickers fly off to the edges… */
-    const B4 = B3 + 2.6;
+    const B4 = B3 + 3.4;
     const rows = [hCtas, hSmall, r2, r1, hEye];
     tl.to([hInk, hLab], { opacity: 0, duration: .3, ease: 'power1.in' }, B4)
       .to(rows, { y: i => f * (.05 + i * .02), duration: .3, stagger: .05, ease: 'power2.out' }, B4)
       .to(rows, { y: i => -f * (.9 - i * .22), rotationX: 84, duration: .55, stagger: .07, ease: 'power3.in' }, B4 + .3)
-      .to(rows, { autoAlpha: 0, duration: .2, stagger: .07, ease: 'power1.in' }, B4 + .62);
+      .to(rows, { autoAlpha: 0, duration: .28, stagger: .07, ease: 'power1.in' }, B4 + .34);
     const cx0 = W / 2, cy0 = (navB + tickT) / 2;
     Object.values(HS).sort((a, b) => Math.hypot(b.cx - cx0, b.cy - cy0) - Math.hypot(a.cx - cx0, a.cy - cy0)).forEach((S, i) => {
       let ux = S.cx - cx0, uy = S.cy - cy0; const dl = Math.hypot(ux, uy) || 1; ux /= dl; uy /= dl;
@@ -5071,7 +5172,8 @@ html.js:not(.ready) .h-type,html.js:not(.ready) .ticker{opacity:0}
         box = { x0: 12, x1: W - 12, y0: hb.bottom - sr.top + 12, y1: cb.top - sr.top - 12 };
       } else {
         const cr = $('.mn-copy', sec).getBoundingClientRect();
-        box = { x0: Math.max(cr.right - sr.left + W * .02, W * .4), x1: W * .985, y0: navH + 8, y1: H - 10 };
+        const side = clamp(W * .05, 16, 72);                   // the page gutter (--side), so the right edge breathes like the left
+        box = { x0: Math.max(cr.right - sr.left + W * .02, W * .4), x1: W - Math.max(56, side), y0: navH + 22, y1: H - 30 };
       }
       const bw = box.x1 - box.x0, bh = box.y1 - box.y0;
       const s = Math.min(bw / LY.box[0], bh / LY.box[1]);
@@ -5162,8 +5264,18 @@ html.js:not(.ready) .h-type,html.js:not(.ready) .ticker{opacity:0}
       });
       /* an espresso-ink circle round "chaat" */
       const em = $('em', h2), er = em.getBoundingClientRect();
-      const ecx = er.left - sr.left + er.width / 2, ecy = er.top - sr.top + er.height * .56;
-      const scrib = prep(svgEl('path', { d: scribble(ecx, ecy, er.width * .5 + 3, er.height * .4 + 3, -.06), 'stroke-width': f2(Math.max(2.2, (tall ? 2.6 : 3.4) * Math.min(1.2, s))), class: 'dark' }, ink2));
+      /* the italic leans right of its box: centre the loop on the letters, not the box, and keep it inside the
+         word spaces either side (the loop swings ~10% wider on its left, where it comes round) */
+      const ecx = er.left - sr.left + er.width * .52, ecy = er.top - sr.top + er.height * .56;
+      const scribW = Math.max(2.2, (tall ? 2.6 : 3.4) * Math.min(1.2, s));
+      const wordBox = w => (w && w.classList.contains('w') ? $('.wi', w).getBoundingClientRect() : null);
+      const prevR = wordBox(em.closest('.w').previousElementSibling), nextR = wordBox(em.closest('.w').nextElementSibling);
+      const room = scribW / 2 + 2.5;
+      let erx = er.width * .5 + 4;
+      if (prevR && Math.abs(prevR.top - er.top) < er.height * .5) erx = Math.min(erx, (ecx - (prevR.right - sr.left) - room) / 1.105);
+      if (nextR && Math.abs(nextR.top - er.top) < er.height * .5) erx = Math.min(erx, ((nextR.left - sr.left) - ecx - room) / 1.03);
+      erx = Math.max(erx, er.width * .5 - 1);
+      const scrib = prep(svgEl('path', { d: scribble(ecx, ecy, erx, er.height * .4 + 3, -.06), 'stroke-width': f2(scribW), class: 'dark' }, ink2));
 
       /* ---------- timelines ---------- */
       const slap = (S, L) => {
@@ -5259,7 +5371,8 @@ html.js:not(.ready) .h-type,html.js:not(.ready) .ticker{opacity:0}
   const s3 = $('#s3'), s3Stk = $('#s3Stk'), s3Ink = $('#s3Ink');
   const S3_CAST = [
     { id: 'chai',  shape: 'circle',  img: 'assets/chai-and-samosa.jpg',    fx: .5,  fy: .5,  zoom: 1.0,  spin: -14 },
-    { id: 'cups',  shape: 'rrect',   img: 'assets/cups-900.jpg',           fx: .5,  fy: .44, zoom: 1.12, spin: 15 },
+    /* a close crop on one cup ("Humanity begins with You n Me"), so it never reads as the hero's three-cup sticker again */
+    { id: 'cups',  shape: 'rrect',   img: 'assets/cups-900.jpg',           fx: .52, fy: .4,  zoom: 1.6,  spin: 15 },
     { id: 'room',  shape: 'pill',    img: 'assets/a-full-room.jpg',        fx: .45, fy: .52, zoom: 1.0,  spin: 12 },
   ];
   let S3 = [], s3Sparks = [], s3Wave = null;
@@ -5280,18 +5393,23 @@ html.js:not(.ready) .h-type,html.js:not(.ready) .ticker{opacity:0}
     } else {
       s = Math.min(W / 1440, H / 810);
       plan = {
-        chai: { cx: W * .855, cy: H * .31, w: 236 * s, h: 236 * s, r: 6 },
-        cups: { cx: W * .7,   cy: H * .58, w: 272 * s, h: 272 * s, r: -5 },
-        room: { cx: W * .9,   cy: H * .76, w: 156 * s, h: 258 * s, r: 9 },
+        /* the cluster starts just after the copy and fills the band, instead of huddling against the right edge */
+        chai: { cx: W * .79,  cy: H * .30, w: 262 * s, h: 262 * s, r: 6 },
+        cups: { cx: W * .615, cy: H * .57, w: 318 * s, h: 318 * s, r: -5 },
+        room: { cx: W * .895, cy: H * .73, w: 172 * s, h: 286 * s, r: 9 },
       };
     }
     const copyRect = { l: cr.left - sr.left - 10, r: cr.right - sr.left + 18 * s, t: cr.top - sr.top - 10, b: cr.bottom - sr.top + 10 };
+    /* desktop: the stickers clear the copy itself (the words, the chips, the button), not the 820px block around it, so
+       the cluster can start right after the headline; the whole die-cut sticker, border included, stays off the chips */
+    const relR = (el, m) => { const r = el.getBoundingClientRect(); return { l: r.left - sr.left - m, r: r.right - sr.left + m, t: r.top - sr.top - m, b: r.bottom - sr.top + m }; };
+    const copyBits = tall ? [copyRect] : $$('.s3 .eyebrow > *, .s3-h .mi, .s3-p, .s3-chips li, .s3-cta .btn').map(el => relR(el, 18 * s));
     const B = { l: 6, r: W - 6, t: nav.offsetHeight + 4, b: H - 6 };
     S3 = S3_CAST.map(c => {
       const p = plan[c.id];
       const S = makeSticker(c, p.w, p.h, THEME_TERRA, s3Stk);
-      const b = boxOf(p.cx, p.cy, p.w, p.h, p.r, .9);
-      solve([b], [copyRect], B);
+      const b = boxOf(p.cx, p.cy, p.w, p.h, p.r, tall ? .9 : 1.04);
+      solve([b], copyBits, B);
       placeSticker(S, b.cx, b.cy, p.r);
       S.th = 0; S.on = false;
       S.slap = gsap.timeline({ paused: true });
@@ -5301,7 +5419,9 @@ html.js:not(.ready) .h-type,html.js:not(.ready) .ticker{opacity:0}
     s3Ink.setAttribute('viewBox', `0 0 ${W} ${H}`);
     const sw = Math.max(1.8, 2.5 * s);
     const A = S3[0], C = S3[1];
-    s3Sparks = [[A.cx - A.w * .62, A.cy - A.h * .32, 16 * s], [C.cx - C.w * .62, C.cy + C.h * .4, 12 * s], [A.cx + A.w * .36, A.cy + A.h * .62, 10 * s]].map(([x, y, R0]) => {
+    /* desktop: the cups sticker now sits right beside the chips, so its sparkle goes up into the gap by the headline */
+    const cSpark = tall ? [C.cx - C.w * .62, C.cy + C.h * .4] : [C.cx - C.w * .66, C.cy - C.h * .36];
+    s3Sparks = [[A.cx - A.w * .62, A.cy - A.h * .32, 16 * s], [cSpark[0], cSpark[1], 12 * s], [A.cx + A.w * .36, A.cy + A.h * .62, 10 * s]].map(([x, y, R0]) => {
       const g = svgEl('g', {}, s3Ink);
       return { g, p: prep(svgEl('path', { d: sparkle(f2(x), f2(y), f2(R0)), 'stroke-width': f2(sw * .9) }, g)), x, y };
     });
@@ -5345,7 +5465,7 @@ html.js:not(.ready) .h-type,html.js:not(.ready) .ticker{opacity:0}
       /* hero: pinned + scrubbed (shorter on phones). Scrubs sit at .45 on top of Lenis so the strike lands punchy */
       cueOn = true;
       const SCRUB = debug ? true : .45;
-      const PIN = Math.round(H * (HG.tall ? 1.45 : 1.95));
+      const PIN = Math.round(H * (HG.tall ? 1.6 : 2.25));
       heroST = ScrollTrigger.create({
         trigger: hero, start: 'top top', end: '+=' + PIN, pin: true, anticipatePin: 1,
         scrub: SCRUB, animation: heroScrub,
@@ -5480,23 +5600,26 @@ html.js:not(.ready) .h-type,html.js:not(.ready) .ticker{opacity:0}
   /* hands off on arrival: once the intro has landed and nobody has touched anything, the page plays its own
      first beat (the strike, "Or a conversation.") so the idea lands without a scroll. Any input cancels it.
      Skipped for automation (?autoplay forces it), ?noauto, debug/seek/tour and reduced motion. */
-  let autoDone = false, autoTimer = 0, userMoved = false, autoGliding = false;
+  let autoDone = false, autoTimer = 0, userMoved = false, autoGliding = false, autoPending = false;
   const autoOK = !reduce && !debug && !seeking && !qs.has('tour') && !qs.has('noauto') && (!navigator.webdriver || qs.has('autoplay'));
+  function showCue() { gsap.to(cueIn, { opacity: 1, y: 0, duration: 1.0, ease: 'power3.out', overwrite: 'auto' }); }
   const cancelAuto = () => {
     userMoved = true; clearTimeout(autoTimer);
     if (autoGliding && lenis) lenis.scrollTo(window.scrollY || 0, { immediate: true, force: true });   // whoever scrolled wins
-    autoGliding = false;
+    if (autoGliding || autoPending) showCue();
+    autoGliding = autoPending = false;
   };
   ['wheel', 'touchstart', 'keydown', 'pointerdown'].forEach(ev => addEventListener(ev, e => { if (e.isTrusted) cancelAuto(); }, { passive: true }));
   addEventListener('scroll', e => { if (!e.isTrusted) cancelAuto(); }, { passive: true });   // a script scrolled the page (capture tools)
   function armAuto() {
     if (!autoOK || autoDone) return;
-    autoDone = true;
+    autoDone = autoPending = true;
     autoTimer = setTimeout(() => {
-      if (userMoved || tour || !heroST || (window.scrollY || 0) > 8) return;
+      autoPending = false;
+      if (userMoved || tour || !heroST || (window.scrollY || 0) > 8) { showCue(); return; }
       autoGliding = true;
-      glideTo(heroY('composed'), { duration: 2.6, easing: t => (t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2), onComplete: () => { autoGliding = false; } });
-    }, 1300);
+      glideTo(heroY('composed'), { duration: 2.0, easing: t => (t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2), onComplete: () => { autoGliding = false; showCue(); } });
+    }, 250);
   }
 
   /* =====================================================================
@@ -5513,6 +5636,7 @@ html.js:not(.ready) .h-type,html.js:not(.ready) .ticker{opacity:0}
     introTl.play(0);
   }
   function boot() {
+    if (!location.hash && !debug && !userMoved && (window.scrollY || 0) > 0) scrollToY(0);
     buildHero();
     marquee();
     setupScroll();
