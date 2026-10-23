@@ -1,0 +1,1439 @@
+/* Design tokens. Palette values are fixed by the spec; do not tweak them. */
+:root {
+  /* Palette */
+  --house-dark: #081624;
+  --temple-navy: #0E243B;
+  --night: #02060B;
+  --paper: #F8F3E8;
+  --linen: #F5E9C8;
+  --ink: #1C1A16;
+  --brass: #B7A17A;
+  --deep-brass: #7D6A45;
+  --stage-gold: #D4A84B;
+  --tungsten: #F6D9A6;
+
+  /* Type: Fraunces for display (italic only for Vahan's verbatim words),
+     Instrument Sans for everything else, Noto Sans only as the fallback for
+     the land-acknowledgement names. */
+  --font-display: "Fraunces", "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+  --font-body: "Instrument Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-ack: "Noto Sans", "Instrument Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+
+  /* Side gutters (no horizontal overflow at 360px) */
+  --gutter-l: max(16px, env(safe-area-inset-left, 0px));
+  --gutter-r: max(16px, env(safe-area-inset-right, 0px));
+
+  --ease: cubic-bezier(.2, .7, .2, 1);
+}
+/* Base: layout tokens, room palettes, reset, focus, rooms.
+   Palette and font tokens live in 00-tokens.css; nothing here changes them.
+   Phone breakpoint everywhere: max-width 759.98px (that is, under 760px). */
+
+:root {
+  color-scheme: dark;
+
+  /* Motion: every duration and delay in the shared CSS is multiplied by --slow.
+     html.slow sets it to 1.8 (60-notes-slow.css). Section CSS should do the same,
+     either with calc(.6s * var(--slow)) or with these tokens. */
+  --slow: 1;
+  --t-fast: calc(.25s * var(--slow));
+  --t-med: calc(.6s * var(--slow));
+  --t-slow: calc(1.1s * var(--slow));
+
+  /* Chrome sizes */
+  --header-h: 68px;
+  --bar-h: 64px;
+  --room-pad: clamp(72px, 9vw, 152px);
+  --measure: 62ch;
+
+  /* Default scheme = a dark room. Rooms and overlays outside a .room (scene
+     stages, header, footer) all read these. */
+  --bg: var(--house-dark);
+  --fg: var(--linen);
+  --fg-soft: rgba(245, 233, 200, .8);   /* Linen at 80%; the color-mix version is in the @supports block below */
+  --accent: var(--stage-gold);        /* emphasis in display type, ring and hover colour */
+  --accent-text: var(--brass);        /* eyebrows and small labels */
+  --rule: rgba(183, 161, 122, .26);
+  --rule-strong: rgba(183, 161, 122, .5);
+  --focus: var(--stage-gold);
+  --note: var(--brass);               /* open-questions layer */
+  --note-bg: var(--brass);
+  --note-fg: var(--house-dark);
+}
+
+/* Rooms: a colour world per section. Every pairing below is checked for AA
+   (body and small text 4.5:1, focus ring and component edges 3:1). */
+.room--dark { --bg: var(--house-dark); }
+.room--navy { --bg: var(--temple-navy); }
+.room--paper,
+.room--linen {
+  color-scheme: light;
+  --fg: var(--ink);
+  --fg-soft: rgba(28, 26, 22, .76);     /* Ink at 76% */
+  --accent: #605237;                    /* Deep Brass 70% + Ink 30% */
+  --accent-text: #605237;
+  --rule: rgba(28, 26, 22, .16);
+  --rule-strong: rgba(28, 26, 22, .36);
+  --focus: var(--deep-brass);
+  --note: var(--deep-brass);
+  --note-bg: var(--deep-brass);
+  --note-fg: var(--paper);
+}
+.room--paper { --bg: var(--paper); }
+.room--linen { --bg: var(--linen); }
+
+/* The plain values above are what browsers without color-mix() (Safari 16.0 and 16.1) use; where it
+   is supported the same colours are derived from the palette tokens, so they can never drift apart. */
+@supports (color: color-mix(in srgb, red, blue)) {
+  :root {
+    --fg-soft: color-mix(in srgb, var(--linen) 80%, transparent);
+  }
+  .room--paper,
+  .room--linen {
+    --fg-soft: color-mix(in srgb, var(--ink) 76%, transparent);
+    --accent: color-mix(in srgb, var(--deep-brass) 70%, var(--ink));
+    --accent-text: color-mix(in srgb, var(--deep-brass) 70%, var(--ink));
+  }
+}
+
+/* Reset */
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  background: var(--house-dark);
+  /* anchor jumps land below the fixed header */
+  scroll-padding-top: calc(var(--header-h) + env(safe-area-inset-top, 0px) + 12px);
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--house-dark);
+  color: var(--linen);
+  font-family: var(--font-body);
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.55;
+  font-kerning: normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+main { display: block; }
+
+img, video, canvas { display: block; max-width: 100%; }
+img { height: auto; }
+
+h1, h2, h3, h4 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 400;
+  text-wrap: balance;
+}
+h1 { font-size: clamp(2.3rem, 6vw, 4.6rem); line-height: 1.04; letter-spacing: -.02em; }
+h2 { font-size: clamp(1.8rem, 3.6vw, 2.9rem); line-height: 1.08; letter-spacing: -.015em; }
+h3 { font-size: clamp(1.3rem, 2vw, 1.65rem); line-height: 1.2; letter-spacing: -.01em; }
+h4 { font-size: 1.1rem; line-height: 1.3; }
+
+p { margin: 0 0 1em; text-wrap: pretty; }
+figure, blockquote { margin: 0; }
+strong, b { font-weight: 600; }
+/* Fraunces italic is reserved for Vahan's own words (.quote). Instrument Sans
+   is only loaded in roman, so there is no italic anywhere else. */
+em, i, cite, dfn, var, address { font-style: normal; }
+
+a { color: inherit; }
+button {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+[hidden] { display: none !important; }
+
+::selection { background: var(--stage-gold); color: var(--house-dark); }
+
+/* Focus: visible on every interactive element, never removed */
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 3px;
+}
+[tabindex="-1"]:focus { outline: none; }
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Rooms */
+.room {
+  position: relative;
+  isolation: isolate;
+  overflow-x: clip;
+  padding-block: var(--room-pad);
+  background: var(--bg);
+  color: var(--fg);
+}
+.room__inner {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: calc(72rem + var(--gutter-l) + var(--gutter-r));
+  margin-inline: auto;
+  padding-inline: var(--gutter-l) var(--gutter-r);
+}
+
+@media (max-width: 759.98px) {
+  :root { --header-h: 88px; }
+  /* keyboard focus and in-page jumps never land under the fixed bottom bar (--bar-h plus a little air) */
+  html { scroll-padding-bottom: calc(var(--bar-h) + 24px + env(safe-area-inset-bottom, 0px)); }
+}
+/* Type: two families only. Fraunces for display (roman; italic only in .quote, which
+   is reserved for Vahan's verbatim words), Instrument Sans for everything else. */
+
+.eyebrow {
+  margin: 0 0 1rem;
+  max-width: 56ch;
+  font-family: var(--font-body);
+  font-size: .72rem;
+  font-weight: 500;
+  line-height: 1.5;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--accent-text);
+}
+
+/* Fraunces roman, optical size at its display cut */
+.display {
+  margin: 0;
+  font-family: var(--font-display);
+  font-style: normal;
+  font-weight: 380;
+  font-variation-settings: "opsz" 144;
+  font-size: clamp(2.4rem, 1.2rem + 5.2vw, 5rem);
+  line-height: 1.03;
+  letter-spacing: -.02em;
+  text-wrap: balance;
+  overflow-wrap: break-word;
+}
+.display--xl {
+  font-size: clamp(2.9rem, 1.2rem + 8.4vw, 9rem);
+  line-height: .96;
+  letter-spacing: -.03em;
+}
+.display--sm {
+  font-size: clamp(1.8rem, 1.1rem + 2.6vw, 3rem);
+  line-height: 1.08;
+  letter-spacing: -.015em;
+}
+
+/* Vahan's own words, and only his: Fraunces italic */
+.quote {
+  margin: 0;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 330;
+  font-variation-settings: "opsz" 120;
+  font-size: clamp(1.6rem, 1rem + 2.4vw, 3rem);
+  line-height: 1.1;
+  letter-spacing: -.015em;
+  text-wrap: balance;
+  overflow-wrap: break-word;
+}
+.quote--xl {
+  font-size: clamp(2.1rem, 3.55vw, 4.4rem);
+  line-height: 1.04;
+}
+.quote em { font-style: normal; }
+
+:is(h1, h2, h3, .display, .quote) em {
+  font-style: normal;
+  color: var(--accent);
+}
+
+.lede {
+  margin: 0 0 1.2em;
+  max-width: 60ch;
+  font-size: clamp(1.05rem, 1rem + .35vw, 1.3rem);
+  line-height: 1.55;
+  color: var(--fg-soft);
+  text-wrap: pretty;
+}
+
+.small {
+  font-size: .82rem;
+  line-height: 1.5;
+  color: var(--fg-soft);
+}
+
+/* The three Nation names in the land acknowledgement: real text, never styled.
+   No case change, no italics, no tight tracking that could collide with the
+   combining marks, no hyphenation. Instrument Sans leads; Noto Sans (loaded
+   as a tiny subset of exactly these characters) supplies what it lacks. */
+.ack-name {
+  font-family: "Instrument Sans", "Noto Sans", system-ui, sans-serif;
+  font-style: normal;
+  font-synthesis: none;
+  text-transform: none;
+  font-variant-caps: normal;
+  letter-spacing: normal;
+  hyphens: manual;
+  word-break: normal;
+  white-space: nowrap;
+}
+
+@media (max-width: 759.98px) {
+  .eyebrow { font-size: .7rem; letter-spacing: .14em; }
+}
+/* Components: buttons, links, shapes, header, footer, phone bottom bar. The nav links, Menu button and
+   full-screen menu overlay live in 35-nav.css. */
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .6em;
+  min-height: 46px;
+  padding: .8rem 1.4rem;
+  border: 0;
+  border-radius: 999px;
+  background: var(--stage-gold);
+  color: var(--house-dark);
+  font-family: var(--font-body);
+  font-size: .95rem;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: .005em;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color var(--t-fast) var(--ease), transform var(--t-fast) var(--ease), box-shadow var(--t-fast) var(--ease);
+}
+.btn:hover { background: var(--tungsten); transform: translateY(-1px); }
+.btn:active { transform: none; }
+.btn--small { min-height: 38px; padding: .5rem 1.05rem; font-size: .86rem; }
+/* gold on Paper/Linen has only 2:1 against the room, so give the edge a brass ring there */
+.room--paper .btn:not(.btn--ghost),
+.room--linen .btn:not(.btn--ghost) { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--deep-brass) 60%, transparent); }
+
+.btn--ghost {
+  background: transparent;
+  color: var(--fg);
+  box-shadow: inset 0 0 0 1px var(--rule-strong);
+}
+.btn--ghost:hover {
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+  box-shadow: inset 0 0 0 1px var(--accent);
+}
+
+/* Text link that ends in an arrow. The arrow is drawn here: do not type "→" in the copy. */
+.link-arrow {
+  color: var(--fg);
+  font-weight: 500;
+  text-decoration: underline;
+  text-decoration-color: var(--rule-strong);
+  text-decoration-thickness: 1px;
+  text-underline-offset: .3em;
+  transition: text-decoration-color var(--t-fast) var(--ease);
+}
+.link-arrow::after {
+  content: "\2192";
+  display: inline-block;
+  margin-left: .45em;
+  text-decoration: none;
+  transition: transform var(--t-fast) var(--ease);
+}
+.link-arrow:hover { text-decoration-color: var(--accent); }
+.link-arrow:hover::after { transform: translateX(.3em); }
+
+/* Plain links in running copy and in the footer */
+main a:not([class]),
+.site-footer :is(.contact, .social) a {
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, currentColor 40%, transparent);
+  text-decoration-thickness: 1px;
+  text-underline-offset: .25em;
+  transition: text-decoration-color var(--t-fast) var(--ease);
+}
+main a:not([class]):hover,
+.site-footer :is(.contact, .social) a:hover { text-decoration-color: var(--accent); }
+
+/* Shapes */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: .5em;
+  padding: .38rem .8rem;
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--bg) 72%, transparent);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  color: var(--fg);
+  font-family: var(--font-body);
+  font-size: .76rem;
+  font-weight: 500;
+  line-height: 1.3;
+  letter-spacing: .01em;
+}
+
+/* Image frame with a round top. Set --arch-ratio (default 4 / 5) to change its proportions. */
+.arch {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border-radius: 999px 999px 0 0;
+  aspect-ratio: var(--arch-ratio, 4 / 5);
+  background: var(--temple-navy);
+}
+.arch > img,
+.arch > picture,
+.arch > picture > img,
+.arch > video,
+.arch > canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.arch::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: inset 0 0 0 1px rgba(183, 161, 122, .35);
+  pointer-events: none;
+}
+
+/* Film grain: absolute overlay, 3-7% on dark rooms. The parent needs position: relative. */
+.grain {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  opacity: .05;
+  pointer-events: none;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 180px 180px;
+}
+
+/* Header: fixed over the heroes. Transparent while at the top, solid House Dark after
+   40px of scroll; core.js toggles .is-solid. Without JS it is simply solid, so it can
+   never sit unreadable over content. */
+.site-header {
+  --hdr-solid: rgba(8, 22, 36, .95);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 60;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  column-gap: clamp(16px, 3vw, 40px);
+  height: calc(var(--header-h) + env(safe-area-inset-top, 0px));
+  padding: env(safe-area-inset-top, 0px) max(var(--gutter-r), calc((100% - 72rem) / 2)) 0 max(var(--gutter-l), calc((100% - 72rem) / 2));
+  color: var(--linen);
+  background: var(--hdr-solid);
+  -webkit-backdrop-filter: blur(14px) saturate(1.15);
+  backdrop-filter: blur(14px) saturate(1.15);
+  border-bottom: 1px solid var(--rule);
+  transition: background-color var(--t-med) var(--ease), border-color var(--t-med) var(--ease), backdrop-filter var(--t-med) var(--ease);
+}
+.site-header[data-page="tos"] { --hdr-solid: rgba(14, 36, 59, .95); }
+.site-header[data-page="brotherhood"] { --hdr-solid: rgba(2, 6, 11, .95); }
+html.js .site-header:not(.is-solid) {
+  background: transparent;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  border-bottom-color: transparent;
+}
+
+.skip {
+  position: absolute;
+  left: var(--gutter-l);
+  top: -120px;
+  z-index: 2;
+  padding: .7rem 1.2rem;
+  border-radius: 999px;
+  background: var(--stage-gold);
+  color: var(--house-dark);
+  font-weight: 600;
+  text-decoration: none;
+}
+.skip:focus { top: calc(10px + env(safe-area-inset-top, 0px)); }
+
+.wordmark {
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  gap: .75rem;
+  color: var(--linen);
+  font-family: var(--font-display);
+  font-size: 1.22rem;
+  font-weight: 500;
+  font-variation-settings: "opsz" 36;
+  line-height: 1;
+  letter-spacing: .005em;
+  text-decoration: none;
+  white-space: nowrap;
+}
+/* the small gold ellipse: the pool of light on the speaker's mark */
+.mark-ellipse {
+  flex: none;
+  width: 26px;
+  height: 10px;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, var(--tungsten), var(--stage-gold) 55%, transparent 100%);
+  box-shadow: 0 0 16px 2px rgba(212, 168, 75, .35);
+  transition: transform var(--t-med) var(--ease);
+}
+.wordmark:hover .mark-ellipse { transform: scaleX(1.3); }
+
+.site-actions {
+  justify-self: end;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.site-actions .btn, .site-actions .slow-toggle { white-space: nowrap; }
+
+/* Footer: land acknowledgement and contact on top; below a hairline, the two page lists and the credit. */
+.site-footer {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-areas:
+    "ack ack contact"
+    "ack ack social"
+    "rule rule rule"
+    "pages home credit";
+  align-content: start;
+  column-gap: clamp(32px, 6vw, 96px);
+  row-gap: 18px;
+  padding: clamp(56px, 7vw, 104px) max(var(--gutter-r), calc((100% - 72rem) / 2)) clamp(72px, 6vw, 88px) max(var(--gutter-l), calc((100% - 72rem) / 2));
+  background: var(--night);
+  color: var(--linen);
+  border-top: 1px solid var(--rule);
+  font-size: .95rem;
+  line-height: 1.6;
+}
+.site-footer p { margin: 0; }
+.land-ack {
+  grid-area: ack;
+  max-width: 46ch;
+  font-size: 1.04rem;
+  line-height: 1.7;
+  color: var(--fg-soft);
+}
+.site-footer .contact { grid-area: contact; align-self: start; }
+.site-footer .social { grid-area: social; display: flex; flex-wrap: wrap; gap: 6px 22px; align-self: start; }
+.site-footer .credit { grid-area: credit; justify-self: end; align-self: end; font-size: .8rem; color: var(--fg-soft); }
+
+.footer-rule {
+  grid-area: rule;
+  height: 1px;
+  margin-top: clamp(20px, 3vw, 40px);
+  background: var(--rule);
+}
+.footer-nav { display: flex; flex-direction: column; align-items: flex-start; gap: .05rem; padding-top: clamp(2px, .8vw, 10px); }
+.footer-nav--pages { grid-area: pages; }
+.footer-nav--home { grid-area: home; }
+.site-footer .footer-label {
+  margin: 0 0 .7rem;
+  font-size: .72rem;
+  font-weight: 500;
+  line-height: 1.5;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--accent-text);
+}
+.footer-nav a {
+  padding: .3rem 0;
+  color: var(--fg-soft);
+  font-size: .95rem;
+  text-decoration: none;
+  transition: color var(--t-fast) var(--ease);
+}
+.footer-nav a:hover,
+.footer-nav a[aria-current="page"] { color: var(--linen); }
+/* the current page carries the same small pool of light as the wordmark */
+.footer-nav a[aria-current="page"]::after {
+  content: "";
+  display: inline-block;
+  width: 17px;
+  height: 6px;
+  margin-left: .7em;
+  vertical-align: .1em;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, var(--tungsten), var(--stage-gold) 55%, transparent 100%);
+  box-shadow: 0 0 10px 1px rgba(212, 168, 75, .3);
+}
+
+/* Phone bottom bar: Book a call + Slow down. Hidden on desktop; core.js adds .is-shown
+   after the hero. Without JS it is simply always on. */
+.bottom-bar {
+  display: none;
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 55;
+  align-items: center;
+  gap: 10px;
+  padding: 10px var(--gutter-r) calc(10px + env(safe-area-inset-bottom, 0px)) var(--gutter-l);
+  background: rgba(8, 22, 36, .92);
+  -webkit-backdrop-filter: blur(14px) saturate(1.15);
+  backdrop-filter: blur(14px) saturate(1.15);
+  border-top: 1px solid var(--rule);
+  transition: transform var(--t-med) var(--ease), visibility 0s;
+}
+.bottom-bar .btn { flex: 1 1 auto; min-width: 0; }
+html.js .bottom-bar:not(.is-shown) {
+  transform: translateY(110%);
+  visibility: hidden;
+  pointer-events: none;
+  transition: transform var(--t-med) var(--ease), visibility 0s linear var(--t-med);
+}
+
+/* Header at 1023px and below: the nav collapses into the Menu button (35-nav.css). Slow down moves into the menu. */
+@media (max-width: 1023.98px) {
+  .site-header { grid-template-columns: minmax(0, 1fr) auto; column-gap: 12px; }
+  .site-actions .slow-toggle { display: none; }
+}
+
+@media (max-width: 759.98px) {
+  :root { --header-h: 64px; }
+  .site-header { column-gap: 8px; }
+  .wordmark { gap: .65rem; font-size: 1.1rem; }
+  .site-actions { gap: 8px; }
+  .site-actions .btn--small { min-height: 38px; padding-inline: .9rem; font-size: .82rem; }
+  .bottom-bar { display: flex; }
+
+  .site-footer {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-areas: "ack ack" "contact contact" "social social" "rule rule" "pages home" "credit credit";
+    column-gap: 24px;
+    row-gap: 16px;
+    padding-bottom: calc(var(--bar-h) + 64px + env(safe-area-inset-bottom, 0px));
+  }
+  .site-footer .contact, .site-footer .social { align-self: auto; }
+  .footer-rule { margin-top: 12px; }
+  .footer-nav a { padding-block: .45rem; }
+  .site-footer .credit { justify-self: start; margin-top: 12px; }
+}
+
+/* the smallest phones (360px and under): the header row is wordmark + Book a call + Menu, so trim the wordmark */
+@media (max-width: 389.98px) {
+  .wordmark { gap: .5rem; font-size: 1.02rem; }
+  .mark-ellipse { width: 20px; height: 8px; }
+  .site-actions { gap: 6px; }
+  .site-actions .btn--small { padding-inline: .8rem; font-size: .8rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn:hover { transform: none; }
+  .link-arrow:hover::after { transform: none; }
+  .wordmark:hover .mark-ellipse { transform: none; }
+}
+/* Navigation: the desktop links, the Menu button and the full-screen menu overlay.
+
+   Header markup lives in header.html; core.js drives the overlay (VB.menu):
+     <button data-menu-open aria-expanded aria-controls="site-menu">   opens it (below 1024px only)
+     <div id="site-menu" class="menu" role="dialog" aria-modal="true">  .is-open while open, .is-settled 1.6 s later
+   core.js also puts html.menu-open on the page while it is open (page scroll locked). From 1024px up the overlay is
+   display:none and the nav sits in the header. Without JS there is no Menu button, and the footer lists every page. */
+
+/* ---------- Desktop nav (1024px and up) ---------- */
+
+.site-nav {
+  justify-self: center;
+  display: flex;
+  align-items: center;
+  gap: clamp(.2rem, calc(2.3vw - 1.1rem), 1.4rem);       /* link padding below adds the rest: 1.3rem..2.5rem apart */
+  font-family: var(--font-body);
+  font-size: .88rem;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: .005em;
+}
+.site-nav a {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding-inline: .55rem;
+  color: var(--fg-soft);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color var(--t-fast) var(--ease);
+}
+/* the pool of light under a link: faint on hover, full on the current page */
+.site-nav a::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 3px;
+  width: 22px;
+  height: 6px;
+  margin-left: -11px;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, var(--tungsten), var(--stage-gold) 55%, transparent 100%);
+  box-shadow: 0 0 12px 1px rgba(212, 168, 75, .32);
+  opacity: 0;
+  transform: scaleX(.4);
+  transition: opacity var(--t-med) var(--ease), transform var(--t-med) var(--ease);
+}
+.site-nav a:focus-visible { border-radius: 8px; outline-offset: 0; }
+.site-nav a:hover { color: var(--linen); }
+.site-nav a:hover::after { opacity: .5; transform: none; }
+.site-nav a[aria-current="page"] { color: var(--linen); }
+.site-nav a[aria-current="page"]::after { opacity: 1; transform: none; }
+
+/* ---------- Menu / Close button ---------- */
+
+.menu-toggle {
+  display: none;
+  align-items: center;
+  gap: .65em;
+  min-height: 38px;
+  padding: .5rem .9rem .5rem 1.05rem;
+  border: 1px solid var(--rule-strong);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--house-dark) 38%, transparent);   /* stays legible over a hero photo */
+  color: var(--linen);
+  font-family: var(--font-body);
+  font-size: .86rem;
+  font-weight: 500;
+  line-height: 1.2;
+  white-space: nowrap;
+  transition: border-color var(--t-fast) var(--ease), background-color var(--t-fast) var(--ease);
+}
+.menu-toggle:hover { border-color: var(--stage-gold); }
+.menu-toggle[aria-expanded="true"] { border-color: var(--stage-gold); }
+
+/* two thin bars that cross into an X */
+.menu-toggle__icon { position: relative; flex: none; width: 14px; height: 10px; }
+.menu-toggle__icon::before,
+.menu-toggle__icon::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1.5px;
+  border-radius: 1px;
+  background: currentColor;
+  transition: top var(--t-med) var(--ease), transform var(--t-med) var(--ease);
+}
+.menu-toggle__icon::before { top: 1px; }
+.menu-toggle__icon::after { top: 7.5px; }
+.menu.is-open .menu-toggle__icon::before { top: 4.25px; transform: rotate(45deg); }
+.menu.is-open .menu-toggle__icon::after { top: 4.25px; transform: rotate(-45deg); }
+
+@media (max-width: 1023.98px) {
+  .site-nav { display: none; }
+  .menu-toggle { display: inline-flex; }
+}
+@media (max-width: 389.98px) {
+  .menu-toggle { padding-inline: .8rem .75rem; font-size: .8rem; gap: .55em; }
+}
+html:not(.js) .menu-toggle { display: none; }
+
+/* ---------- Full-screen menu ---------- */
+
+html.menu-open { overflow: hidden; scrollbar-gutter: stable; }
+
+.menu {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background:
+    radial-gradient(72% 56% at 90% -10%, rgba(212, 168, 75, .14), transparent 70%),
+    radial-gradient(64% 48% at -6% 112%, rgba(212, 168, 75, .08), transparent 70%),
+    var(--house-dark);
+  color: var(--linen);
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;                 /* while it fades out, clicks already reach the page */
+  transition: opacity var(--t-med) var(--ease), visibility 0s linear var(--t-med);
+}
+.menu.is-open {
+  visibility: visible;
+  opacity: 1;
+  pointer-events: auto;
+  transition: opacity var(--t-med) var(--ease), visibility 0s;
+}
+@media (min-width: 1024px) { .menu { display: none; } }
+html:not(.js) .menu { display: none; }
+
+/* the same strip as the header, so the wordmark stays put and Menu turns into Close */
+.menu__bar {
+  position: relative;
+  z-index: 1;
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  height: calc(var(--header-h) + env(safe-area-inset-top, 0px));
+  padding: env(safe-area-inset-top, 0px) max(var(--gutter-r), calc((100% - 72rem) / 2)) 0 max(var(--gutter-l), calc((100% - 72rem) / 2));
+  border-bottom: 1px solid var(--rule);
+}
+
+.menu__body {
+  position: relative;
+  z-index: 1;
+  flex: 1 0 auto;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  padding: clamp(6px, 2vh, 20px) var(--gutter-r) calc(28px + env(safe-area-inset-bottom, 0px)) var(--gutter-l);
+}
+
+.menu__list { margin: 0; padding: 0; list-style: none; }
+.menu__list li + li { border-top: 1px solid var(--rule); }
+.menu__list a {
+  position: relative;
+  display: block;
+  padding: clamp(.8rem, 2.4vh, 1.25rem) 3.4rem clamp(.8rem, 2.4vh, 1.25rem) 0;
+  color: var(--linen);
+  text-decoration: none;
+}
+.menu__list a:focus-visible { outline-offset: -4px; }
+.menu__word {
+  display: block;
+  font-family: var(--font-display);
+  font-size: clamp(1.7rem, min(1.1rem + 4.4vw, .5rem + 5.2vh), 3.6rem);
+  font-weight: 380;
+  font-variation-settings: "opsz" 144;
+  line-height: 1.08;
+  letter-spacing: -.02em;
+  transition: color var(--t-fast) var(--ease);
+}
+.menu__line {
+  display: block;
+  margin-top: .3rem;
+  font-size: .88rem;
+  line-height: 1.4;
+  color: var(--fg-soft);
+}
+.menu__list a:hover .menu__word { color: var(--tungsten); }
+.menu__list a[aria-current="page"] .menu__word { color: var(--stage-gold); }
+.menu__list a[aria-current="page"]::after {
+  content: "";
+  position: absolute;
+  right: .2rem;
+  top: 50%;
+  width: 28px;
+  height: 11px;
+  margin-top: -5px;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, var(--tungsten), var(--stage-gold) 55%, transparent 100%);
+  box-shadow: 0 0 18px 2px rgba(212, 168, 75, .35);
+}
+
+.menu__foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-top: auto;
+  padding-top: clamp(24px, 5vh, 48px);
+}
+.menu__foot .btn { flex: 1 1 auto; min-height: 48px; padding-inline: 1.7rem; }
+.menu__foot .slow-toggle { flex: 0 0 auto; min-height: 48px; padding-inline: 1.25rem; font-size: .95rem; }
+@media (min-width: 560px) {
+  .menu__foot .btn { flex: 0 0 auto; }
+}
+
+/* the links rise in one after another when the menu opens */
+.menu__list li,
+.menu__foot {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity var(--t-med) var(--ease), transform var(--t-med) var(--ease);
+}
+.menu.is-open .menu__list li,
+.menu.is-open .menu__foot {
+  opacity: 1;
+  transform: none;
+  transition-delay: calc((.07s * var(--i, 0) + .1s) * var(--slow));
+}
+/* core.js adds .is-settled a moment after opening: a stalled animation clock can not strand the links */
+.menu.is-settled .menu__list li,
+.menu.is-settled .menu__foot {
+  opacity: 1;
+  transform: none;
+  transition: none;
+}
+
+/* a phone on its side: drop the sublines so the five links fit */
+@media (max-height: 540px) {
+  .menu__line { display: none; }
+  .menu__list a { padding-block: .4rem; }
+  .menu__body { padding-bottom: calc(18px + env(safe-area-inset-bottom, 0px)); }
+  .menu__foot { padding-top: 16px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .site-nav a::after { transform: none; }
+  .menu__list li, .menu__foot { transform: none; }
+}
+/* Sticky scroll scenes. A tall .scene wrapper holds one sticky 100dvh stage; scroll
+   progress (core.js sets --p on the .scene) drives whatever happens on the stage.
+   Plain CSS position: sticky, no ScrollTrigger pin-spacers.
+
+     <section class="scene" style="--scene-h: 300vh">
+       <div class="scene__stage">
+         <div class="scene__media"> ...film canvas or photo, .lamp, .grain... </div>
+         <div class="scrim"></div>
+         ...copy, caption...
+       </div>
+     </section>
+
+   Scene length: --scene-h (default 260vh). On phones the same scene is about two thirds
+   as long (260vh becomes 180vh); set --scene-h-m to choose the phone length yourself. */
+
+@property --r {
+  syntax: "<length>";
+  inherits: true;
+  initial-value: 0px;
+}
+
+.scene {
+  --scene-h-default: 260vh;
+  position: relative;
+  height: var(--scene-h, var(--scene-h-default));
+}
+.scene__stage {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+  background: var(--night);
+  color: var(--linen);
+}
+.scene__media {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+/* Darkening gradient so copy stays readable over any photo or film frame */
+.scrim {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(8, 22, 36, .55) 0%, rgba(8, 22, 36, 0) 22%, rgba(8, 22, 36, 0) 42%, rgba(8, 22, 36, .72) 74%, rgba(8, 22, 36, .94) 100%),
+    linear-gradient(90deg, rgba(8, 22, 36, .55) 0%, rgba(8, 22, 36, 0) 55%);
+}
+
+/* Lamp: a Night overlay with a round hole at (--sx, --sy) whose radius is --r.
+   It lights up once, when the nearest .scene or [data-spot] ancestor gets .on
+   (see 50-deliver.css). core.js sets --sx/--sy in px with VB.spot(). Without JS
+   it is invisible. */
+.lamp {
+  position: absolute;
+  inset: 0;
+  background: var(--night);
+  opacity: 0;
+  pointer-events: none;
+  -webkit-mask-image: radial-gradient(circle var(--r) at var(--sx, 50%) var(--sy, 55%), transparent 0%, transparent 55%, #000 100%);
+  mask-image: radial-gradient(circle var(--r) at var(--sx, 50%) var(--sy, 55%), transparent 0%, transparent 55%, #000 100%);
+}
+
+@media (max-width: 759.98px) {
+  .scene { height: var(--scene-h-m, calc(var(--scene-h, var(--scene-h-default)) * .6923)); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scene { height: auto; }
+  .scene__stage { position: relative; height: auto; min-height: 92vh; min-height: 92svh; }
+  .lamp { display: none; }
+}
+/* Delivered Type, reveals and the lamp-on moment.
+
+   Rule that runs through this file: nothing is hidden unless html.js is set, every hidden
+   state has a way back (.on plays it, .done snaps to the finished state with no animation,
+   and the CSS-only release keyframes below act as a last resort), and every duration and
+   delay is multiplied by --slow so Slow down stretches the whole choreography.
+
+   Hooks (all set by core.js):
+     [data-deliver]   a line whose words core.js splits into .w spans with a --d delay
+     .on              this container (or its nearest .scene / [data-spot] ancestor) is in
+                      view: play
+     .done            finished (or the failsafe fired): show the final state, no animation
+   Effects go on a word as data-fx="tremble|rise|settle" (core.js may also add the matching
+   .fx-* class); both spellings are styled. Effects use the individual transform
+   properties (translate, rotate, scale) so they never fight the entrance animation. */
+
+/* ---------- Delivered Type ---------- */
+
+[data-deliver] .row { display: block; }
+.w { display: inline-block; }
+:is(.fx-tremble, .fx-rise, .fx-settle, [data-fx]) { display: inline-block; }
+
+html.js [data-deliver] .w {
+  opacity: 0;
+  transform: translateY(.32em);
+  filter: blur(6px);
+}
+/* Until core.js has split the line into .w words, hold the whole line back so the plain
+   sentence never flashes before the words start from hidden (core.js loads after GSAP and
+   can arrive late). Released after 12 s if core.js never runs. Browsers without :has()
+   ignore this rule. */
+html.js [data-deliver]:not(:has(.w)) {
+  opacity: 0;
+  animation: vb-release .01s linear 12s forwards;
+}
+
+/* play */
+html.js :is([data-deliver].on, .scene.on [data-deliver], [data-spot].on [data-deliver]) .w {
+  animation: vb-word-in calc(.75s * var(--slow)) var(--ease) calc(var(--d, 0s) * var(--slow)) forwards;
+}
+html.js :is([data-deliver].on, .scene.on [data-deliver], [data-spot].on [data-deliver]) :is(.fx-tremble, [data-fx="tremble"]) {
+  animation: vb-tremble calc(1.1s * var(--slow)) linear calc((var(--d, 0s) + .2s) * var(--slow)) both;
+}
+html.js :is([data-deliver].on, .scene.on [data-deliver], [data-spot].on [data-deliver]) :is(.fx-rise, [data-fx="rise"]) {
+  animation: vb-rise calc(1.3s * var(--slow)) var(--ease) calc((var(--d, 0s) + .25s) * var(--slow)) both;
+}
+html.js :is([data-deliver].on, .scene.on [data-deliver], [data-spot].on [data-deliver]) :is(.fx-settle, [data-fx="settle"]) {
+  animation: vb-settle calc(1.2s * var(--slow)) var(--ease) calc((var(--d, 0s) + .15s) * var(--slow)) both;
+}
+/* an effect set on the .w itself plays beside its entrance */
+html.js :is([data-deliver].on, .scene.on [data-deliver], [data-spot].on [data-deliver]) .w:where(.fx-tremble, [data-fx="tremble"]) {
+  animation:
+    vb-word-in calc(.75s * var(--slow)) var(--ease) calc(var(--d, 0s) * var(--slow)) forwards,
+    vb-tremble calc(1.1s * var(--slow)) linear calc((var(--d, 0s) + .2s) * var(--slow)) both;
+}
+html.js :is([data-deliver].on, .scene.on [data-deliver], [data-spot].on [data-deliver]) .w:where(.fx-rise, [data-fx="rise"]) {
+  animation:
+    vb-word-in calc(.75s * var(--slow)) var(--ease) calc(var(--d, 0s) * var(--slow)) forwards,
+    vb-rise calc(1.3s * var(--slow)) var(--ease) calc((var(--d, 0s) + .25s) * var(--slow)) both;
+}
+html.js :is([data-deliver].on, .scene.on [data-deliver], [data-spot].on [data-deliver]) .w:where(.fx-settle, [data-fx="settle"]) {
+  animation:
+    vb-word-in calc(.75s * var(--slow)) var(--ease) calc(var(--d, 0s) * var(--slow)) forwards,
+    vb-settle calc(1.2s * var(--slow)) var(--ease) calc((var(--d, 0s) + .15s) * var(--slow)) both;
+}
+
+/* finished: final state, no animation (also what a stalled or frozen clock falls back to) */
+html.js :is([data-deliver].done, .scene.done [data-deliver], [data-spot].done [data-deliver]) .w {
+  opacity: 1;
+  transform: none;
+  filter: none;
+  animation: none;
+}
+html.js :is([data-deliver].done, .scene.done [data-deliver], [data-spot].done [data-deliver]) :is(.fx-tremble, [data-fx="tremble"], .fx-settle, [data-fx="settle"]) {
+  animation: none;
+  translate: none;
+  rotate: none;
+  scale: none;
+}
+html.js :is([data-deliver].done, .scene.done [data-deliver], [data-spot].done [data-deliver]) :is(.fx-rise, [data-fx="rise"]) {
+  animation: none;
+  font-variation-settings: "wght" 640, "opsz" 144;
+  translate: 0 -.05em;
+  scale: 1 1.07;
+}
+
+/* Hero copy that follows the line (sub, buttons, proof strip): add data-after and give it a
+   --d delay, e.g. style="--d:3s". It must sit inside the same .scene or [data-spot]. */
+html.js [data-after] {
+  opacity: 0;
+  animation: vb-release .01s linear 12s forwards; /* CSS-only last resort if core.js never runs */
+}
+html.js :is(.scene.on, [data-spot].on, [data-deliver].on) [data-after] {
+  animation: vb-fade calc(.9s * var(--slow)) var(--ease) calc(var(--d, 0s) * var(--slow)) forwards;
+}
+html.js :is(.scene.done, [data-spot].done, [data-deliver].done) [data-after] {
+  opacity: 1;
+  transform: none;
+  animation: none;
+}
+
+/* ---------- Lamp-on ---------- */
+
+html.js .lamp {
+  opacity: 1;
+  --r: 0px;
+  animation: vb-lamp-release .01s linear 9s forwards; /* CSS-only last resort if core.js never runs */
+}
+html.js :is(.scene.on, [data-spot].on) .lamp {
+  animation: vb-lamp-on calc(2.2s * var(--slow)) linear calc(.15s * var(--slow)) forwards;
+}
+html.js :is(.scene.done, [data-spot].done) .lamp { display: none; }
+
+/* ---------- Reveal ----------
+   core.js adds .below only to elements that start below the fold, then .is-in when they
+   scroll into view (observer, scroll check, and a failsafe 6 s after load). The transition
+   lives on .is-in, so marking an element .below never animates it hidden. A frozen or
+   stalled clock would freeze a transition at its first frame, so .done (added by core.js
+   alongside the failsafe) switches the transition off and shows the final state. */
+
+html.js [data-reveal].below:not(.is-in) { opacity: 0; }
+html.js :is([data-reveal=""], [data-reveal="up"]).below:not(.is-in) { transform: translateY(28px); }
+html.js [data-reveal="wipe"].below:not(.is-in) { clip-path: inset(-12px 100% -12px -12px); }
+
+html.js [data-reveal].below.is-in {
+  transition:
+    opacity calc(.9s * var(--slow)) var(--ease) calc(var(--rd, 0s) * var(--slow)),
+    transform calc(1s * var(--slow)) var(--ease) calc(var(--rd, 0s) * var(--slow)),
+    clip-path calc(1.2s * var(--slow)) var(--ease) calc(var(--rd, 0s) * var(--slow));
+}
+html.js [data-reveal="wipe"].below.is-in { clip-path: inset(-12px -12px -12px -12px); }
+html.js [data-reveal].below.is-in.done {
+  opacity: 1;
+  transform: none;
+  clip-path: none;
+  transition: none;
+}
+
+/* ---------- Keyframes ---------- */
+
+@keyframes vb-word-in { to { opacity: 1; transform: none; filter: none; } }
+@keyframes vb-fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+@keyframes vb-release { to { opacity: 1; transform: none; filter: none; } }
+
+/* shaking: the word trembles, then calms */
+@keyframes vb-tremble {
+  0% { translate: 0 0; rotate: 0deg; }
+  8% { translate: -2px 1px; rotate: -1.4deg; }
+  16% { translate: 2px -1px; rotate: 1.2deg; }
+  24% { translate: -1.6px 0; rotate: -1deg; }
+  32% { translate: 1.4px 1px; rotate: .8deg; }
+  42% { translate: -1px 0; rotate: -.5deg; }
+  54% { translate: .7px 0; rotate: .3deg; }
+  68% { translate: -.3px 0; rotate: 0deg; }
+  100% { translate: 0 0; rotate: 0deg; }
+}
+/* taller / medicine: the word gains weight and optical size and stands up a little */
+@keyframes vb-rise {
+  from { font-variation-settings: "wght" 330, "opsz" 72; translate: 0 0; scale: 1 1; }
+  to { font-variation-settings: "wght" 640, "opsz" 144; translate: 0 -.05em; scale: 1 1.07; }
+}
+/* mirror: the word lands slightly high and large, then sets itself down */
+@keyframes vb-settle {
+  0% { translate: 0 -.12em; scale: 1.06; }
+  55% { translate: 0 .02em; scale: .995; }
+  100% { translate: 0 0; scale: 1; }
+}
+
+@keyframes vb-lamp-on {
+  0% { --r: 0px; opacity: 1; }
+  12% { --r: 0px; }
+  15% { --r: 30vmax; }
+  19% { --r: 9vmax; }
+  23% { --r: 32vmax; }
+  60% { --r: 34vmax; opacity: 1; }
+  100% { --r: 90vmax; opacity: 0; }
+}
+@keyframes vb-lamp-release { to { opacity: 0; visibility: hidden; } }
+
+/* ---------- Reduced motion: everything is simply there ---------- */
+@media (prefers-reduced-motion: reduce) {
+  html.js [data-deliver] .w,
+  html.js [data-after],
+  html.js [data-reveal].below:is(.is-in, :not(.is-in)),
+  html.js :is([data-reveal=""], [data-reveal="up"]).below:is(.is-in, :not(.is-in)),
+  html.js [data-reveal="wipe"].below:is(.is-in, :not(.is-in)) {
+    opacity: 1;
+    transform: none;
+    filter: none;
+    clip-path: none;
+    animation: none !important;
+    transition: none !important;
+  }
+  html.js :is(.fx-tremble, [data-fx="tremble"], .fx-settle, [data-fx="settle"]) { animation: none !important; translate: none; rotate: none; scale: none; }
+  html.js :is(.fx-rise, [data-fx="rise"]) {
+    animation: none !important;
+    font-variation-settings: "wght" 640, "opsz" 144;
+    translate: 0 -.05em;
+    scale: 1 1.07;
+  }
+  html.js .lamp { display: none; }
+}
+/* Open-questions layer and Slow down.
+
+   Notes: core.js numbers every [data-tbc] element (data-tbc-n), injects the pill and the
+   drawer below, and puts html.notes-on on the page (the #notes hash turns it on):
+
+     <button id="notes-toggle" class="notes-toggle" aria-expanded="false" aria-controls="notes-panel">Open questions <span class="notes-count">N</span></button>
+     <aside id="notes-panel" class="notes-panel" hidden><h2>Questions for you</h2><ol><li><button type="button" data-goto="N">question</button></li></ol></aside>
+
+   Slow: html.slow sets --slow to 1.8, which every duration and delay in the shared CSS is
+   multiplied by. The breath ring (4 s in, 6 s out) shows only under html.slow. */
+
+/* ---------- Slow down ---------- */
+
+html.slow { --slow: 1.8; }
+
+html:not(.js) [data-slowdown] { display: none; }
+
+.slow-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: .55em;
+  min-height: 38px;
+  padding: .5rem .95rem;
+  border: 1px solid var(--rule-strong);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--linen);
+  font-family: var(--font-body);
+  font-size: .86rem;
+  font-weight: 500;
+  line-height: 1.2;
+  white-space: nowrap;
+  transition: background-color var(--t-fast) var(--ease), border-color var(--t-fast) var(--ease);
+}
+.slow-toggle::before {
+  content: "";
+  flex: none;
+  width: 9px;
+  height: 9px;
+  border: 1.5px solid currentColor;
+  border-radius: 50%;
+  transition: background-color var(--t-fast) var(--ease), border-color var(--t-fast) var(--ease);
+}
+.slow-toggle:hover { border-color: var(--stage-gold); }
+.slow-toggle[aria-pressed="true"] {
+  border-color: var(--stage-gold);
+  background: rgba(212, 168, 75, .16);
+}
+.slow-toggle[aria-pressed="true"]::before { background: var(--stage-gold); border-color: var(--stage-gold); }
+
+/* Breath ring: a calm guide that hangs under the header, only while Slow down is on.
+   Ten-second cycle: 4 s in (grow), 6 s out (shrink). The length does not follow --slow. */
+.breath {
+  display: none;
+  position: absolute;
+  top: calc(100% + 16px);
+  right: max(var(--gutter-r), calc((100% - 72rem) / 2));
+  width: 48px;
+  height: 48px;
+  pointer-events: none;
+}
+html.slow .breath { display: block; }
+.breath::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border: 1.5px solid var(--stage-gold);
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(212, 168, 75, .22), rgba(212, 168, 75, 0));
+  box-shadow: 0 0 22px rgba(212, 168, 75, .3), inset 0 0 14px rgba(212, 168, 75, .16);
+  animation: vb-breath 10s ease-in-out infinite;
+}
+@keyframes vb-breath {
+  0% { transform: scale(.42); opacity: .5; }
+  40% { transform: scale(1); opacity: 1; }
+  100% { transform: scale(.42); opacity: .5; }
+}
+
+/* ---------- Open questions ---------- */
+
+html { --notes-bottom: max(16px, env(safe-area-inset-bottom, 0px)); }
+
+[data-tbc] { scroll-margin-top: calc(var(--header-h) + 28px); }
+
+/* dashed Brass underline on running text */
+html.notes-on [data-tbc] {
+  text-decoration: underline dashed var(--note);
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: .28em;
+  text-decoration-skip-ink: none;
+}
+/* blocks, buttons and pictures cannot carry an underline: outline them instead */
+html.notes-on :is(.btn, .chip, .arch, img, picture, video, canvas, svg, figure, section, article, div, li)[data-tbc] {
+  text-decoration: none;
+  outline: 1.5px dashed var(--note);
+  outline-offset: 4px;
+}
+/* numbered badge (not drawn on pictures, which cannot have ::after) */
+html.notes-on [data-tbc][data-tbc-n]::after {
+  content: attr(data-tbc-n);
+  display: inline-block;
+  min-width: 1.4em;
+  height: 1.4em;
+  margin-left: .45em;
+  padding: 0 .35em;
+  border-radius: 999px;
+  background: var(--note-bg);
+  color: var(--note-fg);
+  font-family: var(--font-body);
+  font-size: .68rem;
+  font-style: normal;
+  font-weight: 600;
+  font-variation-settings: normal;
+  letter-spacing: 0;
+  line-height: 1.4em;
+  text-align: center;
+  text-decoration: none;
+  text-transform: none;
+  white-space: nowrap;
+  vertical-align: .5em;
+}
+
+.notes-toggle {
+  position: fixed;
+  left: var(--gutter-l);
+  bottom: var(--notes-bottom);
+  z-index: 70;
+  display: inline-flex;
+  align-items: center;
+  gap: .7em;
+  min-height: 42px;
+  padding: .5rem .6rem .5rem 1.05rem;
+  border: 1px solid var(--rule-strong);
+  border-radius: 999px;
+  background: rgba(8, 22, 36, .92);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  color: var(--linen);
+  font-family: var(--font-body);
+  font-size: .86rem;
+  font-weight: 500;
+  line-height: 1.2;
+  white-space: nowrap;
+  transition: border-color var(--t-fast) var(--ease), background-color var(--t-fast) var(--ease);
+}
+.notes-toggle:hover,
+html.notes-on .notes-toggle,
+.notes-toggle[aria-expanded="true"] { border-color: var(--stage-gold); }
+.notes-toggle[aria-expanded="true"] { background: rgba(14, 36, 59, .96); }
+.notes-count {
+  display: inline-grid;
+  place-items: center;
+  min-width: 26px;
+  height: 26px;
+  padding: 0 .45em;
+  border-radius: 999px;
+  background: var(--stage-gold);
+  color: var(--house-dark);
+  font-size: .78rem;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.notes-panel {
+  position: fixed;
+  left: var(--gutter-l);
+  bottom: calc(var(--notes-bottom) + 42px + 12px);
+  z-index: 71;
+  display: flex;
+  flex-direction: column;
+  width: min(25rem, calc(100vw - var(--gutter-l) - var(--gutter-r)));
+  max-height: min(68dvh, 34rem);
+  padding: 20px 20px 10px;
+  overflow: auto;
+  overscroll-behavior: contain;
+  border: 1px solid var(--rule-strong);
+  border-radius: 18px;
+  background: rgba(8, 22, 36, .97);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+  box-shadow: 0 0 0 1px rgba(2, 6, 11, .6), 0 18px 60px rgba(2, 6, 11, .5);
+  color: var(--linen);
+  animation: vb-panel-in calc(.35s * var(--slow)) var(--ease) both;
+}
+.notes-panel h2 {
+  margin: 0 0 6px;
+  font-size: 1.3rem;
+  font-weight: 400;
+  line-height: 1.2;
+  letter-spacing: -.01em;
+}
+.notes-panel ol { margin: 0; padding: 0; list-style: none; }
+.notes-panel li { border-top: 1px solid var(--rule); }
+.notes-panel li:first-child { margin-top: 10px; }
+.notes-panel li button {
+  display: grid;
+  grid-template-columns: 1.7rem minmax(0, 1fr);
+  gap: .7rem;
+  width: 100%;
+  padding: .8rem .4rem;
+  border-radius: 10px;
+  color: var(--linen);
+  font-size: .92rem;
+  line-height: 1.45;
+  text-align: left;
+  transition: background-color var(--t-fast) var(--ease);
+}
+.notes-panel li button::before {
+  content: attr(data-goto);
+  display: grid;
+  place-items: center;
+  width: 1.55rem;
+  height: 1.55rem;
+  border-radius: 50%;
+  background: var(--brass);
+  color: var(--house-dark);
+  font-size: .72rem;
+  font-weight: 600;
+  line-height: 1;
+}
+.notes-panel li button:hover { background: rgba(183, 161, 122, .14); }
+@keyframes vb-panel-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+
+@media (max-width: 759.98px) {
+  /* sit above the phone bottom bar */
+  html { --notes-bottom: calc(var(--bar-h) + 12px + env(safe-area-inset-bottom, 0px)); }
+  .notes-panel { left: var(--gutter-l); right: var(--gutter-r); width: auto; max-height: 62dvh; }
+}
+
+/* ---------- Reduced motion: no animation anywhere in the shared system ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .breath { display: none !important; }
+  .notes-panel { animation: none; }
+  /* strays from section CSS: finish instantly instead of running */
+  *, *::before, *::after {
+    animation-duration: .001ms !important;
+    animation-delay: 0s !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .001ms !important;
+    transition-delay: 0s !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Controller refinement: the pill sits bottom-right so it never covers hero copy or CTAs
+   (heroes put their copy bottom-left); on phones it is a compact "?" badge above the bottom bar. */
+.notes-toggle { left: auto; right: var(--gutter-r); }
+.notes-panel { left: auto; right: var(--gutter-r); }
+@media (max-width: 759px) {
+  .notes-toggle { min-height: 38px; padding: .35rem .4rem .35rem .75rem; gap: .45em; bottom: calc(var(--notes-bottom) + 8px); }
+  .notes-label { font-size: 0; }
+  .notes-label::before { content: "?"; content: "?" / ""; font-size: .95rem; font-weight: 600; } /* "?" is visual only; the name stays "Open questions" */
+}
+
+/* Controller refinement: on phones, once the bottom bar is up, the "?" badge docks into its left end
+   so it never floats over body copy. */
+@media (max-width: 759.98px) {
+  html:has(#notes-toggle) .bottom-bar { padding-left: calc(var(--gutter-l) + 62px); }
+  html:has(.bottom-bar.is-shown) .notes-toggle { left: var(--gutter-l); right: auto; bottom: calc(13px + env(safe-area-inset-bottom, 0px)); }
+}

@@ -1,0 +1,649 @@
+/* Brotherhood: the third world of the site.
+   Fire-lit Night with Tungsten and Stage Gold, plus one page-only accent: Ember.
+   Everything on this page is scoped under body[data-page="brotherhood"] or a section id.
+   Ember never leaks into the other two pages because it is only defined here. */
+
+body[data-page="brotherhood"] {
+  --ember: #C8693A;                                                        /* the page-only accent */
+  --ember-lift: color-mix(in srgb, var(--ember) 72%, var(--tungsten));     /* small ember text: about 7:1 on Night */
+  --ember-glow: rgba(200, 105, 58, .34);
+  --ember-hair: rgba(200, 105, 58, .38);
+
+  --room-pad: clamp(72px, 7.4vw, 116px);
+  --bg: var(--night);
+  --accent-text: var(--ember-lift);
+  --rule: rgba(246, 217, 166, .14);
+  --rule-strong: rgba(246, 217, 166, .3);
+  background: var(--night);
+}
+
+/* every room is Night; the light comes from the fire, not from the paint */
+body[data-page="brotherhood"] .room { background: var(--night); }
+
+/* the shared chrome sits on Night here too */
+body[data-page="brotherhood"] .site-header { --hdr-solid: rgba(2, 6, 11, .94); }
+body[data-page="brotherhood"] .bottom-bar { background: rgba(2, 6, 11, .94); }
+
+/* A banked fire in every room: a faint ember glow low in the room that fades out well before the top
+   and bottom edges, so rooms flow into each other with no seam. Rooms are isolated stacking contexts,
+   so z-index -1 stays behind the copy. */
+body[data-page="brotherhood"] .fire-floor::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(ellipse 62% 30% at var(--fire-x, 50%) 66%, rgba(200, 105, 58, var(--fire-a, .12)), rgba(200, 105, 58, 0) 100%);
+}
+
+/* Open questions: Delivered Type words are inline-block and a list is a block, so a dashed underline would
+   not draw on the hero line or the list. Outline them instead (large display paragraphs too). */
+html.notes-on body[data-page="brotherhood"] :is(#hero .hero__line, #for-you .for__list, #why .why__text)[data-tbc] {
+  text-decoration: none;
+  outline: 1.5px dashed var(--note);
+  outline-offset: 8px;
+}
+
+body[data-page="brotherhood"] .nw { white-space: nowrap; }
+/* Brotherhood, room 1: the hero. One signature moment: slow embers rising behind him (01-hero.js).
+   Desktop: copy left, his portrait in an arch on the right, warmed by a code-drawn fire glow.
+   Phones and tablets held upright: the portrait on top, copy below. Nothing is hidden unless html.js is set. */
+
+#hero {
+  /* the hero is one screen, not a scene: no sticky stage, nothing to scrub */
+  display: flex;
+  align-items: center;
+  min-height: 100vh;
+  min-height: 100svh;
+  padding-top: calc(var(--header-h) + env(safe-area-inset-top, 0px) + clamp(20px, 5vh, 56px));
+  padding-bottom: clamp(48px, 9vh, 104px);
+}
+
+/* the embers fill the whole hero, behind everything */
+#hero .embers {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+#hero > .grain { opacity: .06; }
+
+/* the floor of the fire: a warm pool low on the right where the portrait stands, and a dim one far left */
+#hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(52% 62% at 78% 92%, rgba(200, 105, 58, .22), rgba(200, 105, 58, 0) 70%),
+    radial-gradient(40% 40% at 6% 112%, rgba(200, 105, 58, .09), rgba(200, 105, 58, 0) 70%);
+  /* let the glow die out before the next room instead of ending on a hard line */
+  -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 68%, transparent 100%);
+  mask-image: linear-gradient(180deg, #000 0%, #000 68%, transparent 100%);
+}
+
+/* ---------- layout (desktop) ---------- */
+
+#hero .hero__grid {
+  width: 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+  column-gap: clamp(32px, 5.6vw, 96px);
+  align-items: center;
+}
+
+#hero .hero__copy { min-width: 0; max-width: 40rem; }
+#hero .nb { white-space: nowrap; }
+#hero .eyebrow { max-width: none; margin-bottom: clamp(16px, 2.6vh, 26px); }
+
+#hero .hero__line {
+  margin: 0 0 clamp(22px, 3.6vh, 38px);
+  font-size: clamp(2.5rem, 1.1rem + 4.7vw, 5rem);
+  line-height: 1.02;
+  letter-spacing: -.022em;
+  word-spacing: .03em;
+  color: var(--linen);
+}
+
+/* his own words, in Fraunces italic, set apart from the drafted line above by a thread of ember */
+#hero .hero__quote {
+  position: relative;
+  max-width: 24em;
+  margin: 0 0 clamp(20px, 3vh, 30px);
+  padding-top: clamp(16px, 2vh, 22px);
+  font-size: clamp(1.2rem, 1rem + .7vw, 1.72rem);
+  font-variation-settings: "opsz" 36;
+  line-height: 1.26;
+  letter-spacing: -.005em;
+  color: var(--tungsten);
+}
+#hero .hero__quote::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 34px;
+  height: 2px;
+  background: var(--ember);
+  box-shadow: 0 0 14px 1px rgba(200, 105, 58, .6);
+}
+
+#hero .hero__sub {
+  max-width: 42ch;
+  margin: 0 0 clamp(24px, 3.6vh, 36px);
+  font-size: clamp(1rem, .94rem + .2vw, 1.12rem);
+  line-height: 1.58;
+  color: rgba(245, 233, 200, .84);
+}
+
+#hero .hero__ctas {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 14px;
+}
+
+/* ---------- the portrait ---------- */
+
+#hero .hero__media {
+  position: relative;
+  min-width: 0;
+  display: flex;
+  justify-content: flex-end;
+}
+
+#hero .hero__frame {
+  /* never taller than the screen allows: header, breathing room and the door-frame outline */
+  --avail: calc(100vh - var(--header-h) - clamp(20px, 5vh, 56px) - clamp(48px, 9vh, 104px) - 40px);
+  position: relative;
+  width: min(100%, 27.5rem, calc(var(--avail) * .83));
+  aspect-ratio: 5 / 6;
+}
+@supports (height: 100svh) {
+  #hero .hero__frame { --avail: calc(100svh - var(--header-h) - clamp(20px, 5vh, 56px) - clamp(48px, 9vh, 104px) - 40px); }
+}
+
+/* the glow that spills out of the arch: fire at his feet, throwing light up the wall behind him */
+#hero .hero__frame::before {
+  content: "";
+  position: absolute;
+  inset: -30% -52% -30% -52%;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(ellipse 44% 31% at 50% 64%, rgba(200, 105, 58, .4), rgba(200, 105, 58, .14) 52%, rgba(200, 105, 58, 0) 100%);
+  animation: bro-breathe calc(9s * var(--slow)) ease-in-out infinite;
+}
+/* the second, offset arch: the door frame around the light */
+#hero .hero__frame::after {
+  content: "";
+  position: absolute;
+  inset: -14px;
+  border: 1px solid rgba(200, 105, 58, .34);
+  border-radius: 999px 999px 4px 4px;
+  pointer-events: none;
+}
+
+#hero .hero__arch {
+  position: absolute;
+  inset: 0;
+  aspect-ratio: auto;
+  background: var(--night);
+  box-shadow: 0 30px 70px -30px rgba(0, 0, 0, .8);
+}
+#hero .hero__arch > picture { position: absolute; inset: 0; display: block; width: auto; height: auto; }
+#hero .hero__arch > picture > img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  object-fit: cover;
+  object-position: 12% 40%;                 /* keeps his face centred and the guitar on the right out of the arch */
+  filter: saturate(.78) contrast(1.05) brightness(.98);
+}
+
+/* Firelight on the photo, in two layers.
+   shade: multiplies the bright wall down to warm dark brown while the face keeps its light;
+   light: ember from below, as if the fire were just out of frame. Both are plain CSS, no new pixels. */
+#hero .hero__shade,
+#hero .hero__light { position: absolute; inset: 0; pointer-events: none; }
+#hero .hero__shade {
+  mix-blend-mode: multiply;
+  /* controller: lighter centre so his skin stays natural; the edges still fall to firelit brown */
+  background:
+    radial-gradient(ellipse 60% 54% at 46% 42%, #FFFAF4 0%, #F8E4CF 38%, #B07A52 70%, #4A2514 100%),
+    #2C150B;
+}
+#hero .hero__light {
+  mix-blend-mode: soft-light;
+  background:
+    radial-gradient(ellipse 100% 60% at 50% 112%, rgba(255, 158, 96, .78), rgba(200, 105, 58, .34) 50%, rgba(200, 105, 58, 0) 78%);
+  animation: bro-flicker calc(7.5s * var(--slow)) ease-in-out infinite;
+}
+#hero .hero__arch > .grain { opacity: .08; z-index: 2; }
+
+@keyframes bro-flicker {
+  0%, 100% { opacity: .86; }
+  14% { opacity: 1; }
+  29% { opacity: .78; }
+  43% { opacity: .96; }
+  58% { opacity: .82; }
+  76% { opacity: 1; }
+  90% { opacity: .9; }
+}
+@keyframes bro-breathe {
+  0%, 100% { opacity: .8; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.04); }
+}
+
+/* ---------- phones and tablets held upright: portrait on top, copy below ---------- */
+
+@media (max-width: 899.98px), (max-aspect-ratio: 1/1) {
+  #hero { display: block; min-height: 0; padding-bottom: clamp(56px, 8vw, 88px); }
+  #hero .hero__grid {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    row-gap: clamp(28px, 5vw, 44px);
+  }
+  #hero .hero__media {
+    order: -1;
+    justify-content: center;
+  }
+  #hero .hero__frame {
+    width: min(70vw, 21rem, calc(38svh * .83));
+    min-width: 188px;
+  }
+  #hero .hero__frame::before { inset: -28% -46% -28% -46%; }
+  #hero .hero__frame::after { inset: -9px; }
+  #hero .hero__copy { max-width: 36rem; }
+  #hero .hero__line { font-size: clamp(2.3rem, 1rem + 6.6vw, 4rem); }
+  #hero::before {
+    background: radial-gradient(70% 36% at 50% 28%, rgba(200, 105, 58, .2), rgba(200, 105, 58, 0) 72%);
+  }
+}
+@media (max-width: 599.98px) {
+  #hero { padding-top: calc(var(--header-h) + env(safe-area-inset-top, 0px) + 20px); }
+  #hero .hero__ctas .btn { flex: 1 1 0; min-width: 0; padding-inline: 1rem; font-size: .92rem; white-space: nowrap; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #hero .hero__frame::before,
+  #hero .hero__light { animation: none; }
+}
+/* Brotherhood, room 2 (#circle): what it is. Three words, one sentence each, set as three columns
+   with a single hairline above them. Type-led; the only warmth is a thread of ember at the head of
+   each column and a glow that rises from the floor under the column you point at. */
+
+#circle { --fire-x: 22%; --fire-a: .1; }
+
+#circle .circle__head { max-width: 40rem; margin-bottom: clamp(44px, 6vw, 88px); }
+#circle .circle__head .display { margin: 0; }
+
+#circle .pillars {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--rule-strong);
+}
+
+#circle .pillar {
+  position: relative;
+  isolation: isolate;
+  padding: clamp(30px, 3.4vw, 52px) clamp(22px, 2.8vw, 44px) clamp(36px, 4.2vw, 64px);
+}
+#circle .pillar:first-child { padding-left: 0; }
+#circle .pillar:last-child { padding-right: 0; }
+#circle .pillar + .pillar { border-left: 1px solid var(--rule); }
+
+/* kindling: a short ember bar riding on the top hairline */
+#circle .pillar::before {
+  content: "";
+  position: absolute;
+  left: clamp(22px, 2.8vw, 44px);
+  top: -1px;
+  width: 34px;
+  height: 2px;
+  background: var(--ember);
+  box-shadow: 0 0 14px 1px rgba(200, 105, 58, .6);
+}
+#circle .pillar:first-child::before { left: 0; }
+
+/* the glow that rises from the floor of the column */
+#circle .pillar::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: radial-gradient(ellipse 80% 70% at 50% 108%, rgba(200, 105, 58, .2), rgba(200, 105, 58, 0) 72%);
+  opacity: 0;
+  transition: opacity var(--t-med) var(--ease);
+  pointer-events: none;
+}
+#circle .pillar:hover::after,
+#circle .pillar:focus-within::after { opacity: 1; }
+
+#circle .pillar__name {
+  margin: 0 0 clamp(14px, 1.6vw, 22px);
+  font-family: var(--font-display);
+  font-weight: 380;
+  font-variation-settings: "opsz" 96;
+  font-size: clamp(1.9rem, 1.1rem + 2.2vw, 2.9rem);
+  line-height: 1.04;
+  letter-spacing: -.02em;
+  color: var(--linen);
+  transition: color var(--t-med) var(--ease);
+}
+#circle .pillar:hover .pillar__name { color: var(--tungsten); }
+
+#circle .pillar__text {
+  max-width: 24ch;
+  margin: 0;
+  font-size: clamp(1rem, .96rem + .2vw, 1.12rem);
+  line-height: 1.6;
+  color: var(--fg-soft);
+}
+
+@media (max-width: 899.98px) {
+  #circle .pillars { grid-template-columns: minmax(0, 1fr); }
+  #circle .pillar,
+  #circle .pillar:first-child,
+  #circle .pillar:last-child {
+    padding: 30px 0 34px;
+    border-left: 0;
+  }
+  #circle .pillar + .pillar { border-left: 0; border-top: 1px solid var(--rule); }
+  #circle .pillar::before,
+  #circle .pillar:first-child::before { left: 0; }
+  #circle .pillar + .pillar::before { display: none; }
+  #circle .pillar__text { max-width: 38ch; }
+}
+/* Brotherhood, room 3 (#why): the reading room. One quiet column, a paragraph in the display face
+   (roman: italic is only ever his verbatim words) and then his line, set large, with firelight behind it. */
+
+#why { --fire-x: 70%; --fire-a: .16; }
+
+#why .why__col { max-width: 50rem; margin-inline: auto; }
+
+#why .why__title { margin: 0 0 clamp(26px, 3.4vw, 44px); }
+/* a short thread of ember above the title */
+#why .why__title::before {
+  content: "";
+  display: block;
+  width: 34px;
+  height: 2px;
+  margin-bottom: clamp(20px, 2.4vw, 30px);
+  background: var(--ember);
+  box-shadow: 0 0 14px 1px rgba(200, 105, 58, .6);
+}
+
+#why .why__text {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 340;
+  font-variation-settings: "opsz" 48;
+  font-size: clamp(1.32rem, 1rem + 1.25vw, 2rem);
+  line-height: 1.4;
+  letter-spacing: -.008em;
+  color: rgba(245, 233, 200, .92);
+  text-wrap: pretty;
+}
+
+#why .why__quote {
+  position: relative;
+  margin: clamp(52px, 7vw, 104px) 0 0;
+  font-size: clamp(2.3rem, 1rem + 4.6vw, 4.6rem);
+  line-height: 1.04;
+  letter-spacing: -.02em;
+  color: var(--tungsten);
+}
+/* firelight behind the line */
+#why .why__quote::before {
+  content: "";
+  position: absolute;
+  inset: -70% -30% -80% -30%;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(ellipse 34% 30% at 38% 54%, rgba(200, 105, 58, .2), rgba(200, 105, 58, 0) 100%);
+}
+/* Brotherhood, room 4 (#for-you): "This circle is for men who..." on the left, the four lines
+   on the right, each one a line of the same sentence. Type only; a lit ember marks each line. */
+
+#for-you .for__layout {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  column-gap: clamp(40px, 7vw, 112px);
+  align-items: start;
+}
+
+#for-you .for__head {
+  position: sticky;
+  top: calc(var(--header-h) + 36px);
+}
+#for-you .for__head .display { margin: 0; max-width: 11em; }
+
+#for-you .for__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-bottom: 1px solid var(--rule);
+}
+
+#for-you .for__item {
+  position: relative;
+  padding: clamp(24px, 2.8vw, 38px) 0 clamp(24px, 2.8vw, 38px) clamp(34px, 3.4vw, 48px);
+  border-top: 1px solid var(--rule);
+  font-family: var(--font-display);
+  font-weight: 360;
+  font-variation-settings: "opsz" 72;
+  font-size: clamp(1.4rem, 1rem + 1.55vw, 2.3rem);
+  line-height: 1.2;
+  letter-spacing: -.014em;
+  color: var(--linen);
+  text-wrap: pretty;
+}
+#for-you .for__item::before {
+  content: "";
+  position: absolute;
+  left: 4px;
+  top: calc(clamp(24px, 2.8vw, 38px) + .58em);
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 38%, var(--tungsten), var(--ember) 62%);
+  box-shadow: 0 0 0 4px rgba(200, 105, 58, .14), 0 0 18px 2px rgba(200, 105, 58, .55);
+}
+
+@media (max-width: 899.98px) {
+  #for-you .for__layout { grid-template-columns: minmax(0, 1fr); row-gap: clamp(28px, 6vw, 44px); }
+  #for-you .for__head { position: static; }
+  #for-you .for__item { padding-left: 32px; }
+  #for-you .for__item::before { left: 2px; top: calc(24px + .6em); }
+}
+/* Brotherhood, room 5 (#join): three steps along one line, each with a lit ember where it starts.
+   Then, set apart by a hairline, the one sentence about ARKA. */
+
+#join { --fire-x: 50%; --fire-a: .12; }
+
+#join .join__head { margin-bottom: clamp(44px, 6vw, 84px); }
+#join .join__head .display { margin: 0; }
+
+#join .steps {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  column-gap: clamp(24px, 3.4vw, 56px);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+#join .step {
+  position: relative;
+  padding-top: clamp(30px, 3.4vw, 46px);
+  border-top: 1px solid var(--rule-strong);
+}
+/* the lit ember where the step begins, sitting on the line */
+#join .step::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: -5px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 38%, var(--tungsten), var(--ember) 62%);
+  box-shadow: 0 0 0 4px rgba(200, 105, 58, .14), 0 0 18px 2px rgba(200, 105, 58, .55);
+}
+
+#join .step__n {
+  display: block;
+  margin: 0 0 clamp(14px, 1.8vw, 24px);
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-variation-settings: "opsz" 144;
+  font-size: clamp(3.4rem, 1.6rem + 5.2vw, 6rem);
+  line-height: .9;
+  letter-spacing: -.03em;
+  color: var(--stage-gold);
+}
+
+#join .step__title {
+  max-width: 14em;
+  margin: 0;
+  font-weight: 380;
+  font-variation-settings: "opsz" 72;
+  font-size: clamp(1.4rem, 1.05rem + 1.2vw, 2rem);
+  line-height: 1.16;
+  letter-spacing: -.014em;
+  color: var(--linen);
+}
+#join .step__more { margin: clamp(16px, 2vw, 24px) 0 0; font-size: .98rem; }
+
+#join .join__arka {
+  max-width: 40ch;
+  margin: clamp(56px, 7vw, 104px) 0 0;
+  padding-top: clamp(22px, 2.6vw, 32px);
+  border-top: 1px solid var(--rule);
+  font-size: clamp(1.02rem, .96rem + .25vw, 1.18rem);
+  line-height: 1.6;
+  color: var(--fg-soft);
+}
+
+@media (max-width: 899.98px) {
+  #join .steps { grid-template-columns: minmax(0, 1fr); row-gap: 0; }
+  /* one line down the left, the steps hang off it */
+  #join .step {
+    display: grid;
+    grid-template-columns: clamp(64px, 17vw, 96px) minmax(0, 1fr);
+    column-gap: 4px;
+    padding: 28px 0 32px;
+  }
+  #join .step__n { grid-row: 1 / span 2; margin: 0; font-size: clamp(3.2rem, 14vw, 4.6rem); }
+  #join .step__title { grid-column: 2; max-width: 16em; align-self: end; }
+  #join .step__more { grid-column: 2; margin-top: 12px; }
+}
+/* Brotherhood, room 6 (#ask): the ending. One empty chair, a pool of firelight on the floor under it,
+   and the invitation. Warmest light on the page, still very quiet. */
+
+#ask {
+  padding-block: clamp(96px, 13vw, 200px);
+  text-align: center;
+}
+#ask > .grain { opacity: .06; }
+
+/* the fire is lowest and brightest here */
+#ask::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 100%;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 62% 60% at 50% 108%, rgba(200, 105, 58, .3), rgba(200, 105, 58, .1) 46%, rgba(200, 105, 58, 0) 74%),
+    radial-gradient(ellipse 30% 24% at 50% 31%, rgba(200, 105, 58, .12), rgba(200, 105, 58, 0) 72%);
+  /* let the glow die out before the footer's edge instead of meeting it */
+  -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 72%, transparent 100%);
+  mask-image: linear-gradient(180deg, #000 0%, #000 72%, transparent 100%);
+}
+
+#ask .ask__inner { display: flex; flex-direction: column; align-items: center; }
+
+/* the chair and its pool of light */
+#ask .ask__seat {
+  position: relative;
+  width: 70px;
+  margin: 0 0 clamp(28px, 3.6vw, 44px);
+}
+#ask .ask__chair {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+#ask .ask__chair-line {
+  fill: none;
+  stroke: var(--tungsten);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 0 5px rgba(246, 217, 166, .4));
+}
+#ask .ask__chair-rail { stroke-width: 2; opacity: .7; }
+#ask .ask__chair-seat {
+  fill: rgba(212, 168, 75, .3);
+  stroke: var(--tungsten);
+  stroke-width: 2.4;
+  filter: drop-shadow(0 0 6px rgba(246, 217, 166, .4));
+}
+#ask .ask__pool {
+  position: absolute;
+  left: 50%;
+  bottom: -12px;
+  width: 280%;
+  height: 32px;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(246, 217, 166, .55), rgba(200, 105, 58, .3) 48%, rgba(200, 105, 58, 0) 100%);
+  animation: bro-pool calc(8s * var(--slow)) ease-in-out infinite;
+}
+@keyframes bro-pool {
+  0%, 100% { opacity: .78; }
+  50% { opacity: 1; }
+}
+
+#ask .ask__line {
+  max-width: 12em;
+  margin: 0;
+  font-size: clamp(2.7rem, 1rem + 7.2vw, 7rem);
+  line-height: .98;
+  letter-spacing: -.032em;
+  color: var(--linen);
+}
+
+#ask .ask__ctas {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px 14px;
+  margin-top: clamp(32px, 4.4vw, 56px);
+}
+#ask .ask__meet { margin: clamp(26px, 3.4vw, 40px) 0 0; font-size: .98rem; }
+
+@media (max-width: 599.98px) {
+  #ask .ask__ctas { width: 100%; }
+  #ask .ask__ctas .btn { flex: 1 1 0; min-width: 0; padding-inline: 1rem; font-size: .92rem; white-space: nowrap; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #ask .ask__pool { animation: none; }
+}

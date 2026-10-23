@@ -1,0 +1,2359 @@
+/* ==========================================================================
+   Room 1: Spotlight (hero). Everything is scoped under #hero.
+   Desktop: copy left, a tall arch-topped photo panel right. A code-drawn warm spot finds
+   him (lamp flicker), then scroll brings the house lights up to the untouched photo.
+   Phones: the panel sits on top (about 54% of the screen), copy below on solid House Dark.
+   ========================================================================== */
+
+#hero { position: relative; background: var(--house-dark); }
+
+#hero .hero__stage { background: var(--house-dark); }
+
+/* backdrop: a faint warm spill behind the panel, a cool pool low left, film grain */
+#hero .hero__bg {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(52% 70% at 77% 52%, rgba(212, 168, 75, .13), rgba(212, 168, 75, 0) 72%),
+    radial-gradient(80% 55% at 8% 108%, rgba(14, 36, 59, .95), rgba(14, 36, 59, 0) 70%);
+}
+
+/* the page itself warms as the house lights come up (--p is set on .scene by core.js) */
+#hero .hero__bg::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(46% 64% at 77% 52%, rgba(246, 217, 166, .2), rgba(246, 217, 166, 0) 72%);
+  opacity: var(--p, 0);
+}
+
+/* ---------- layout (desktop) ---------- */
+#hero .hero__grid {
+  height: 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+  column-gap: clamp(32px, 5.4vw, 84px);
+  align-items: center;
+  padding-top: calc(var(--header-h) + env(safe-area-inset-top, 0px) + clamp(4px, 1.6vh, 20px));
+  padding-bottom: clamp(20px, 4.4vh, 44px);
+}
+
+#hero .hero__copy {
+  min-width: 0;
+  max-width: min(44vw, 36rem);
+}
+
+#hero .hero__eyebrow { margin-bottom: clamp(14px, 2.2vh, 22px); }
+
+#hero .hero__line {
+  margin: 0 0 clamp(16px, 2.6vh, 28px);
+  color: var(--linen);
+}
+
+/* "medicine." grows heavier as it arrives (3.60em to 3.73em wide); reserve the final width so the line never rewraps */
+#hero .hero__line [data-fx="rise"] { min-width: 3.74em; }
+
+#hero .hero__sub {
+  max-width: 44ch;
+  margin: 0 0 clamp(20px, 3vh, 30px);
+  font-size: clamp(.98rem, .9rem + .22vw, 1.1rem);
+  line-height: 1.58;
+}
+
+#hero .hero__ctas {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px 26px;
+}
+
+#hero .hero__proof {
+  display: grid;
+  gap: 6px;
+  margin: clamp(20px, 3.4vh, 34px) 0 0;
+  padding: clamp(14px, 2vh, 18px) 0 0;
+  border-top: 1px solid var(--rule);
+  list-style: none;
+  font-size: .8rem;
+  line-height: 1.45;
+  color: color-mix(in srgb, var(--linen) 76%, transparent);
+}
+/* each line starts with the small gold ellipse: the pool of light */
+#hero .hero__proof li {
+  position: relative;
+  padding-left: 1.7em;
+}
+#hero .hero__proof li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: .62em;
+  width: 1.05em;
+  height: .36em;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, var(--tungsten), var(--stage-gold) 55%, rgba(212, 168, 75, 0) 100%);
+}
+
+/* ---------- the photo panel ---------- */
+#hero .hero__media {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  align-self: stretch;
+}
+
+#hero .hero__frame {
+  /* the tallest the panel may be: the stage minus header, breathing room and the door-frame outline */
+  --stage-h: 100vh;
+  --avail: calc(var(--stage-h) - var(--header-h) - env(safe-area-inset-top, 0px) - clamp(4px, 1.6vh, 20px) - clamp(20px, 4.4vh, 44px) - 30px);
+  position: relative;
+  width: min(100%, calc(var(--avail) * .8));
+  aspect-ratio: 4 / 5;
+}
+@supports (height: 100dvh) {
+  #hero .hero__frame { --stage-h: 100dvh; }
+}
+/* a second, offset arch outline: the door frame around the light */
+#hero .hero__frame::before {
+  content: "";
+  position: absolute;
+  inset: -14px;
+  border: 1px solid rgba(183, 161, 122, .3);
+  border-radius: 999px 999px 4px 4px;
+  pointer-events: none;
+}
+
+#hero .hero__arch {
+  --sx: 42%;
+  --sy: 42%;
+  --rx: 150px;
+  --ry: 320px;
+  --dim: .9;
+  --warm: 1;
+  position: absolute;
+  inset: 0;
+  aspect-ratio: auto;
+  background: var(--night);
+}
+#hero .hero__arch > picture {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: auto;
+  height: auto;
+}
+/* Fallback geometry (no JS): plain cover. 01-hero.js then sets exact pixels. */
+#hero .hero__arch > picture > img {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  object-fit: cover;
+  object-position: 58% 20%;
+  transform-origin: var(--sx) var(--sy);
+  will-change: transform;
+}
+
+/* The warm spot and the dark house around it. Only exist under JS, so with scripts off the
+   visitor simply gets the untouched photo. */
+#hero .hero__glow,
+#hero .hero__house { display: none; }
+html.js #hero .hero__glow,
+html.js #hero .hero__house {
+  display: block;
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+html.js #hero .hero__glow {
+  mix-blend-mode: soft-light;
+  opacity: var(--warm);
+  background: radial-gradient(ellipse var(--rx) var(--ry) at var(--sx) var(--sy), rgba(246, 217, 166, .9), rgba(246, 217, 166, 0) 70%);
+}
+html.js #hero .hero__house {
+  background: rgba(4, 10, 18, var(--dim));
+  -webkit-mask-image: radial-gradient(ellipse var(--rx) var(--ry) at var(--sx) var(--sy), transparent 0%, rgba(0, 0, 0, .04) 30%, rgba(0, 0, 0, .34) 58%, rgba(0, 0, 0, .78) 82%, #000 100%);
+  mask-image: radial-gradient(ellipse var(--rx) var(--ry) at var(--sx) var(--sy), transparent 0%, rgba(0, 0, 0, .04) 30%, rgba(0, 0, 0, .34) 58%, rgba(0, 0, 0, .78) 82%, #000 100%);
+}
+
+/* caption chip: only on the finished, untouched photo */
+#hero .hero__chip {
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  bottom: 14px;
+  z-index: 3;
+  justify-content: center;
+  width: fit-content;
+  max-width: calc(100% - 28px);
+  margin-inline: auto;
+  text-align: center;
+  transition: opacity var(--t-med) var(--ease), transform var(--t-med) var(--ease);
+}
+html.js #hero .hero__chip:not(.is-show) { opacity: 0; transform: translateY(6px); }
+
+/* scroll hint */
+#hero .hero__hint {
+  position: absolute;
+  z-index: 3;
+  left: max(var(--gutter-l), calc((100% - 72rem) / 2));
+  bottom: clamp(18px, 3.4vh, 34px);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: .7rem;
+  font-weight: 500;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--linen) 62%, transparent);
+  transition: opacity var(--t-med) var(--ease);
+}
+#hero .hero__hint i {
+  display: block;
+  width: 1px;
+  height: 30px;
+  background: linear-gradient(var(--stage-gold), rgba(212, 168, 75, 0));
+  transform-origin: top;
+  animation: hero-hint calc(2.6s * var(--slow)) var(--ease) infinite;
+}
+@keyframes hero-hint {
+  0% { transform: scaleY(0); opacity: 0; }
+  35% { opacity: 1; }
+  70%, 100% { transform: scaleY(1); opacity: 0; }
+}
+#hero .hero__hint.is-gone { opacity: 0; visibility: hidden; transition: opacity var(--t-med) var(--ease), visibility 0s linear var(--t-med); }
+
+/* the proof strip as a band under the hero is for phones only */
+#hero .hero__band { display: none; }
+
+/* shorter laptop screens */
+@media (min-width: 760px) and (max-height: 760px) {
+  #hero .hero__sub { font-size: .95rem; margin-bottom: 18px; }
+  #hero .hero__proof { margin-top: 16px; padding-top: 12px; }
+  #hero .hero__line { font-size: clamp(2rem, 3.2vw, 3.4rem); }
+}
+
+/* ---------- phones and tablets held upright: panel top, copy below on House Dark ---------- */
+@media (max-width: 759.98px), (min-width: 760px) and (max-aspect-ratio: 1/1) {
+  #hero .hero__grid {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    padding-top: calc(var(--header-h) + env(safe-area-inset-top, 0px) + 12px);
+    padding-bottom: 12px;
+  }
+  #hero .hero__media {
+    order: -1;
+    flex: 0 0 auto;
+    height: max(236px, calc(54dvh - var(--header-h) - 12px));
+    align-self: stretch;
+  }
+  #hero .hero__frame {
+    width: 100%;
+    height: 100%;
+    aspect-ratio: auto;
+  }
+  #hero .hero__frame::before { inset: -8px; }
+  #hero .hero__copy {
+    flex: 1 1 auto;
+    max-width: none;
+    padding-top: clamp(18px, 3.2dvh, 28px);
+  }
+  #hero .hero__eyebrow { font-size: .64rem; letter-spacing: .12em; margin-bottom: 9px; }
+  #hero .hero__line { font-size: clamp(1.8rem, 8.2vw, 2.6rem); line-height: 1.04; margin-bottom: 11px; }
+  #hero .hero__sub { font-size: .88rem; line-height: 1.5; margin-bottom: 14px; max-width: none; }
+  #hero .hero__ctas { gap: 10px 20px; }
+  #hero .hero__ctas .btn { min-height: 44px; padding: .7rem 1.15rem; font-size: .9rem; }
+  #hero .hero__ctas .link-arrow { font-size: .88rem; }
+  /* the proof strip moves to a band under the scene so nothing is clipped on small screens */
+  #hero .hero__copy .hero__proof { display: none; }
+  #hero .hero__hint { display: none; }
+  #hero .hero__chip { font-size: .7rem; left: 10px; right: 10px; bottom: 10px; padding: .34rem .8rem; border-radius: 16px; text-wrap: balance; }
+
+  #hero .hero__band {
+    display: block;
+    padding: 22px var(--gutter-r) 26px var(--gutter-l);
+    background: var(--house-dark);
+    border-top: 1px solid var(--rule);
+  }
+  #hero .hero__band .hero__proof { margin: 0; padding: 0; border: 0; font-size: .82rem; }
+}
+/* tablets held upright get roomier type than phones */
+@media (min-width: 760px) and (max-aspect-ratio: 1/1) {
+  #hero .hero__media { justify-content: center; height: max(380px, calc(54dvh - var(--header-h) - 12px)); }
+  #hero .hero__frame { width: min(100%, 34rem); }
+  #hero .hero__copy { max-width: 38rem; margin-inline: auto; width: 100%; padding-top: clamp(28px, 4dvh, 44px); display: flex; flex-direction: column; justify-content: center; }
+  #hero .hero__eyebrow { font-size: .72rem; letter-spacing: .16em; margin-bottom: 14px; }
+  #hero .hero__line { font-size: clamp(2.3rem, 5.4vw, 3.4rem); margin-bottom: 16px; }
+  #hero .hero__sub { font-size: 1.02rem; margin-bottom: 20px; }
+  #hero .hero__ctas .btn { min-height: 46px; font-size: .95rem; }
+  #hero .hero__band .hero__proof { max-width: 38rem; margin-inline: auto; }
+}
+@media (max-width: 759.98px) and (max-height: 760px) {
+  #hero .hero__sub { font-size: .82rem; line-height: 1.45; margin-bottom: 11px; }
+  #hero .hero__line { font-size: clamp(1.65rem, 7.6vw, 2.2rem); margin-bottom: 9px; }
+  #hero .hero__eyebrow { margin-bottom: 7px; }
+}
+
+/* no scripts: nothing will bring the lights up, so the hero is an ordinary block, not a tall pinned scene */
+html:not(.js) #hero .scene { height: auto; }
+html:not(.js) #hero .scene__stage { position: relative; height: auto; min-height: 100vh; min-height: 100dvh; }
+html:not(.js) #hero .hero__grid { height: auto; min-height: 100dvh; }
+html:not(.js) #hero .hero__hint { display: none; }
+
+/* very short screens (small phones, phones on their side): the stage would clip the copy, so the
+   hero becomes an ordinary block and the lights simply come up as it scrolls by */
+@media (max-height: 560px), (max-width: 759.98px) and (max-height: 640px) {
+  #hero .scene { height: auto; }
+  #hero .scene__stage { position: relative; height: auto; min-height: 100vh; min-height: 100dvh; }
+  #hero .hero__grid { height: auto; min-height: 100dvh; padding-bottom: 28px; }
+  #hero .hero__hint { display: none; }
+}
+@media (max-height: 560px) and (min-width: 760px) {
+  #hero .hero__media { align-self: center; }
+  #hero .hero__frame { width: min(100%, 440px); }
+}
+
+/* ---------- reduced motion: static stage, full photo, nothing waits ---------- */
+@media (prefers-reduced-motion: reduce) {
+  #hero .hero__stage { min-height: 0; }
+  #hero .hero__grid { height: auto; min-height: 92svh; }
+  #hero .hero__hint { display: none; }
+  #hero .hero__hint i { animation: none; }
+  html.js #hero .hero__chip:not(.is-show) { opacity: 1; transform: none; }
+  html.js #hero .hero__glow,
+  html.js #hero .hero__house { display: none; }
+}
+@media (prefers-reduced-motion: reduce) and (max-width: 759.98px) {
+  #hero .hero__grid { min-height: 0; }
+}
+/* ==========================================================================
+   Room 2: Four Rooms, One Voice. Scoped under #rooms.
+   Four giant words, one line each. With a mouse a soft pool of light follows the hovered word
+   and the others dim; on touch screens each word lights as it crosses the middle of the screen.
+   Nothing is dimmed unless 02-rooms.js has switched a mode on, so without it all four stay lit.
+   ========================================================================== */
+
+#rooms {
+  --dim-word: color-mix(in srgb, var(--fg) 52%, var(--bg));   /* 3.4:1 on Linen: large type */
+  --dim-line: color-mix(in srgb, var(--fg) 66%, var(--bg));   /* 5.2:1: small type */
+  padding-block: clamp(64px, 8vw, 128px);
+}
+
+#rooms .rooms__title { margin: 0 0 clamp(28px, 4.4vw, 64px); }
+
+#rooms .rooms__stack {
+  position: relative;
+  isolation: isolate;
+}
+
+#rooms .rooms__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--rule-strong);
+}
+#rooms .rooms__item { border-bottom: 1px solid var(--rule-strong); }
+
+#rooms .rooms__row {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: clamp(2.2rem, 3.6vw, 3.2rem) minmax(0, 1fr) minmax(0, clamp(12.5rem, 19vw, 18rem));
+  align-items: center;
+  column-gap: clamp(12px, 2vw, 28px);
+  padding-block: clamp(20px, 2.8vw, 38px);
+  color: var(--fg);
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+}
+#rooms .rooms__row:focus-visible { outline-offset: 6px; }
+
+#rooms .rooms__no {
+  font-family: var(--font-body);
+  font-size: .72rem;
+  font-weight: 500;
+  letter-spacing: .16em;
+  color: var(--accent-text);
+  transition: color var(--t-med) var(--ease);
+}
+
+#rooms .rooms__word {
+  margin: 0;
+  min-width: 0;
+  font-family: var(--font-display);
+  font-weight: 380;
+  font-variation-settings: "opsz" 144;
+  font-size: clamp(2.6rem, 8vw, 7.6rem);
+  line-height: .98;
+  letter-spacing: -.03em;
+  white-space: nowrap;
+  color: var(--fg);
+  transition: color var(--t-med) var(--ease), transform var(--t-med) var(--ease);
+}
+
+#rooms .rooms__meta {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: 20px;
+}
+#rooms .rooms__line {
+  font-size: .96rem;
+  line-height: 1.4;
+  color: var(--fg-soft);
+  text-wrap: balance;
+  transition: color var(--t-med) var(--ease);
+}
+#rooms .rooms__go {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  border: 1px solid var(--rule-strong);
+  border-radius: 50%;
+  color: var(--fg);
+  transition: background-color var(--t-med) var(--ease), border-color var(--t-med) var(--ease), color var(--t-med) var(--ease), transform var(--t-med) var(--ease);
+}
+#rooms .rooms__go::before {
+  content: "\2192";
+  font-family: var(--font-body);
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+/* the pool of light: one element that travels from row to row (placed by 02-rooms.js) */
+#rooms .rooms__spot {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 0;
+  z-index: 0;
+  opacity: 0;
+  pointer-events: none;
+  -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 14%, #000 86%, transparent 100%);
+  mask-image: linear-gradient(90deg, transparent 0%, #000 14%, #000 86%, transparent 100%);
+  background:
+    radial-gradient(ellipse 34% 105% at var(--mx, 24%) 50%, rgba(246, 217, 166, .95), rgba(246, 217, 166, 0) 72%),
+    radial-gradient(ellipse 60% 140% at var(--mx, 24%) 50%, rgba(212, 168, 75, .22), rgba(212, 168, 75, 0) 70%);
+  transition: transform var(--t-med) var(--ease), height var(--t-med) var(--ease), opacity var(--t-med) var(--ease);
+}
+#rooms .rooms__spot.is-on { opacity: 1; }
+#rooms .rooms__spot.is-jump { transition: opacity var(--t-med) var(--ease); }
+
+/* the active (hovered, focused or centred) word */
+#rooms .rooms__row.is-active .rooms__word { transform: translateX(.12em); }
+#rooms .rooms__row.is-active .rooms__go {
+  background: var(--stage-gold);
+  border-color: var(--stage-gold);
+  color: var(--house-dark);
+}
+#rooms .rooms__row.is-active .rooms__no { color: var(--fg); }
+
+/* the others dim: colour, never opacity */
+#rooms .rooms__list[data-dim] .rooms__row:not(.is-active) .rooms__word { color: var(--dim-word); }
+#rooms .rooms__list[data-dim] .rooms__row:not(.is-active) .rooms__line,
+#rooms .rooms__list[data-dim] .rooms__row:not(.is-active) .rooms__no { color: var(--dim-line); }
+#rooms .rooms__list[data-dim] .rooms__row:not(.is-active) .rooms__go { border-color: var(--rule); color: var(--dim-line); }
+
+/* ---------- phones: the word on top, the line and the arrow under it ---------- */
+@media (max-width: 759.98px) {
+  #rooms .rooms__row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "no no"
+      "word word"
+      "line go";
+    row-gap: 4px;
+    padding-block: 22px 22px;
+  }
+  #rooms .rooms__no { grid-area: no; }
+  #rooms .rooms__word { grid-area: word; font-size: clamp(2.2rem, 14.2vw, 4.4rem); }
+  #rooms .rooms__meta { display: contents; }
+  #rooms .rooms__line { grid-area: line; max-width: 26ch; align-self: center; }
+  #rooms .rooms__go { grid-area: go; width: 42px; height: 42px; align-self: center; }
+  #rooms .rooms__row.is-active .rooms__word { transform: none; }
+  #rooms .rooms__spot { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #rooms .rooms__row.is-active .rooms__word { transform: none; }
+}
+/* ==========================================================================
+   Room 3: The Mirror. Scoped under #mirror.
+   Part 1: the person (portrait arch, three first-person beats, one line he lived by).
+   Part 2: facts strip.
+   Part 3: "My first class": 34 desks in rigid rows, a Performance / Expression toggle that
+           turns the rows into a circle and re-sets one of his sentences.
+   The expression state is the finished one: with scripts off the circle and the expressive
+   sentence are simply there and the toggle is hidden.
+   ========================================================================== */
+
+#mirror { padding-block: clamp(72px, 9vw, 144px); }
+#mirror .room__inner { display: block; }
+
+/* ---------- part 1: portrait + beats ---------- */
+#mirror .mirror__story {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+  column-gap: clamp(40px, 7vw, 112px);
+  align-items: center;
+}
+
+#mirror .mirror__portrait {
+  position: relative;
+  width: 100%;
+  max-width: 30rem;
+  justify-self: start;
+}
+#mirror .mirror__portrait::before {
+  content: "";
+  position: absolute;
+  inset: -12px;
+  border: 1px solid rgba(183, 161, 122, .3);
+  border-radius: 999px 999px 4px 4px;
+  pointer-events: none;
+}
+#mirror .mirror__portrait .arch { --arch-ratio: 4 / 5; }
+#mirror .mirror__portrait img { object-position: 50% 30%; }
+
+#mirror .mirror__text { min-width: 0; }
+#mirror .mirror__text .eyebrow { margin-bottom: 14px; }
+#mirror .mirror__text h2 { margin: 0 0 clamp(24px, 3vw, 40px); max-width: 14ch; }
+
+#mirror .beats {
+  margin: 0 0 clamp(28px, 3.4vw, 44px);
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--rule);
+}
+#mirror .beat {
+  display: grid;
+  grid-template-columns: 2.8rem minmax(0, 1fr);
+  column-gap: 8px;
+  padding: 18px 0 19px;
+  border-bottom: 1px solid var(--rule);
+}
+#mirror .beat__n {
+  padding-top: .5em;
+  font-family: var(--font-body);
+  font-size: .72rem;
+  font-weight: 500;
+  letter-spacing: .16em;
+  color: var(--accent-text);
+}
+#mirror .beat p {
+  margin: 0;
+  max-width: 46ch;
+  font-size: clamp(1rem, .94rem + .3vw, 1.16rem);
+  line-height: 1.55;
+  color: var(--fg);
+}
+
+#mirror .mirror__pull {
+  max-width: 16ch;
+  font-size: clamp(1.8rem, 1.1rem + 2.2vw, 2.9rem);
+  line-height: 1.08;
+  color: var(--tungsten);
+}
+#mirror .mirror__pull::before {
+  content: "";
+  display: block;
+  width: 38px;
+  height: 13px;
+  margin-bottom: 18px;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, var(--tungsten), var(--stage-gold) 55%, rgba(212, 168, 75, 0) 100%);
+}
+
+/* ---------- part 2: facts ---------- */
+#mirror .facts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin: clamp(60px, 7vw, 108px) 0 0;
+  border-top: 1px solid var(--rule-strong);
+}
+#mirror .fact { min-width: 0; padding: 24px 28px 4px 0; }
+#mirror .fact + .fact { padding-left: 28px; border-left: 1px solid var(--rule); }
+#mirror .fact dt {
+  margin: 0 0 12px;
+  font-family: var(--font-body);
+  font-size: .72rem;
+  font-weight: 500;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--accent-text);
+}
+#mirror .fact dd {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(1.35rem, 1rem + 1vw, 1.9rem);
+  font-weight: 380;
+  font-variation-settings: "opsz" 96;
+  line-height: 1.18;
+  letter-spacing: -.01em;
+  color: var(--fg);
+}
+#mirror .fact__sub {
+  display: block;
+  margin-top: 8px;
+  font-family: var(--font-body);
+  font-size: .86rem;
+  font-weight: 400;
+  font-variation-settings: normal;
+  letter-spacing: 0;
+  line-height: 1.45;
+  color: var(--fg-soft);
+}
+#mirror .fact__arrow {
+  display: inline-block;
+  width: 1.15em;
+  height: .46em;
+  margin: 0 .22em;
+  vertical-align: .08em;
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* ---------- part 3: first class ---------- */
+#mirror .play {
+  /* --e: 0 = performance (rigid rows), 1 = expression (the circle). Plain numbers, so calc() can blend. */
+  --e: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+  grid-template-areas:
+    "intro intro"
+    "ctrl field";
+  column-gap: clamp(40px, 7vw, 112px);
+  row-gap: clamp(32px, 4vw, 56px);
+  align-items: center;
+  margin-top: clamp(64px, 7.5vw, 116px);
+  padding-top: clamp(40px, 4.6vw, 68px);
+  border-top: 1px solid var(--rule);
+}
+#mirror .play:is([data-mode="expression"]),
+html:not(.js) #mirror .play { --e: 1; }
+
+#mirror .play__intro { grid-area: intro; min-width: 0; }
+#mirror .play__intro .eyebrow { margin-bottom: 16px; }
+#mirror .play__quote {
+  max-width: 24ch;
+  margin: 0;
+  font-size: clamp(1.7rem, 1rem + 2.3vw, 3.1rem);
+  line-height: 1.08;
+}
+#mirror .play__ctrl { grid-area: ctrl; min-width: 0; }
+
+/* the toggle */
+#mirror .mode {
+  display: inline-flex;
+  align-items: stretch;
+  padding: 4px;
+  border: 1px solid var(--rule-strong);
+  border-radius: 999px;
+  background: rgba(2, 6, 11, .35);
+}
+html:not(.js) #mirror .mode { display: none; }
+#mirror .mode__btn {
+  padding: .72rem 1.25rem;
+  border-radius: 999px;
+  color: var(--fg-soft);
+  font-family: var(--font-body);
+  font-size: .9rem;
+  font-weight: 500;
+  line-height: 1.1;
+  white-space: nowrap;
+  transition: background-color var(--t-med) var(--ease), color var(--t-med) var(--ease);
+}
+#mirror .mode__btn:hover { color: var(--linen); }
+#mirror .mode__btn[aria-pressed="true"] {
+  background: var(--stage-gold);
+  color: var(--house-dark);
+  font-weight: 600;
+}
+#mirror .play__hint { max-width: 36ch; margin: 16px 0 0; }
+html:not(.js) #mirror .play__hint { display: none; }
+
+/* the field: a square, desks placed in percentages of it */
+#mirror .field {
+  grid-area: field;
+  position: relative;
+  width: 100%;
+  max-width: 31rem;
+  justify-self: end;
+  aspect-ratio: 1 / 1;
+}
+#mirror .field::before {
+  content: "";
+  position: absolute;
+  inset: 4%;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(212, 168, 75, .2), rgba(212, 168, 75, 0) 100%);
+  opacity: var(--e);
+  transition: opacity calc(1.6s * var(--slow)) var(--ease);
+  pointer-events: none;
+}
+
+#mirror .desk {
+  --dl: rgba(183, 161, 122, .72);
+  --df: rgba(183, 161, 122, .07);
+  --dg: rgba(212, 168, 75, 0);
+  position: absolute;
+  display: block;
+  width: 6%;
+  height: 4.9%;
+  margin: -2.45% 0 0 -3%;
+  left: calc((var(--rx) + (var(--cx) - var(--rx)) * var(--e)) * 1%);
+  top: calc((var(--ry) + (var(--cy) - var(--ry)) * var(--e)) * 1%);
+}
+#mirror .desk b {
+  position: absolute;
+  inset: 0;
+  display: block;
+  transform: rotate(calc(var(--ra) * var(--e) * 1deg));
+  transition: transform calc(2s * var(--slow)) cubic-bezier(.65, 0, .35, 1) calc((var(--k) + 1) * 18ms * var(--slow));
+}
+/* the desk top */
+#mirror .desk b::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 62%;
+  border: 1.5px solid var(--dl);
+  border-radius: 3px;
+  background: var(--df);
+  box-shadow: 0 0 12px var(--dg);
+  transition: border-color calc(.9s * var(--slow)) var(--ease), background-color calc(.9s * var(--slow)) var(--ease), box-shadow calc(.9s * var(--slow)) var(--ease);
+}
+/* the chair */
+#mirror .desk b::after {
+  content: "";
+  position: absolute;
+  left: 27%;
+  right: 27%;
+  bottom: 0;
+  height: 32%;
+  border: 1.5px solid var(--dl);
+  border-top: 0;
+  border-radius: 0 0 999px 999px;
+  transition: border-color calc(.9s * var(--slow)) var(--ease);
+}
+
+/* expression: every chair lights in turn around the circle */
+#mirror .play:is([data-mode="expression"]) .desk,
+html:not(.js) #mirror .play .desk {
+  --dl: var(--stage-gold);
+  --df: rgba(212, 168, 75, .26);
+  --dg: rgba(212, 168, 75, .34);
+}
+#mirror .play:is([data-mode="expression"]) .desk b::before,
+#mirror .play:is([data-mode="expression"]) .desk b::after {
+  transition-delay: calc((var(--k) * 28ms + .55s) * var(--slow));
+}
+
+/* the speaker's mark: the pool of light, at the front of the room, then in the middle of the circle */
+#mirror .teach {
+  position: absolute;
+  display: block;
+  width: 16%;
+  height: 5.2%;
+  margin: -2.6% 0 0 -8%;
+  left: 50%;
+  top: calc((9 + (50 - 9) * var(--e)) * 1%);
+  border-radius: 50%;
+  background: radial-gradient(closest-side, var(--tungsten), var(--stage-gold) 52%, rgba(212, 168, 75, 0) 100%);
+  opacity: calc(.5 + .5 * var(--e));
+  box-shadow: 0 0 calc(10px + 24px * var(--e)) rgba(212, 168, 75, .35);
+  transition: opacity calc(1.4s * var(--slow)) var(--ease);
+}
+
+/* native fallback (no Flip): the browser moves everything */
+#mirror .play.is-native .desk,
+#mirror .play.is-native .teach {
+  transition-property: left, top, opacity;
+  transition-duration: calc(2s * var(--slow));
+  transition-timing-function: cubic-bezier(.65, 0, .35, 1);
+  transition-delay: calc((var(--k, -1) + 1) * 18ms * var(--slow));
+}
+
+/* the sentence: two layers in one cell, so the room never changes height */
+#mirror .sent {
+  display: grid;
+  min-width: 0;
+  margin-top: clamp(28px, 3.6vw, 48px);
+}
+#mirror .sent > p {
+  grid-area: 1 / 1;
+  align-self: start;
+  margin: 0;
+  min-width: 0;
+}
+
+#mirror .sent__perf {
+  max-width: 28ch;
+  font-family: var(--font-body);
+  font-size: clamp(1rem, .9rem + .5vw, 1.3rem);
+  font-weight: 500;
+  letter-spacing: .14em;
+  line-height: 1.7;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--linen) 72%, transparent);
+  opacity: 1;
+  visibility: visible;
+  transition: opacity calc(.5s * var(--slow)) var(--ease) calc(.45s * var(--slow)), filter calc(.5s * var(--slow)) var(--ease) calc(.45s * var(--slow)), visibility 0s linear 0s;
+}
+#mirror .play:is([data-mode="expression"]) .sent__perf,
+html:not(.js) #mirror .play .sent__perf {
+  opacity: 0;
+  filter: blur(4px);
+  visibility: hidden;
+  transition: opacity calc(.4s * var(--slow)) var(--ease), filter calc(.4s * var(--slow)) var(--ease), visibility 0s linear calc(.4s * var(--slow));
+}
+
+#mirror .sent__expr {
+  font-size: clamp(1.5rem, .8rem + 1.9vw, 2.6rem);
+  line-height: 1.1;
+  visibility: hidden;
+  transition: visibility 0s linear calc(.4s * var(--slow));
+}
+#mirror .play:is([data-mode="expression"]) .sent__expr,
+html:not(.js) #mirror .play .sent__expr {
+  visibility: visible;
+  transition: visibility 0s linear 0s;
+}
+#mirror .sent__expr .ln { display: block; padding-block: .06em; }
+#mirror .sent__expr .wd {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(.28em);
+  filter: blur(5px);
+  transition: opacity calc(.3s * var(--slow)) var(--ease), transform calc(.3s * var(--slow)) var(--ease), filter calc(.3s * var(--slow)) var(--ease);
+}
+#mirror .play:is([data-mode="expression"]) .sent__expr .wd,
+html:not(.js) #mirror .play .sent__expr .wd {
+  opacity: 1;
+  transform: none;
+  filter: none;
+  transition: opacity calc(.9s * var(--slow)) var(--ease) calc((.35s + var(--i) * .07s) * var(--slow)), transform calc(1s * var(--slow)) var(--ease) calc((.35s + var(--i) * .07s) * var(--slow)), filter calc(.9s * var(--slow)) var(--ease) calc((.35s + var(--i) * .07s) * var(--slow));
+}
+/* mixed scale: the words he leans on get bigger and heavier */
+#mirror .sent__expr .wd--big {
+  font-size: 1.95em;
+  line-height: .74;
+  font-weight: 600;
+  font-variation-settings: "opsz" 144;
+  letter-spacing: -.03em;
+}
+#mirror .sent__expr .wd--live {
+  font-size: 1.5em;
+  line-height: .8;
+  font-weight: 560;
+  font-variation-settings: "opsz" 144;
+  letter-spacing: -.025em;
+}
+
+/* ---------- phones ---------- */
+@media (max-width: 759.98px) {
+  #mirror .mirror__story { grid-template-columns: minmax(0, 1fr); row-gap: 44px; }
+  #mirror .mirror__portrait { max-width: 22rem; margin-inline: auto; }
+  #mirror .mirror__text h2 { max-width: none; }
+  #mirror .beat { grid-template-columns: 2.4rem minmax(0, 1fr); }
+
+  #mirror .facts { grid-template-columns: minmax(0, 1fr); }
+  #mirror .fact, #mirror .fact + .fact { padding: 20px 0 18px; border-left: 0; }
+  #mirror .fact + .fact { border-top: 1px solid var(--rule); }
+
+  #mirror .play {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: "intro" "mode" "hint" "field" "sent";
+    row-gap: 0;
+  }
+  #mirror .play__ctrl { display: contents; }
+  #mirror .play__quote { max-width: none; font-size: clamp(1.55rem, 7vw, 2.1rem); }
+  #mirror .play__intro { margin-bottom: 26px; }
+  #mirror .mode { grid-area: mode; display: flex; width: 100%; }
+  html:not(.js) #mirror .mode { display: none; }
+  #mirror .mode__btn { flex: 1 1 0; padding-inline: .6rem; font-size: .85rem; }
+  #mirror .play__hint { grid-area: hint; margin: 14px 0 30px; max-width: none; }
+  #mirror .field { justify-self: center; max-width: 26rem; }
+  #mirror .sent { grid-area: sent; margin-top: 30px; text-align: center; justify-items: center; }
+  #mirror .sent__perf { font-size: .92rem; letter-spacing: .12em; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #mirror .desk b,
+  #mirror .desk b::before,
+  #mirror .desk b::after,
+  #mirror .teach,
+  #mirror .field::before,
+  #mirror .sent > p,
+  #mirror .sent__expr .wd { transition: none !important; }
+}
+/* Room 4: The Classroom (#teaching). Paper room. Everything is scoped under #teaching. */
+
+#teaching {
+  --cls-gap: clamp(2.5rem, 6vw, 6rem);
+}
+
+/* ---------- One grid: heading, the two ledgers, and the photographs beside them ---------- */
+
+#teaching .cls-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1.08fr) minmax(0, .92fr);
+  grid-template-areas:
+    "head   visual"
+    "now    visual"
+    "before visual";
+  grid-template-rows: auto auto 1fr;
+  column-gap: var(--cls-gap);
+  row-gap: clamp(2.25rem, 4.5vw, 3.5rem);
+  align-items: start;
+}
+#teaching .cls-head {
+  grid-area: head;
+  margin-bottom: clamp(.5rem, 2vw, 1.5rem);
+}
+#teaching .cls-head .display {
+  max-width: 15ch;
+}
+#teaching .cls-col--now { grid-area: now; }
+#teaching .cls-col--before { grid-area: before; }
+
+#teaching .cls-col {
+  padding-top: 1.15rem;
+  border-top: 1px solid var(--rule-strong);
+}
+#teaching .cls-col .eyebrow {
+  margin-bottom: 1.2rem;
+}
+
+#teaching .cls-lead {
+  margin: 0 0 .55rem;
+  max-width: 24em;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-variation-settings: "opsz" 72;
+  font-size: clamp(1.45rem, 1.05rem + 1.1vw, 2.05rem);
+  line-height: 1.2;
+  letter-spacing: -.012em;
+  text-wrap: balance;
+}
+#teaching .cls-sub {
+  margin: 0;
+  max-width: 40em;
+  font-size: 1.02rem;
+  color: var(--fg-soft);
+}
+
+#teaching .cls-list {
+  margin: 1.5rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+#teaching .cls-list li {
+  position: relative;
+  max-width: 40rem;
+  padding: .95rem 0 .95rem 1.7rem;
+  border-top: 1px solid var(--rule);
+  font-size: 1.02rem;
+  line-height: 1.55;
+  color: var(--fg);
+}
+/* a short brass tick, the margin mark of a ruled page */
+#teaching .cls-list li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 1.68rem;
+  width: .85rem;
+  height: 1px;
+  background: var(--accent);
+}
+
+/* ---------- Photographs: the arch, and a printed detail pinned over its corner ---------- */
+
+#teaching .cls-visual {
+  grid-area: visual;
+  position: sticky;
+  top: calc(var(--header-h) + 1.5rem);
+  min-width: 0;
+}
+#teaching .cls-arch {
+  width: 100%;
+  margin: 0;
+}
+/* a tight crop: just him and the whiteboard, the projector slide left out of frame */
+#teaching .cls-arch img {
+  position: absolute;
+  left: -8.6%;
+  top: -11%;
+  width: 172%;
+  height: auto;
+  max-width: none;
+}
+
+#teaching .cls-board {
+  position: relative;
+  z-index: 2;
+  width: 88%;
+  margin: -4.75rem 0 0 -3.75rem;
+  padding: .6rem .6rem .5rem;
+  background: var(--linen);
+  box-shadow: 0 0 0 1px var(--rule), 0 26px 50px -22px rgba(28, 26, 22, .4);
+}
+#teaching .cls-board__img {
+  overflow: hidden;
+  aspect-ratio: 1024 / 473;
+  background: var(--paper);
+}
+#teaching .cls-board__img picture,
+#teaching .cls-board__img img {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+#teaching .cls-board__img img {
+  object-fit: cover;
+  /* the detail zooms in once, when the print arrives (final state = zoomed, so a stalled clock still ends right) */
+  transform: scale(1.18);
+  transform-origin: 16% 26%;
+  transition: transform calc(2.8s * var(--slow)) var(--ease) calc(.35s * var(--slow));
+}
+html.js #teaching .cls-board.below:not(.is-in) .cls-board__img img {
+  transform: scale(1);
+  transition: none;
+}
+html.js #teaching .cls-board.is-in.done .cls-board__img img {
+  transition: none;
+}
+#teaching .cls-board figcaption {
+  margin: .6rem .15rem .1rem;
+  font-size: .78rem;
+  color: color-mix(in srgb, var(--ink) 70%, transparent);
+}
+
+/* ---------- Storytelling quote ---------- */
+
+#teaching .cls-quote {
+  margin-top: clamp(4rem, 9vw, 8.5rem);
+  padding-top: clamp(2rem, 4vw, 3.25rem);
+  border-top: 1px solid var(--rule-strong);
+}
+#teaching .cls-quote .quote {
+  max-width: 58rem;
+  font-size: clamp(1.9rem, 1.1rem + 3vw, 3.7rem);
+  line-height: 1.08;
+}
+#teaching .cls-quote figcaption {
+  margin-top: 1.5rem;
+}
+
+/* ---------- Tablet and phone ---------- */
+
+@media (max-width: 959.98px) {
+  #teaching .cls-body {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "head"
+      "visual"
+      "now"
+      "before";
+    grid-template-rows: auto;
+    row-gap: clamp(2.5rem, 7vw, 3.5rem);
+  }
+  #teaching .cls-visual { position: relative; top: auto; max-width: 34rem; }
+  #teaching .cls-board {
+    width: 84%;
+    margin: -3rem 0 0 auto;
+  }
+  #teaching .cls-head .display { max-width: 12ch; }
+}
+
+@media (max-width: 759.98px) {
+  #teaching .cls-arch { --arch-ratio: 1 / 1.1; }
+  #teaching .cls-arch img { top: -15.6%; }
+  #teaching .cls-lead { font-size: 1.45rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #teaching .cls-board__img img { transform: none; transition: none; }
+}
+/* Room 5: Temple of Speak teaser (#temple). Temple Navy room. Everything is scoped under #temple. */
+
+#temple {
+  --tmp-gap: clamp(2.5rem, 6vw, 6rem);
+}
+
+#temple .tmp-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.12fr) minmax(0, .88fr);
+  gap: var(--tmp-gap);
+  align-items: center;
+}
+#temple .tmp-copy { min-width: 0; }
+#temple .tmp-copy .display { max-width: 12ch; margin-bottom: clamp(1.5rem, 3vw, 2.25rem); }
+#temple .tmp-copy .lede { max-width: 34rem; color: var(--linen); }
+
+#temple .tmp-plan {
+  max-width: 34rem;
+  margin: 0 0 clamp(1.75rem, 3vw, 2.5rem);
+  color: var(--fg-soft);
+}
+
+/* the three pillars, one line, across the whole room */
+#temple .tmp-pillars {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: .5rem 1.5rem;
+  margin: clamp(3.5rem, 7vw, 6rem) 0 0;
+  padding-top: 1.6rem;
+  border-top: 1px solid var(--rule-strong);
+  font-family: var(--font-display);
+  font-variation-settings: "opsz" 72;
+  font-size: clamp(1.2rem, .9rem + 1.2vw, 2rem);
+  line-height: 1.2;
+  letter-spacing: -.01em;
+  color: var(--linen);
+}
+#temple .tmp-pillars span { display: inline-flex; align-items: center; gap: 1.1rem; white-space: nowrap; }
+#temple .tmp-pillars span::before {
+  content: "";
+  flex: none;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--stage-gold);
+}
+
+#temple .tmp-cohort {
+  display: flex;
+  align-items: center;
+  gap: .8rem;
+  margin: 0;
+  font-size: .95rem;
+  color: var(--fg-soft);
+}
+#temple .tmp-cohort__dot {
+  flex: none;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--stage-gold);
+  box-shadow: 0 0 0 4px rgba(212, 168, 75, .18), 0 0 14px rgba(212, 168, 75, .5);
+}
+
+/* ---------- The door ---------- */
+
+#temple .tmp-doorway { min-width: 0; }
+
+#temple .tmp-door {
+  --pool: .6;
+  --pool-scale: 1;
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: min(100%, 25rem);
+  aspect-ratio: 4 / 5.2;
+  margin-inline: auto;
+  padding: clamp(3rem, 5.6vw, 4.1rem) 1.25rem clamp(2.2rem, 4vw, 2.9rem);
+  color: var(--linen);
+  text-align: center;
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+}
+#temple .tmp-door:hover,
+#temple .tmp-door:focus-visible,
+#temple .tmp-door:active {
+  --pool: 1;
+  --pool-scale: 1.22;
+}
+#temple .tmp-door:focus-visible { outline-offset: 8px; border-radius: 999px 999px 0 0; }
+
+/* the doorway itself: darker than the room, a pool of warm light on its floor */
+#temple .tmp-door__bg {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  border-radius: 999px 999px 0 0;
+  background:
+    radial-gradient(ellipse 84% 36% at 50% 100%, rgba(224, 178, 84, calc(.46 * var(--pool))), rgba(212, 168, 75, calc(.14 * var(--pool))) 52%, transparent 78%),
+    linear-gradient(180deg, #060f1b 0%, #0a1a2c 52%, #123150 100%);
+  box-shadow: inset 0 0 0 1px rgba(183, 161, 122, .4), 0 0 0 0 rgba(212, 168, 75, 0);
+  transition: box-shadow var(--t-slow) var(--ease);
+}
+#temple .tmp-door:hover .tmp-door__bg,
+#temple .tmp-door:focus-visible .tmp-door__bg,
+#temple .tmp-door:active .tmp-door__bg {
+  box-shadow: inset 0 0 0 1px rgba(212, 168, 75, .7), 0 0 90px -14px rgba(212, 168, 75, .3);
+}
+/* the speaker's mark: a gold ellipse on the doorway floor */
+#temple .tmp-door__bg::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 5.5%;
+  width: 46%;
+  height: 7.5%;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, var(--tungsten), var(--stage-gold) 52%, transparent 100%);
+  opacity: calc(.55 + .45 * var(--pool));
+  transform: translateX(-50%) scale(var(--pool-scale));
+  transition: transform var(--t-slow) var(--ease), opacity var(--t-slow) var(--ease);
+}
+
+/* the disc badge, clipped from its white card to the navy circle */
+#temple .tmp-badge {
+  position: relative;
+  flex: none;
+  width: 54%;
+  aspect-ratio: 1;
+  margin-right: 14%;
+}
+#temple .tmp-badge__disc {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: 50%;
+  background: #0E243B;
+  box-shadow: 0 0 0 1px rgba(183, 161, 122, .45), 0 18px 40px -16px rgba(2, 6, 11, .9);
+}
+/* the disc is 426 px wide inside an 800 px card: scale the card up so the disc fills the circle */
+#temple .tmp-badge__disc picture,
+#temple .tmp-badge__disc img {
+  display: block;
+  max-width: none;
+}
+#temple .tmp-badge__disc img {
+  position: absolute;
+  width: 187.8%;
+  height: auto;
+  left: -44.6%;
+  top: -6.3%;
+}
+
+/* the logo's rays, drawn on once (DrawSVG; plain and complete without it) */
+#temple .tmp-rays {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+  fill: none;
+  stroke: var(--stage-gold);
+  stroke-width: 1.1px;
+  stroke-linecap: round;
+}
+#temple .tmp-rays.is-armed path { stroke-dasharray: 1; stroke-dashoffset: 1; }
+#temple .tmp-rays.is-drawing path { stroke-dashoffset: 0; transition: stroke-dashoffset calc(1.3s * var(--slow)) var(--ease); }
+#temple .tmp-rays.is-drawing path:nth-child(2) { transition-delay: calc(.1s * var(--slow)); }
+#temple .tmp-rays.is-drawing path:nth-child(3) { transition-delay: calc(.2s * var(--slow)); }
+#temple .tmp-rays.is-drawing path:nth-child(4) { transition-delay: calc(.3s * var(--slow)); }
+#temple .tmp-rays.is-drawing path:nth-child(5) { transition-delay: calc(.4s * var(--slow)); }
+#temple .tmp-rays.is-drawing path:nth-child(6) { transition-delay: calc(.5s * var(--slow)); }
+#temple .tmp-rays.is-drawing path:nth-child(7) { transition-delay: calc(.6s * var(--slow)); }
+
+#temple .tmp-door__by {
+  margin-top: clamp(1.25rem, 2.6vw, 1.9rem);
+  font-family: var(--font-display);
+  font-variation-settings: "opsz" 36;
+  font-size: 1.02rem;
+  color: var(--brass);
+  transition: color var(--t-med) var(--ease);
+}
+#temple .tmp-door:hover .tmp-door__by,
+#temple .tmp-door:focus-visible .tmp-door__by,
+#temple .tmp-door:active .tmp-door__by { color: var(--tungsten); }
+
+#temple .tmp-door__go {
+  display: inline-flex;
+  align-items: center;
+  gap: .75rem;
+  margin-top: auto;
+  margin-bottom: clamp(2.6rem, 5.4vw, 3.5rem);
+  font-family: var(--font-display);
+  font-variation-settings: "opsz" 60;
+  font-size: clamp(1.35rem, 1.1rem + .9vw, 1.75rem);
+  line-height: 1.1;
+  letter-spacing: -.01em;
+}
+#temple .tmp-door__go svg { flex: none; transition: transform var(--t-med) var(--ease); }
+#temple .tmp-door:hover .tmp-door__go svg,
+#temple .tmp-door:focus-visible .tmp-door__go svg { transform: translateX(.35rem); }
+
+/* ---------- Testimonial ---------- */
+
+#temple .tmp-quote {
+  margin: clamp(3rem, 6vw, 5rem) 0 0;
+}
+/* not Vahan's words, so roman, never italic */
+#temple .tmp-quote .display {
+  max-width: 54rem;
+  font-size: clamp(1.7rem, 1.05rem + 2.5vw, 3rem);
+  line-height: 1.12;
+  letter-spacing: -.015em;
+}
+#temple .tmp-quote figcaption { margin-top: 1.4rem; }
+#temple .tmp-quote cite { font-style: normal; color: var(--linen); font-weight: 500; }
+
+/* ---------- Tablet and phone ---------- */
+
+@media (max-width: 959.98px) {
+  #temple .tmp-pillars { flex-direction: column; align-items: flex-start; }
+  #temple .tmp-grid { grid-template-columns: minmax(0, 1fr); }
+  #temple .tmp-copy .display { max-width: 14ch; }
+  #temple .tmp-door { width: min(100%, 22rem); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #temple .tmp-rays.is-armed path { stroke-dasharray: none; stroke-dashoffset: 0; }
+  #temple .tmp-door:hover .tmp-door__go svg { transform: none; }
+}
+/* Room 6: The Stage (#speaking). House Dark room. Everything is scoped under #speaking.
+
+   Two layouts for the talk list:
+   - Desktop (1200px and up, once 06-stage.js has run, class .is-enhanced): a 21:9 letterbox. The four talks sit
+     on its left, the photograph of the active talk crossfades in on its right, a soft spot sits on the active row.
+     Row heights are fixed, so the list never shifts under the pointer.
+   - Everything else (tablet, phone, no JS): a plain accordion; each talk opens its photograph and text in place.
+     Without JS every panel is simply open. */
+
+#speaking {
+  --stg-gap: clamp(2.5rem, 6vw, 6rem);
+}
+
+#speaking .stg-head {
+  margin-bottom: clamp(2.25rem, 4.5vw, 4rem);
+}
+#speaking .stg-head .display {
+  max-width: 17ch;
+}
+
+/* ---------- Talk list: accordion layout (the base) ---------- */
+
+#speaking .stg-frame {
+  width: 100%;
+  max-width: calc(72rem + var(--gutter-l) + var(--gutter-r));
+  margin-inline: auto;
+  padding-inline: var(--gutter-l) var(--gutter-r);
+}
+#speaking .stg-talks {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-bottom: 1px solid var(--rule);
+}
+#speaking .talk {
+  border-top: 1px solid var(--rule);
+}
+#speaking .talk__h {
+  margin: 0;
+  font: inherit;
+  letter-spacing: normal;
+}
+#speaking .talk__btn {
+  display: grid;
+  grid-template-columns: 2.6rem minmax(0, 1fr) auto;
+  grid-template-areas:
+    "n t i"
+    ".  m i";
+  grid-template-rows: auto auto;
+  align-content: center;
+  align-items: center;
+  width: 100%;
+  min-height: 4.6rem;
+  padding: .95rem 0;
+  text-align: left;
+  color: rgba(245, 233, 200, .66);
+  transition: color var(--t-med) var(--ease);
+}
+#speaking .talk.is-active .talk__btn,
+#speaking .talk__btn:hover {
+  color: var(--linen);
+}
+#speaking .talk__n {
+  grid-area: n;
+  font-size: .72rem;
+  font-weight: 500;
+  letter-spacing: .14em;
+  color: var(--accent-text);
+}
+#speaking .talk__t {
+  grid-area: t;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-variation-settings: "opsz" 72;
+  font-size: clamp(1.4rem, 1.1rem + 1.1vw, 1.75rem);
+  line-height: 1.15;
+  letter-spacing: -.01em;
+}
+#speaking .talk__m {
+  grid-area: m;
+  margin-top: .3rem;
+  font-size: .82rem;
+  line-height: 1.35;
+  color: var(--accent-text);
+}
+/* plus that becomes a minus */
+#speaking .talk__btn::after {
+  content: "";
+  grid-area: i;
+  width: .95rem;
+  height: .95rem;
+  margin-left: 1rem;
+  background:
+    linear-gradient(currentColor, currentColor) center / 100% 1.5px no-repeat,
+    linear-gradient(currentColor, currentColor) center / 1.5px 100% no-repeat;
+  transition: background-size var(--t-med) var(--ease);
+}
+#speaking .talk.is-active .talk__btn::after {
+  background-size: 100% 1.5px, 1.5px 0;
+}
+/* without JS every panel is simply open: no plus sign, and the photographs stay a sensible size */
+#speaking:not(.is-enhanced) .talk__btn::after { display: none; }
+#speaking:not(.is-enhanced) .plate { max-width: 46rem; }
+
+#speaking .talk__inner { min-height: 0; }
+#speaking.is-enhanced .talk__panel {
+  display: grid;
+  grid-template-rows: 0fr;
+  visibility: hidden;
+  transition: grid-template-rows var(--t-med) var(--ease), visibility 0s linear var(--t-med);
+}
+#speaking.is-enhanced .talk.is-active .talk__panel {
+  grid-template-rows: 1fr;
+  visibility: visible;
+  transition: grid-template-rows var(--t-med) var(--ease), visibility 0s;
+}
+#speaking.is-enhanced .talk__inner { overflow: hidden; }
+
+#speaking .plate {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  margin: .2rem 0 1.1rem;
+  overflow: hidden;
+  border-radius: 6px;
+  background: var(--temple-navy);
+}
+#speaking .plate picture,
+#speaking .plate img {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+#speaking .plate img { object-fit: cover; }
+#speaking .plate figcaption.chip {
+  z-index: 2;
+  position: absolute;
+  left: .7rem;
+  right: .7rem;
+  bottom: .7rem;
+  width: fit-content;
+  max-width: calc(100% - 1.4rem);
+  font-size: .72rem;
+}
+/* house lights: each photograph is lit in a pool around the speaker, the rest of the room falls away */
+#speaking .plate--photo::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(8, 22, 36, var(--top, 0)) 0, rgba(8, 22, 36, 0) 58%),
+    radial-gradient(ellipse var(--rx, 46%) var(--ry, 84%) at var(--fx, 50%) var(--fy, 50%), rgba(8, 22, 36, 0) 0%, rgba(8, 22, 36, .2) 55%, rgba(8, 22, 36, .78) 100%);
+}
+#speaking .plate--type { display: none; }
+
+#speaking .talk__body {
+  padding-bottom: 1.5rem;
+}
+#speaking .talk__body p {
+  max-width: 38rem;
+  margin: 0 0 .85rem;
+  color: var(--fg-soft);
+}
+#speaking .talk__body .talk__quote {
+  margin: 1.1rem 0 0;
+  max-width: 28ch;
+  font-size: clamp(1.3rem, 1.05rem + 1vw, 1.65rem);
+  line-height: 1.18;
+  color: var(--linen);
+}
+
+/* The podcast facade: thumbnail and a play button that links out. No iframe, nothing loads from YouTube. */
+#speaking .facade {
+  position: absolute;
+  inset: 0;
+  display: block;
+  color: inherit;
+  text-decoration: none;
+}
+#speaking .facade__play {
+  position: absolute;
+  left: 50%;
+  top: 70%;
+  display: grid;
+  place-items: center;
+  width: 4.5rem;
+  height: 4.5rem;
+  border-radius: 50%;
+  background: var(--stage-gold);
+  color: var(--house-dark);
+  box-shadow: 0 0 0 7px rgba(246, 217, 166, .22), 0 14px 34px rgba(2, 6, 11, .5);
+  transform: translate(-50%, -50%);
+  transition: transform var(--t-med) var(--ease), background-color var(--t-fast) var(--ease), box-shadow var(--t-med) var(--ease);
+}
+#speaking .facade__play svg { margin-left: .2rem; }
+#speaking .facade:hover .facade__play,
+#speaking .facade:focus-visible .facade__play {
+  background: var(--tungsten);
+  transform: translate(-50%, -50%) scale(1.07);
+  box-shadow: 0 0 0 11px rgba(246, 217, 166, .26), 0 18px 40px rgba(2, 6, 11, .55);
+}
+#speaking .facade__label {
+  position: absolute;
+  left: .7rem;
+  bottom: .7rem;
+  padding: .34rem .8rem;
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  background: rgba(8, 22, 36, .74);
+  font-size: .72rem;
+  font-weight: 500;
+  line-height: 1.3;
+  color: var(--linen);
+}
+
+/* ---------- Invite, topics, available for comment ---------- */
+
+#speaking .stg-after {
+  display: grid;
+  grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr);
+  gap: clamp(2.5rem, 5vw, 4rem) var(--stg-gap);
+  align-items: start;
+  margin-top: clamp(3.5rem, 7vw, 6.5rem);
+}
+#speaking .stg-invite { min-width: 0; }
+#speaking .stg-invite .display { max-width: 11ch; margin-bottom: 1.1rem; }
+#speaking .stg-invite .lede { max-width: 30rem; margin-bottom: 1.6rem; }
+#speaking .stg-cta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem 1.5rem;
+}
+#speaking .stg-mail { margin: 0; }
+
+#speaking .stg-topics { min-width: 0; }
+#speaking .stg-topics .eyebrow {
+  max-width: none;
+  margin-bottom: 0;
+  padding-top: 1.15rem;
+  border-top: 1px solid var(--rule-strong);
+}
+#speaking .stg-topic-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+#speaking .stg-topic-list li {
+  display: grid;
+  grid-template-columns: 2.6rem minmax(0, 1fr);
+  padding: 1.35rem 0 1.4rem;
+  border-top: 1px solid var(--rule);
+}
+#speaking .stg-topic-list li:first-child { margin-top: 1.1rem; }
+#speaking .stg-topic__n {
+  padding-top: .5rem;
+  font-size: .72rem;
+  font-weight: 500;
+  letter-spacing: .14em;
+  color: var(--accent-text);
+}
+#speaking .stg-topic-list h4 {
+  margin: 0 0 .45rem;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-variation-settings: "opsz" 72;
+  font-size: clamp(1.35rem, 1.1rem + .9vw, 1.75rem);
+  line-height: 1.15;
+  letter-spacing: -.01em;
+}
+#speaking .stg-topic-list p {
+  margin: 0;
+  max-width: 36rem;
+  color: var(--fg-soft);
+}
+
+#speaking .stg-comment {
+  max-width: 28rem;
+  margin: clamp(2rem, 4vw, 3rem) 0 0;
+  padding-top: 1.4rem;
+  border-top: 1px solid var(--rule-strong);
+  font-family: var(--font-display);
+  font-variation-settings: "opsz" 60;
+  font-size: clamp(1.2rem, 1rem + .7vw, 1.5rem);
+  line-height: 1.3;
+  color: var(--linen);
+}
+
+/* ---------- Desktop: the 21:9 letterbox ---------- */
+
+@media (min-width: 1200px) {
+  #speaking.is-enhanced .stg-frame {
+    --row-h: clamp(4rem, 1rem + 2.6vw, 5.4rem);
+    --pad-y: clamp(2rem, 1rem + 2.2vw, 3.6rem);
+    --list-x: max(var(--gutter-l), calc((100% - 72rem) / 2));
+    --list-w: min(30rem, 36%);
+    --rows: 4;
+    position: relative;
+    max-width: none;
+    margin: 0;
+    padding: 0;
+    aspect-ratio: 21 / 9;
+    overflow: hidden;
+    background: radial-gradient(ellipse 46% 80% at 72% 52%, #0f2b46 0, var(--house-dark) 72%);
+    border-block: 1px solid var(--rule);
+  }
+  /* the list is a frame-sized layer, so each photograph can position itself against the letterbox */
+  #speaking.is-enhanced .stg-talks {
+    position: absolute;
+    inset: 0;
+    padding: var(--pad-y) 0 0 var(--list-x);
+    border: 0;
+  }
+  /* the left of the picture melts into the room, so the titles always sit on dark */
+  #speaking.is-enhanced .stg-talks::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    background:
+      linear-gradient(90deg, var(--house-dark) 0, var(--house-dark) 30%, rgba(8, 22, 36, .66) 43%, rgba(8, 22, 36, 0) 59%),
+      linear-gradient(180deg, rgba(8, 22, 36, .5) 0, rgba(8, 22, 36, 0) 20%, rgba(8, 22, 36, 0) 72%, rgba(8, 22, 36, .6) 100%);
+  }
+  /* the spot: a soft warm pool that finds the active row */
+  #speaking.is-enhanced .stg-talks::after {
+    content: "";
+    position: absolute;
+    z-index: 1;
+    left: calc(var(--list-x) - 4rem);
+    top: calc(var(--pad-y) - var(--row-h) * .45);
+    width: calc(var(--list-w) + 10rem);
+    height: calc(var(--row-h) * 1.9);
+    pointer-events: none;
+    background: radial-gradient(closest-side ellipse at 44% 50%, rgba(246, 217, 166, .22), rgba(212, 168, 75, .08) 55%, transparent 100%);
+    transform: translateY(calc(var(--active, 0) * var(--row-h)));
+    transition: transform var(--t-slow) var(--ease);
+  }
+
+  #speaking.is-enhanced .talk { width: var(--list-w); }
+  #speaking.is-enhanced .talk__h { position: relative; z-index: 2; }
+  #speaking.is-enhanced .talk__btn {
+    height: calc(var(--row-h) - 1px);
+    min-height: 0;
+    padding: 0;
+    color: rgba(245, 233, 200, .62);
+  }
+  #speaking.is-enhanced .talk.is-active .talk__btn { color: var(--linen); }
+  #speaking.is-enhanced .talk__btn::after { display: none; }
+  #speaking.is-enhanced .talk__btn { grid-template-columns: 2.6rem minmax(0, 1fr); grid-template-areas: "n t" ". m"; }
+  #speaking.is-enhanced .talk__t { font-size: clamp(1.35rem, 1rem + .6vw, 1.65rem); }
+  #speaking.is-enhanced .talk.is-active .talk__n { color: var(--stage-gold); }
+
+  /* panels dissolve into the layer: plate and body position against the letterbox */
+  #speaking.is-enhanced .talk__panel,
+  #speaking.is-enhanced .talk__inner {
+    display: contents;
+    visibility: visible;
+  }
+
+  #speaking.is-enhanced .plate {
+    position: absolute;
+    inset: 0 0 0 24%;
+    z-index: 0;
+    margin: 0;
+    aspect-ratio: auto;
+    border-radius: 0;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity var(--t-slow) var(--ease), visibility 0s linear var(--t-slow);
+  }
+  #speaking.is-enhanced .talk.is-active .plate {
+    opacity: 1;
+    visibility: visible;
+    transition: opacity var(--t-slow) var(--ease), visibility 0s;
+  }
+  /* the podcast is a video card, not a full-bleed photograph: both faces stay clear of the titles */
+  #speaking.is-enhanced .plate--media {
+    inset: auto max(var(--gutter-r), calc((100% - 72rem) / 2)) auto 47%;
+    top: 50%;
+    aspect-ratio: 16 / 9;
+    border-radius: 10px;
+    transform: translateY(-50%);
+    box-shadow: 0 0 0 1px rgba(183, 161, 122, .3), 0 40px 90px -30px rgba(2, 6, 11, .9);
+  }
+  #speaking.is-enhanced .plate figcaption.chip {
+    left: auto;
+    right: clamp(1rem, 3vw, 3rem);
+    bottom: clamp(.9rem, 2vw, 1.6rem);
+    max-width: 60%;
+  }
+
+  #speaking.is-enhanced .talk__body {
+    position: absolute;
+    z-index: 2;
+    left: var(--list-x);
+    top: calc(var(--pad-y) + var(--rows) * var(--row-h) + 1.1rem);
+    width: var(--list-w);
+    padding: 0;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity var(--t-med) var(--ease), visibility 0s linear var(--t-med);
+  }
+  #speaking.is-enhanced .talk.is-active .talk__body {
+    opacity: 1;
+    visibility: visible;
+    transition: opacity var(--t-med) var(--ease) calc(.15s * var(--slow)), visibility 0s;
+  }
+  #speaking.is-enhanced .talk__body p { margin-bottom: .6rem; font-size: .96rem; line-height: 1.5; }
+  #speaking.is-enhanced .talk__body .talk__quote { margin-top: .75rem; max-width: 30ch; font-size: clamp(1.2rem, 1rem + .45vw, 1.45rem); }
+
+  /* the typographic plate for the radio credit: no photograph exists, so none is invented */
+  #speaking.is-enhanced .plate--type {
+    display: block;
+    background: radial-gradient(ellipse 70% 90% at 60% 50%, #123150 0, #0a1c2f 55%, #081624 100%);
+    color: var(--brass);
+  }
+  #speaking.is-enhanced .plate--type .onair {
+    position: absolute;
+    left: 32%;
+    top: 50%;
+    width: auto;
+    height: 44%;
+    transform: translateY(-50%);
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.6;
+    stroke-linecap: round;
+    opacity: .5;
+  }
+  #speaking.is-enhanced .plate--type .onair__big,
+  #speaking.is-enhanced .plate--type .onair__fm {
+    position: absolute;
+    left: 58%;
+    font-family: var(--font-display);
+    font-weight: 300;
+    font-variation-settings: "opsz" 144;
+    line-height: 1;
+    letter-spacing: -.02em;
+  }
+  #speaking.is-enhanced .plate--type .onair__big {
+    top: 28%;
+    font-size: clamp(5rem, 9.5vw, 10.5rem);
+    color: var(--linen);
+  }
+  #speaking.is-enhanced .plate--type .onair__fm {
+    top: 62%;
+    font-size: clamp(2rem, 4vw, 4.4rem);
+    color: var(--stage-gold);
+  }
+}
+
+/* ---------- Tablet and phone ---------- */
+
+@media (max-width: 959.98px) {
+  #speaking .stg-after { grid-template-columns: minmax(0, 1fr); }
+}
+
+@media (max-width: 759.98px) {
+  #speaking .stg-head .display { max-width: 12ch; }
+  #speaking .facade__play { width: 3.8rem; height: 3.8rem; }
+  #speaking .stg-invite .display { max-width: 10ch; }
+  #speaking .stg-cta .btn { width: 100%; }
+}
+/* The Circle (#circle): men's work first, then the communities he founded and hosted.
+   Paper room. A round dark floor holds four chairs, one per community; they light in turn
+   once, then the chair that belongs to the card in view (or under the pointer) glows.
+   Everything is scoped to #circle. Nothing is hidden unless html.js is set. */
+
+#circle .circle__head { max-width: 48rem; margin-bottom: clamp(44px, 6vw, 88px); }
+#circle .circle__head .display {
+  font-size: clamp(2.3rem, 1.1rem + 4.3vw, 4.3rem);
+  line-height: 1.02;
+}
+#circle .circle__head .lede { margin: clamp(20px, 2.4vw, 30px) 0 0; max-width: 46ch; }
+
+#circle .circle__layout {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  column-gap: clamp(40px, 6.5vw, 104px);
+  align-items: start;
+}
+
+/* ---------- the floor with four chairs ---------- */
+#circle .circle__ring-col {
+  position: sticky;
+  top: calc(var(--header-h) + 32px);
+}
+#circle .circle-ring {
+  position: relative;
+  width: min(100%, 27.5rem);
+  aspect-ratio: 1;
+  margin-inline: auto;
+  border-radius: 50%;
+  box-shadow: 0 30px 60px -34px rgba(8, 22, 36, .55), 0 0 0 1px rgba(28, 26, 22, .08);
+}
+#circle .circle-ring__svg { display: block; width: 100%; height: 100%; overflow: visible; }
+
+#circle .chair { transform-box: fill-box; transform-origin: center; transition: opacity var(--t-med) var(--ease), transform var(--t-med) var(--ease); }
+#circle .chair__dim { color: var(--brass); --chair-back: rgba(183, 161, 122, .62); --chair-seat: rgba(183, 161, 122, .12); --chair-line: rgba(183, 161, 122, .7); }
+#circle .chair__on { color: var(--tungsten); --chair-back: var(--tungsten); --chair-seat: var(--stage-gold); --chair-line: var(--tungsten); }
+#circle .chair__halo { transform-box: fill-box; transform-origin: center; transition: opacity var(--t-med) var(--ease), transform var(--t-med) var(--ease); }
+
+/* the chair that belongs to the active card glows; once the first light-up is over the others step back a little */
+#circle .circle-ring.done[data-active] .chair:not(.is-active) { opacity: .6; }
+#circle .chair.is-active { transform: scale(1.1); }
+#circle .chair.is-active .chair__halo { transform: scale(1.3); }
+
+/* lights in turn, once, when the ring is in view; .done (core.js) shows the finished state */
+html.js #circle .chair__on,
+html.js #circle .chair__halo { opacity: 0; }
+html.js #circle .circle-ring.on .chair__on,
+html.js #circle .circle-ring.on .chair__halo {
+  animation: circle-lit calc(1.2s * var(--slow)) var(--ease) calc((.35s + var(--i, 0) * .8s) * var(--slow)) forwards;
+}
+html.js #circle .circle-ring.done .chair__on,
+html.js #circle .circle-ring.done .chair__halo { opacity: 1; animation: none; }
+/* last resort if core.js never runs */
+html.js #circle .chair__on,
+html.js #circle .chair__halo { animation: circle-release .01s linear 12s forwards; }
+
+@keyframes circle-lit {
+  0% { opacity: 0; }
+  30% { opacity: 1; }
+  44% { opacity: .55; }
+  100% { opacity: 1; }
+}
+@keyframes circle-release { to { opacity: 1; } }
+
+/* ---------- the four cards ---------- */
+#circle .circle__list { margin: 0; padding: 0; list-style: none; }
+
+#circle .c-card {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  grid-template-columns: 3.5rem minmax(0, 1fr);
+  column-gap: clamp(18px, 2vw, 28px);
+  padding: clamp(28px, 3.2vw, 44px) 0 clamp(32px, 3.6vw, 52px);
+  border-top: 1px solid var(--rule-strong);
+  transition: border-color var(--t-med) var(--ease);
+}
+#circle .c-card:last-child { border-bottom: 1px solid var(--rule-strong); }
+/* a pool of warm light behind the active card's token; it fades out long before the column ends */
+#circle .c-card::before {
+  content: "";
+  position: absolute;
+  inset: -1px -32px 0 -32px;
+  z-index: -1;
+  background: radial-gradient(ellipse 62% 105% at 9% 28%, color-mix(in srgb, var(--tungsten) 62%, transparent), transparent 74%);
+  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 64px);
+  mask-image: linear-gradient(90deg, transparent 0, #000 64px);
+  opacity: 0;
+  transition: opacity var(--t-med) var(--ease);
+  pointer-events: none;
+}
+#circle .c-card.is-active::before { opacity: 1; }
+#circle .c-card.is-active { border-top-color: var(--accent); }
+
+#circle .c-token {
+  display: grid;
+  place-items: center;
+  width: 3.5rem;
+  height: 3.5rem;
+  border: 1px solid var(--rule-strong);
+  border-radius: 50%;
+  color: var(--accent);
+  transition: background-color var(--t-med) var(--ease), border-color var(--t-med) var(--ease), color var(--t-med) var(--ease), box-shadow var(--t-med) var(--ease);
+}
+#circle .c-chair {
+  width: 1.5rem;
+  height: auto;
+  --chair-back: currentColor;
+  --chair-line: currentColor;
+  --chair-seat: none;
+}
+#circle .c-card.is-active .c-token {
+  background: var(--house-dark);
+  border-color: var(--house-dark);
+  color: var(--tungsten);
+  box-shadow: 0 0 0 5px color-mix(in srgb, var(--stage-gold) 26%, transparent);
+}
+#circle .c-card.is-active .c-chair { --chair-seat: var(--stage-gold); }
+
+#circle .c-card__body { min-width: 0; }
+#circle .c-card__tag { margin: .55rem 0 .9rem; }
+
+#circle .c-card__name {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-variation-settings: "opsz" 72;
+  font-size: clamp(1.6rem, 1.15rem + 1.2vw, 2.15rem);
+  line-height: 1.12;
+  letter-spacing: -.015em;
+}
+#circle .c-card__text {
+  margin: .85rem 0 0;
+  max-width: 50ch;
+  font-size: clamp(1rem, .96rem + .2vw, 1.12rem);
+  line-height: 1.6;
+  color: var(--fg-soft);
+}
+#circle .c-card__meta {
+  display: inline-block;
+  margin: 1.1rem 0 0;
+  padding: .45rem .95rem;
+  border: 1px solid var(--rule-strong);
+  border-radius: 999px;
+  font-size: .86rem;
+  font-weight: 500;
+  line-height: 1.35;
+  letter-spacing: .005em;
+  color: var(--fg);
+}
+
+/* the lead card: the men's line, set large in the display face */
+#circle .c-card__lead {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 380;
+  font-variation-settings: "opsz" 120;
+  font-size: clamp(1.7rem, 1.1rem + 2.2vw, 2.85rem);
+  line-height: 1.1;
+  letter-spacing: -.02em;
+  text-wrap: balance;
+}
+#circle .c-card--lead { padding-top: clamp(32px, 3.6vw, 52px); }
+/* the lead card ends in a way through to the Brotherhood page */
+#circle .c-card__more { margin: clamp(20px, 2.2vw, 28px) 0 0; font-size: clamp(.98rem, .94rem + .2vw, 1.08rem); }
+/* the visible link stays the width of its text (so the focus ring hugs it); an invisible pad makes the hit area 44px tall */
+#circle .c-card__more .link-arrow { position: relative; display: inline-block; }
+#circle .c-card__more .link-arrow::before { content: ""; position: absolute; inset: -.7em -.5em; }
+#circle .c-card__more .link-arrow:focus-visible { outline-offset: .35em; border-radius: 3px; }
+
+/* ---------- phones and tablets: one column, the floor sits above the cards ---------- */
+@media (max-width: 899.98px) {
+  #circle .circle__layout { grid-template-columns: minmax(0, 1fr); row-gap: clamp(36px, 8vw, 56px); }
+  #circle .circle__ring-col { position: static; }
+  #circle .circle-ring { width: min(78vw, 22rem); }
+  #circle .c-card::before { inset: -1px -16px 0 -16px; }
+}
+/* phones: the chair token sits beside the label, and the words get the full width */
+@media (max-width: 599.98px) {
+  #circle .c-card { grid-template-columns: 2.75rem minmax(0, 1fr); column-gap: 14px; align-items: center; }
+  #circle .c-card__body { display: contents; }
+  #circle .c-token { grid-column: 1; grid-row: 1; width: 2.75rem; height: 2.75rem; }
+  #circle .c-chair { width: 1.2rem; }
+  #circle .c-card__tag { grid-column: 2; grid-row: 1; margin: 0; }
+  #circle .c-card__name,
+  #circle .c-card__lead { grid-column: 1 / -1; margin-top: 1.15rem; }
+  #circle .c-card__text { grid-column: 1 / -1; margin-top: .7rem; }
+  #circle .c-card__more { grid-column: 1 / -1; }
+  #circle .c-card__meta { grid-column: 1 / -1; justify-self: start; border-radius: 1.2rem; }
+  #circle .c-card__meta .sep { display: none; }
+  #circle .c-card__meta .venue { display: block; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.js #circle .chair__on,
+  html.js #circle .chair__halo { opacity: 1; animation: none; }
+  #circle .chair,
+  #circle .chair__halo,
+  #circle .c-card::before,
+  #circle .c-token { transition: none; }
+}
+
+#circle .nowrap,
+#circle .nw { white-space: nowrap; }
+/* Work with me (#work): four arch doors under his own line. House Dark room.
+   Each door is a dark arch with a pool of light on its floor (the ellipse that is also his
+   mark). The pool is dim at rest and warms on hover, focus and tap; the text never sits on
+   the bright part, so contrast holds in both states. Everything is scoped to #work. */
+
+#work .work__head { max-width: 54rem; margin-bottom: clamp(52px, 6.5vw, 100px); }
+#work .work__head .quote--xl { font-size: clamp(2.3rem, 1rem + 4.6vw, 4.9rem); line-height: 1; }
+#work .work__head .lede { margin: clamp(22px, 2.6vw, 34px) 0 0; max-width: 44ch; }
+
+#work .doors {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(14px, 1.9vw, 28px);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+#work .doors__item { display: flex; }
+
+#work .door {
+  --door-r: 999px;
+  --door-top: 8.6rem;
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 34rem;
+  padding: 0 clamp(1.25rem, 1.8vw, 1.7rem);
+  border: 1px solid rgba(183, 161, 122, .4);
+  border-radius: var(--door-r) var(--door-r) 0 0;
+  background: linear-gradient(180deg, #02060B 0%, #06182A 40%, #0E243B 100%);
+  color: var(--fg);
+  text-decoration: none;
+  transition: transform var(--t-med) var(--ease), border-color var(--t-med) var(--ease), box-shadow var(--t-med) var(--ease);
+}
+/* inner frame, like the architrave of a doorway */
+#work .door::before {
+  content: "";
+  position: absolute;
+  inset: 9px;
+  z-index: -1;
+  border: 1px solid rgba(183, 161, 122, .16);
+  border-radius: var(--door-r) var(--door-r) 0 0;
+  pointer-events: none;
+  transition: border-color var(--t-med) var(--ease);
+}
+/* light falling from the crown; kept above the text zone so it never washes the copy out */
+#work .door::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: radial-gradient(ellipse 80% 52% at 50% 0%, rgba(246, 217, 166, .24), rgba(246, 217, 166, .06) 58%, rgba(246, 217, 166, 0) 82%);
+  opacity: .62;
+  pointer-events: none;
+  transition: opacity var(--t-med) var(--ease);
+}
+
+#work .door__numeral {
+  position: absolute;
+  top: 2.5rem;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 400;
+  font-variation-settings: "opsz" 48;
+  letter-spacing: .12em;
+  text-indent: .12em;
+  line-height: 1;
+  color: var(--brass);
+  transition: color var(--t-med) var(--ease);
+}
+
+#work .door__body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  padding-top: var(--door-top);
+  text-align: left;
+}
+#work .door__title {
+  display: block;
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 1.05rem + 1vw, 1.9rem);
+  font-weight: 400;
+  font-variation-settings: "opsz" 72;
+  line-height: 1.1;
+  letter-spacing: -.012em;
+  text-wrap: balance;
+  color: var(--fg);
+}
+#work .door__text {
+  display: block;
+  margin-top: .9rem;
+  font-size: .96rem;
+  line-height: 1.58;
+  color: var(--fg-soft);
+  text-wrap: pretty;
+}
+#work .door__cta {
+  display: inline-flex;
+  align-items: baseline;
+  gap: .5em;
+  align-self: flex-start;
+  margin-top: auto;
+  padding: 1.5rem 0 5.4rem;
+  font-size: .94rem;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--stage-gold);
+}
+#work .door__cta::after {
+  content: "\2192";
+  display: inline-block;
+  transition: transform var(--t-fast) var(--ease);
+}
+
+/* the pool of light on the door's floor: a soft ellipse with a brighter core, no hard edge */
+#work .door__floor {
+  position: absolute;
+  left: 50%;
+  bottom: .9rem;
+  width: 92%;
+  height: 4.4rem;
+  margin-left: -46%;
+  border-radius: 50%;
+  background:
+    radial-gradient(closest-side, rgba(246, 217, 166, .96) 0%, rgba(246, 217, 166, .55) 16%, rgba(212, 168, 75, .22) 48%, rgba(212, 168, 75, 0) 100%);
+  opacity: .34;
+  transform: scale(.66, .8);
+  transition: opacity var(--t-med) var(--ease), transform var(--t-slow) var(--ease);
+}
+
+/* warm: hover, keyboard focus, and the moment of a tap */
+#work .door:is(:hover, :focus-visible, :active) {
+  transform: translateY(-6px);
+  border-color: rgba(212, 168, 75, .78);
+  box-shadow: 0 24px 60px -28px rgba(212, 168, 75, .42);
+}
+#work .door:is(:hover, :focus-visible, :active)::before { border-color: rgba(212, 168, 75, .3); }
+#work .door:is(:hover, :focus-visible, :active)::after { opacity: 1; }
+#work .door:is(:hover, :focus-visible, :active) .door__numeral { color: var(--stage-gold); }
+#work .door:is(:hover, :focus-visible, :active) .door__cta::after { transform: translateX(.35em); }
+#work .door:is(:hover, :focus-visible, :active) .door__floor {
+  opacity: 1;
+  transform: scale(1, 1);
+}
+#work .door:focus-visible { outline: 2px solid var(--stage-gold); outline-offset: 5px; }
+
+/* two across on tablets */
+@media (max-width: 1099.98px) {
+  #work .doors { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+  #work .door { --door-r: 170px; --door-top: 8.4rem; min-height: 31rem; }
+}
+/* one column on phones: the crown is lower so a door stays a comfortable height */
+@media (max-width: 759.98px) {
+  #work .doors { grid-template-columns: minmax(0, 1fr); gap: 18px; }
+  #work .door { --door-r: 124px; --door-top: 6.6rem; min-height: 0; padding-inline: 1.4rem; }
+  #work .door__numeral { top: 1.9rem; }
+  #work .door__cta { padding-bottom: 5.4rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #work .door,
+  #work .door::before,
+  #work .door::after,
+  #work .door__numeral,
+  #work .door__cta::after,
+  #work .door__floor { transition: none; }
+  #work .door:is(:hover, :focus-visible, :active) { transform: none; }
+  #work .door:is(:hover, :focus-visible, :active) .door__floor { transform: scale(.9, .9); }
+}
+/* Sign-off (#signoff): Linen room. His portrait is unmasked inside an arch (a circle of light
+   opens on his face), his closing line, and a 30:00 ring that draws around the booking button.
+   Everything is scoped to #signoff. Nothing stays hidden if scripts or animation stall. */
+
+#signoff { padding-block: clamp(88px, 11vw, 168px); }
+
+#signoff .so-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+  column-gap: clamp(44px, 8vw, 128px);
+  align-items: center;
+}
+
+/* ---------- the portrait arch ---------- */
+#signoff .so-figure {
+  position: relative;
+  isolation: isolate;
+  width: min(100%, 27rem);
+  margin: 0 auto;
+  padding-bottom: 1.4rem;
+}
+/* an outer arch line, like the frame of a doorway */
+#signoff .so-figure::before {
+  content: "";
+  position: absolute;
+  top: -14px;
+  left: -14px;
+  right: -14px;
+  bottom: 1.4rem;
+  border: 1px solid var(--rule-strong);
+  border-bottom: 0;
+  border-radius: 999px 999px 0 0;
+  pointer-events: none;
+}
+/* the pool of light on the floor under him, half hidden by the arch */
+#signoff .so-figure::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  left: 4%;
+  right: 4%;
+  bottom: .1rem;
+  height: 2.6rem;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(125, 106, 69, .5), rgba(125, 106, 69, .16) 60%, rgba(125, 106, 69, 0) 100%);
+  pointer-events: none;
+}
+#signoff .so-figure .arch img { object-fit: cover; }
+
+/* unmask: the photo is revealed by a circle of light that opens on his face.
+   Only below-the-fold arches start masked (core.js adds .below), .is-in plays it, and
+   .done (core.js, 2.4 s after) snaps to the finished state, so a stalled clock can not hide him. */
+html.js #signoff .arch[data-reveal="unmask"].below:not(.is-in) { opacity: 1; }
+html.js #signoff .arch[data-reveal="unmask"].below:not(.is-in) img {
+  clip-path: circle(0% at 50% 34%);
+  transform: scale(1.14);
+}
+html.js #signoff .arch[data-reveal="unmask"].below.is-in img {
+  clip-path: circle(100% at 50% 34%);
+  transform: none;
+  transition:
+    clip-path calc(2s * var(--slow)) var(--ease) calc(.12s * var(--slow)),
+    transform calc(2.8s * var(--slow)) var(--ease);
+}
+html.js #signoff .arch[data-reveal="unmask"].below.is-in.done img {
+  clip-path: none;
+  transform: none;
+  transition: none;
+}
+
+/* ---------- the closing line ---------- */
+#signoff .so-copy { min-width: 0; }
+#signoff .so-copy .quote--xl { font-size: clamp(2.1rem, 1.1rem + 3.2vw, 4rem); line-height: 1.05; }
+
+#signoff .so-signature {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .5rem 1rem;
+  margin: clamp(26px, 3vw, 40px) 0 0;
+}
+#signoff .so-mark {
+  flex: none;
+  width: 34px;
+  height: 13px;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, var(--stage-gold), var(--deep-brass) 72%, rgba(125, 106, 69, 0) 100%);
+}
+#signoff .so-name {
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  font-weight: 500;
+  font-variation-settings: "opsz" 48;
+  line-height: 1.1;
+  letter-spacing: .005em;
+}
+#signoff .so-role {
+  flex: 1 1 100%;
+  font-size: .82rem;
+  font-weight: 500;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--accent-text);
+}
+
+/* ---------- the 30:00 ring ---------- */
+#signoff .so-call {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1.5rem;
+  margin-top: clamp(40px, 5vw, 72px);
+}
+/* the border is the track; the SVG arc draws over it once */
+#signoff .so-ring-box {
+  position: relative;
+  display: inline-flex;
+  max-width: 100%;
+  padding: 14px;
+  border: 1px solid var(--rule-strong);
+  border-radius: 999px;
+}
+#signoff .so-ring-box .btn { min-height: 58px; padding-inline: clamp(1.4rem, 3vw, 2.1rem); font-size: 1.02rem; }
+#signoff .so-ring {
+  position: absolute;
+  left: -1px;
+  top: -1px;
+  width: calc(100% + 2px);
+  height: calc(100% + 2px);
+  overflow: visible;
+  pointer-events: none;
+}
+#signoff .so-ring__arc {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 2.25;
+  stroke-linecap: round;
+}
+/* the time sits in a gap on the top edge and hides where the stroke starts and ends */
+#signoff .so-time {
+  position: absolute;
+  z-index: 2;
+  top: -1px;
+  left: 50%;
+  padding: 0 .75em;
+  transform: translate(-50%, -50%);
+  background: var(--bg);
+  font-size: .8rem;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: .16em;
+  font-variant-numeric: tabular-nums;
+  color: var(--accent-text);
+}
+#signoff .nw { white-space: nowrap; }
+#signoff .so-more { margin: 0; padding-left: 15px; }
+
+/* CSS draw (used whenever GSAP DrawSVG is not there); with DrawSVG the script sets data-draw="gsap" */
+html.js #signoff .so-ring-box:not([data-draw]) .so-ring__arc {
+  stroke-dasharray: 100 100;
+  stroke-dashoffset: 100;
+  animation: so-release .01s linear 12s forwards;
+}
+html.js #signoff .so-ring-box:not([data-draw]).on .so-ring__arc {
+  animation: so-draw calc(2.8s * var(--slow)) cubic-bezier(.45, .05, .25, 1) calc(.2s * var(--slow)) forwards;
+}
+html.js #signoff .so-ring-box:not([data-draw]).done .so-ring__arc {
+  animation: none;
+  stroke-dashoffset: 0;
+}
+@keyframes so-draw { to { stroke-dashoffset: 0; } }
+@keyframes so-release { to { stroke-dashoffset: 0; } }
+
+/* ---------- phones and tablets ---------- */
+@media (max-width: 899.98px) {
+  #signoff .so-grid { grid-template-columns: minmax(0, 1fr); row-gap: clamp(48px, 10vw, 72px); }
+  #signoff .so-figure { width: min(100%, 21rem); }
+}
+@media (max-width: 479.98px) {
+  #signoff .so-figure::before { top: -8px; left: -8px; right: -8px; }
+  #signoff .so-ring-box { padding: 12px; }
+  #signoff .so-ring-box .btn { padding-inline: 1.15rem; font-size: .98rem; }
+  #signoff .so-more { padding-left: 13px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.js #signoff .so-ring-box:not([data-draw]) .so-ring__arc { stroke-dashoffset: 0; animation: none; }
+  html.js #signoff .arch[data-reveal="unmask"] img { clip-path: none; transform: none; transition: none; }
+}
