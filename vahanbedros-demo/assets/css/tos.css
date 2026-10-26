@@ -74,15 +74,6 @@ body[data-page="tos"] {
 }
 /* before the script runs (or without it) the first photo simply stands there */
 #hero .slide:first-child { opacity: 1; }
-/* once live, the incoming photo fades in over the outgoing one, which stays solid underneath
-   until the fade is done (so the room never dips dark between two photos) */
-#hero.is-live .slide { opacity: 0; transition: none; }
-#hero.is-live .slide.is-prev { opacity: 1; z-index: 1; }
-#hero.is-live .slide.is-on {
-  opacity: 1;
-  z-index: 2;
-  transition: opacity calc(1.7s * var(--slow)) cubic-bezier(.45, 0, .25, 1);
-}
 
 #hero .slide__clip { position: absolute; inset: 0; overflow: hidden; }
 
@@ -95,7 +86,10 @@ body[data-page="tos"] {
   top: var(--fy, 0%);
   width: 100%;
   height: 100%;
-  translate: calc(var(--fx, 50%) * -1) calc(var(--fy, 0%) * -1);
+  /* the pointer moves the room a few px inside its clip (fine pointers; 01-hero.js sets --mx / --my, -1..1);
+     scale keeps the edges covered while it does */
+  translate: calc(var(--fx, 50%) * -1 + var(--mx, 0) * -8px) calc(var(--fy, 0%) * -1 + var(--my, 0) * -5px);
+  scale: 1.025;
   transform-origin: var(--ox, 50%) var(--oy, 40%);
   will-change: transform;
 }
@@ -120,13 +114,13 @@ body[data-page="tos"] {
   filter: contrast(1.03) saturate(1.04);
 }
 
-/* the slow zoom (about 7 % over the time the photo is on show), around his face */
+/* one slow push-in (about 7 %) around his face, then it holds */
 @keyframes hero-kb {
   from { transform: scale(1) translate3d(0, 0, 0); }
   to { transform: scale(1.075) translate3d(-.5%, -.9%, 0); }
 }
-#hero.is-live :is(.slide.is-on, .slide.is-prev) .slide__frame {
-  animation: hero-kb calc(10s * var(--slow)) cubic-bezier(.3, .1, .3, 1) both;
+#hero.is-live .slide .slide__frame {
+  animation: hero-kb calc(14s * var(--slow)) cubic-bezier(.3, .1, .3, 1) both;
 }
 
 /* bloom: the screen's light spilling past its own frame, screen-blended on the photo */
@@ -141,13 +135,6 @@ body[data-page="tos"] {
   background: radial-gradient(closest-side, rgba(255, 246, 228, .5) 0%, rgba(246, 217, 166, .2) 48%, rgba(246, 217, 166, 0) 100%);
   opacity: 0;
 }
-/* when a photo takes over the logo changes colour: the screen flares as it fades in */
-@keyframes hero-bloom {
-  0%, 30% { opacity: 0; }
-  52% { opacity: .9; }
-  100% { opacity: 0; }
-}
-#hero .slide.is-pulse .slide__bloom { animation: hero-bloom calc(2s * var(--slow)) ease-out both; }
 
 /* the colour the logo throws into the room, on the navy beside the panel */
 #hero .slide__spill {
@@ -221,7 +208,7 @@ html.js #hero.done .slide__veil { display: none; }
     linear-gradient(0deg, rgba(14, 36, 59, .78) 0%, rgba(14, 36, 59, 0) 20%);
 }
 
-/* ---------- caption and cycle ticks ---------- */
+/* ---------- caption ---------- */
 
 #hero .hero__meta {
   position: absolute;
@@ -239,29 +226,37 @@ html.js #hero:not(.done) .hero__meta { animation: hero-rise calc(.5s * var(--slo
 }
 #hero .hero__chip { margin: 0; background: rgba(8, 22, 36, .72); }
 
-#hero .hero__ticks { display: flex; gap: 6px; }
-#hero .tick {
-  position: relative;
-  display: block;
-  width: 30px;
-  height: 3px;
-  overflow: hidden;
-  border-radius: 2px;
-  background: rgba(246, 217, 166, .28);
-}
-#hero .tick b {
+/* the projector breathing: a soft band of light drifts across the screen every few seconds, screen-blended */
+#hero .slide__sweep {
   position: absolute;
-  inset: 0;
-  background: var(--tungsten);
-  transform: scaleX(0);
-  transform-origin: 0 50%;
+  left: calc(var(--sx) - var(--sw));
+  top: calc(var(--sy) - var(--sh));
+  width: calc(var(--sw) * 2);
+  height: calc(var(--sh) * 2);
+  overflow: hidden;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  -webkit-mask-image: radial-gradient(closest-side, #000 70%, transparent 100%);
+  mask-image: radial-gradient(closest-side, #000 70%, transparent 100%);
 }
-#hero:not(.is-live) .tick.is-on b { transform: scaleX(1); }
-/* the tick is also the clock: when it fills, the next photo takes over (01-hero.js listens for animationend) */
-@keyframes hero-tick { to { transform: scaleX(1); } }
-#hero.is-live .tick.is-on b { animation: hero-tick calc(5.4s * var(--slow)) linear forwards; }
-/* off screen or in a hidden tab: everything holds still, the clock included */
-#hero.is-paused :is(.slide__frame, .slide__bloom, .tick b) { animation-play-state: paused; }
+#hero .slide__sweep::before {
+  content: "";
+  position: absolute;
+  inset: -20% -70%;
+  background: linear-gradient(104deg, rgba(255, 246, 228, 0) 38%, rgba(255, 246, 228, .3) 50%, rgba(255, 246, 228, 0) 62%);
+  transform: translateX(-70%);
+}
+@keyframes hero-sweep {
+  0% { transform: translateX(-70%); }
+  42%, 100% { transform: translateX(70%); }
+}
+html.js #hero.is-live .slide__sweep::before {
+  animation: hero-sweep calc(7.5s * var(--slow)) cubic-bezier(.45, 0, .3, 1) calc(1.6s * var(--slow)) infinite;
+}
+
+/* off screen or in a hidden tab: everything holds still */
+#hero.is-paused :is(.slide__frame, .slide__bloom) { animation-play-state: paused; }
+#hero.is-paused .slide__sweep::before { animation-play-state: paused; }
 
 /* ---------- copy ---------- */
 
@@ -450,7 +445,7 @@ html.notes-on #hero :is(h1, .hero__sub)[data-tbc] {
 @media (prefers-reduced-motion: reduce) {
   #hero .slide__veil,
   #hero .slide__bloom,
-  #hero .hero__ticks { display: none !important; }
+  #hero .slide__sweep { display: none !important; }
   #hero .hero__meta,
   #hero .hero__shift { animation: none !important; transform: none !important; }
   #hero .slide__frame { animation: none !important; }

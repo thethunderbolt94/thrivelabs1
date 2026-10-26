@@ -1,14 +1,13 @@
 /* Temple of Speak, room 1: The projector comes on.
-   The intro (the screen lights, then the room, then the copy) is plain CSS and needs nothing from here.
-   This file does four small things:
-     1. cycles the three photos: the active cycle tick (a CSS animation) is the clock, and its animationend
-        hands over to the next photo, so pausing the animations pauses the cycle too;
+   The intro (the screen lights, then the room, then the copy) and the projector's breathing light are plain CSS.
+   One photo, held still. This file does four small things:
+     1. marks the hero live, which starts the slow push-in and the breathing light;
      2. pauses all of it while the hero is off screen or the tab is hidden;
-     3. trails the photos behind the page a little as it scrolls out (transform only, no pin);
+     3. trails the photo behind the page a little as it scrolls out, and lets a fine pointer move the room a few
+        px (transform only, no pin);
      4. the failsafe: ~2 s in it marks the intro done (.done), which snaps the finished state with no animation
         and finishes any intro animation still running, so a stalled animation clock can not strand anything.
-   Reduced motion: the first photo only, no cycle, no parallax. Does not use GSAP, so a blocked CDN changes
-   nothing. Never throws. */
+   Reduced motion: none of the motion. Does not use GSAP, so a blocked CDN changes nothing. Never throws. */
 (function () {
   'use strict';
 
@@ -23,8 +22,6 @@
       reduced = VB ? !!VB.reduced : !!(win.matchMedia && win.matchMedia('(prefers-reduced-motion: reduce)').matches);
     } catch (e) { reduced = false; }
 
-    var slides = Array.prototype.slice.call(hero.querySelectorAll('.slide'));
-    var ticks = Array.prototype.slice.call(hero.querySelectorAll('.tick'));
     var copy = hero.querySelector('.hero__copy');
     var line = hero.querySelector('.hero__line');
     var shift = hero.querySelector('.hero__shift');
@@ -34,7 +31,7 @@
     function settleIntro() {
       [copy, line].forEach(function (el) { if (el) el.classList.add('done'); });
       hero.classList.add('done');
-      var intro = Array.prototype.slice.call(hero.querySelectorAll('.hero__copy, .hero__copy *, .hero__meta, .slide:first-child .slide__veil, .slide:first-child .slide__bloom'));
+      var intro = Array.prototype.slice.call(hero.querySelectorAll('.hero__copy, .hero__copy *, .hero__meta, .slide__veil, .slide__bloom'));
       intro.forEach(function (el) {
         if (typeof el.getAnimations !== 'function') return;
         try { el.getAnimations().forEach(function (a) { try { a.finish(); } catch (e) { /* ignore */ } }); } catch (e) { /* ignore */ }
@@ -42,36 +39,9 @@
     }
     win.setTimeout(settleIntro, 2000 * slowK());
 
-    // ---- 1. the cycle
+    // ---- 1. live
     hero.classList.add('is-live');
-    if (slides.length) slides[0].classList.add('is-on');
-    if (reduced || slides.length < 2) return;
-
-    var cur = 0, fadeTimer = 0;
-
-    function go(next) {
-      var prev = cur;
-      cur = next;
-      slides.forEach(function (s, i) {
-        if (i !== prev && i !== cur) s.classList.remove('is-on', 'is-prev', 'is-pulse');
-      });
-      slides[prev].classList.remove('is-on', 'is-pulse');
-      slides[prev].classList.add('is-prev');
-      slides[cur].classList.remove('is-prev');
-      slides[cur].classList.add('is-on', 'is-pulse');
-      ticks.forEach(function (t, i) { t.classList.toggle('is-on', i === cur); });
-      // the outgoing photo stays solid underneath until the incoming one has finished fading in
-      win.clearTimeout(fadeTimer);
-      fadeTimer = win.setTimeout(function () { slides[prev].classList.remove('is-prev'); }, 1900 * slowK() + 200);
-    }
-
-    ticks.forEach(function (t, i) {
-      var fill = t.firstElementChild;
-      if (!fill) return;
-      fill.addEventListener('animationend', function (e) {
-        if (e.target === fill && i === cur) go((cur + 1) % slides.length);
-      });
-    });
+    if (reduced) return;
 
     // ---- 2. hold still while nobody is looking
     var onScreen = true;
@@ -85,7 +55,7 @@
     doc.addEventListener('visibilitychange', sync);
     sync();
 
-    // ---- 3. parallax on the way out
+    // ---- 3. parallax on the way out, and a little depth under a fine pointer
     if (shift) {
       var pending = false;
       var run = function () {
@@ -100,6 +70,26 @@
         if (win.requestAnimationFrame) win.requestAnimationFrame(run); else win.setTimeout(run, 16);
       }, { passive: true });
       run();
+    }
+
+    var fine = false;
+    try { fine = win.matchMedia('(hover: hover) and (pointer: fine)').matches; } catch (e) { fine = false; }
+    if (fine && win.requestAnimationFrame) {
+      var tx = 0, ty = 0, mx = 0, my = 0, raf = 0;
+      var step = function () {
+        mx += (tx - mx) * 0.08;
+        my += (ty - my) * 0.08;
+        hero.style.setProperty('--mx', mx.toFixed(3));
+        hero.style.setProperty('--my', my.toFixed(3));
+        raf = (Math.abs(tx - mx) > 0.002 || Math.abs(ty - my) > 0.002) ? win.requestAnimationFrame(step) : 0;
+      };
+      hero.addEventListener('pointermove', function (e) {
+        var r = hero.getBoundingClientRect();
+        tx = Math.max(-1, Math.min(1, (e.clientX - r.left) / r.width * 2 - 1));
+        ty = Math.max(-1, Math.min(1, (e.clientY - r.top) / r.height * 2 - 1));
+        if (!raf) raf = win.requestAnimationFrame(step);
+      }, { passive: true });
+      hero.addEventListener('pointerleave', function () { tx = 0; ty = 0; if (!raf) raf = win.requestAnimationFrame(step); });
     }
   } catch (err) {
     try { console.error('[tos hero]', err); } catch (e) { /* ignore */ }

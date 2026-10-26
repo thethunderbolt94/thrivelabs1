@@ -20,7 +20,10 @@
   --hg: max(var(--gutter-l), clamp(16px, 4.4vw, 72px));      /* side gutter */
   --name-size: min(17.2vw, 27svh);
   --fig-h: 76%;                                               /* figure height, share of the stage (about 40svh wide) */
-  --n-end: calc(var(--hg) + var(--name-size) * 2.29);         /* where "Vahan" ends */
+  --b-gap: 17.8svh;                                           /* from the end of "Vahan" to the start of "Bedros" (his shoulder) */
+  --comp-w: calc(var(--name-size) * 4.76 + var(--b-gap));     /* "Vahan" (2.29) + gap + "Bedros" (2.47) */
+  --shift: max(0px, calc((100vw - 2 * var(--hg) - var(--comp-w)) / 2));   /* wide, short screens: centre the group */
+  --n-end: calc(var(--hg) + var(--shift) + var(--name-size) * 2.29);      /* where "Vahan" ends */
   --fig-left: calc(var(--n-end) - 22.8svh);                   /* his hair just overlaps the "n"; "Bedros" starts past his shoulder */
   --head-x: calc(var(--n-end) + 2.4svh);                      /* the beam falls on his head */
   --fig-nudge: -6%;                                           /* (phones and tablets: centred, nudged so his head is mid-screen) */
@@ -97,6 +100,16 @@
 #hero .hero__line--b {
   text-align: right;
   transform: translate3d(calc(var(--p) * 42vw + var(--mx) * -7px), calc(var(--my) * -3px), 0);
+}
+/* Desktop: "Bedros" starts just past his shoulder rather than at the right edge, and when the screen is wider than
+   the name (wide, short windows, where the name is sized by height) the name and the figure move in together as one
+   centred group, so no hole opens between him and "Bedros". */
+@media (min-width: 1100px) {
+  #hero .hero__line--a { padding-left: var(--shift); }
+  #hero .hero__line--b {
+    text-align: left;
+    padding-left: min(calc(var(--shift) + var(--name-size) * 2.29 + var(--b-gap)), calc(100vw - 2 * var(--hg) - var(--name-size) * 2.5));
+  }
 }
 /* the line mask: only the bottom edge clips (the letters rise from under it); sideways and up it lets glyphs breathe */
 #hero .hero__mask {
