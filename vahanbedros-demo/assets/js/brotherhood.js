@@ -184,3 +184,33 @@
     try { console.error('[brotherhood embers]', e); } catch (_) { /* ignore */ }
   }
 })();
+
+/* v4: the hero intro's failsafe. The whole hero (line, quote, sub, buttons, portrait) is on screen within
+   1.3 s; about 2 s in this marks it finished (.done on #hero, its [data-spot] and the delivered line), which
+   snaps the final state with no animation, and finishes any intro animation still running, so a stalled
+   or frozen animation clock can not strand anything. No GSAP. Never throws. */
+(function () {
+  'use strict';
+  try {
+    var win = window, doc = document;
+    var hero = doc.getElementById('hero');
+    if (!hero) return;
+    var slowK = function () { return win.VB && win.VB.slow ? 1.82 : 1; };
+    function settle() {
+      try {
+        var els = [hero].concat(Array.prototype.slice.call(hero.querySelectorAll('[data-spot], [data-deliver]')));
+        els.forEach(function (el) { el.classList.add('done'); });
+        var intro = Array.prototype.slice.call(hero.querySelectorAll('.hero__copy, .hero__copy *, .hero__frame'));
+        intro.forEach(function (el) {
+          if (typeof el.getAnimations !== 'function') return;
+          el.getAnimations().forEach(function (a) {
+            try { if (a.effect && a.effect.getTiming().iterations !== Infinity) a.finish(); } catch (e) { /* ignore */ }
+          });
+        });
+      } catch (e) { /* ignore */ }
+    }
+    win.setTimeout(settle, 2000 * slowK());
+  } catch (err) {
+    try { console.error('[brotherhood hero]', err); } catch (e) { /* ignore */ }
+  }
+})();

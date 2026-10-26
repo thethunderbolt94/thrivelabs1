@@ -58,31 +58,91 @@
 </div>
 
 <main id="main">
-<section class="scene" id="hero" aria-label="Temple of Speak, a programme by Vahan Bedros" style="--scene-h: 300vh; --scene-h-m: 200vh">
-  <div class="scene__stage">
-    <div class="scene__media" role="img" aria-label="Vahan Bedros speaking to a seated audience, the Temple of Speak logo glowing on the screen behind him. The house lights come up as you scroll.">
-      <div class="poster" aria-hidden="true"></div>
-      <canvas class="film" aria-hidden="true" data-frame-count="47" data-frame-src="../assets/frames/tos-hero/f-" data-frame-ext="webp"></canvas>
-      <div class="lamp" aria-hidden="true"></div>
-      <div class="grain" aria-hidden="true"></div>
-    </div>
-    <div class="scrim" aria-hidden="true"></div>
+<section class="hero" id="hero" aria-label="Temple of Speak, a programme by Vahan Bedros">
+  <div class="hero__bg" aria-hidden="true"></div>
+  <div class="grain" aria-hidden="true"></div>
 
-    <div class="hero__copy">
-      <p class="eyebrow" data-after style="--d: .1s"><span class="nb">Temple of Speak &middot;</span> <span class="nb">A 10-week programme by Vahan Bedros &middot;</span> <span class="nb">Vocal Alchemy</span></p>
-      <h1 class="quote quote--xl" data-deliver data-tbc data-note="Do you want this to be the first line people read on the Temple of Speak page? I took it from your August workshop post."><span class="row">Come <span data-fx="tremble">shaking</span> if you need to.</span> <span class="row">You&rsquo;ll leave standing <span data-fx="rise">taller.</span></span></h1>
-      <p class="lede hero__sub" data-after data-tbc data-note="I wrote this line from your June post about why you built Temple of Speak. Does it sound like you?" style="--d: 3s">Temple of Speak is the better way I built to get there: a small, <span class="nb">in-person</span> circle where your voice gets to be yours.</p>
-      <div class="hero__ctas" data-after style="--d: 3.3s">
-        <a class="btn" href="mailto:vahanbedros@gmail.com?subject=Temple%20of%20Speak%20waitlist" data-tbc data-note="Should waitlist requests go to vahanbedros@gmail.com, and when does the next cohort open?">Join the waitlist for the next cohort</a>
-        <a class="link-arrow" href="https://calendly.com/vahanbedros/30min" target="_blank" rel="noopener">Book a discovery call</a>
+  <div class="hero__panel">
+    <div class="hero__shift">
+
+      <!-- Three photos of the same room, taken under the projected logo in three colours. They crossfade slowly,
+           like the logo changing colour. --sx/--sy/--sw/--sh are the projector screen (centre and half-size, as % of
+           the photo); --fx/--fy keep the face and the screen in view when a narrow panel crops the photo;
+           --ox/--oy are where the slow zoom turns (his face); --glow is the colour the logo throws into the room. -->
+      <div class="slide" style="--sx:46%; --sy:20.5%; --sw:48%; --sh:22%; --fx:62%; --fy:6%; --ox:60%; --oy:50%; --glow:110,210,170">
+        <div class="slide__clip">
+          <div class="slide__frame">
+            <picture>
+              <source type="image/webp" srcset="../assets/img/tos-logo-rainbow-640.webp 640w, ../assets/img/tos-logo-rainbow-1066.webp 1066w" sizes="(min-width: 900px) 50vw, 100vw">
+              <img src="../assets/img/tos-logo-rainbow-1066.jpg" srcset="../assets/img/tos-logo-rainbow-640.jpg 640w, ../assets/img/tos-logo-rainbow-1066.jpg 1066w" sizes="(min-width: 900px) 50vw, 100vw" width="1066" height="1600" alt="Vahan Bedros speaking, one hand open and a printed workbook in the other, in front of a projector screen showing the Temple of Speak logo in rainbow colours." fetchpriority="high" decoding="async">
+            </picture>
+            <i class="slide__bloom" aria-hidden="true"></i>
+            <i class="slide__veil" aria-hidden="true"></i>
+          </div>
+        </div>
+        <i class="slide__spill" aria-hidden="true"></i>
       </div>
+
+      <div class="slide" aria-hidden="true" style="--sx:55%; --sy:21.5%; --sw:45%; --sh:21%; --fx:35%; --fy:0%; --ox:33%; --oy:48%; --glow:130,110,240">
+        <div class="slide__clip">
+          <div class="slide__frame">
+            <picture>
+              <source type="image/webp" srcset="../assets/img/tos-logo-purple-640.webp 640w, ../assets/img/tos-logo-purple-1066.webp 1066w" sizes="(min-width: 900px) 50vw, 100vw">
+              <img src="../assets/img/tos-logo-purple-1066.jpg" srcset="../assets/img/tos-logo-purple-640.jpg 640w, ../assets/img/tos-logo-purple-1066.jpg 1066w" sizes="(min-width: 900px) 50vw, 100vw" width="1066" height="1600" alt="Vahan Bedros standing and smiling, a printed workbook held in both hands, below a projector screen showing the Temple of Speak logo in purple." loading="lazy" decoding="async">
+            </picture>
+            <i class="slide__bloom" aria-hidden="true"></i>
+          </div>
+        </div>
+        <i class="slide__spill" aria-hidden="true"></i>
+      </div>
+
+      <div class="slide" aria-hidden="true" style="--sx:53.5%; --sy:21.5%; --sw:48%; --sh:21.5%; --fx:38%; --fy:6%; --ox:38%; --oy:50%; --glow:245,150,90">
+        <div class="slide__clip">
+          <div class="slide__frame">
+            <picture>
+              <source type="image/webp" srcset="../assets/img/tos-logo-orange-640.webp 640w, ../assets/img/tos-logo-orange-1066.webp 1066w" sizes="(min-width: 900px) 50vw, 100vw">
+              <img src="../assets/img/tos-logo-orange-1066.jpg" srcset="../assets/img/tos-logo-orange-640.jpg 640w, ../assets/img/tos-logo-orange-1066.jpg 1066w" sizes="(min-width: 900px) 50vw, 100vw" width="1066" height="1600" alt="Vahan Bedros smiling, holding a workbook, beneath a projector screen showing the Temple of Speak logo in warm orange." loading="lazy" decoding="async">
+            </picture>
+            <i class="slide__bloom" aria-hidden="true"></i>
+          </div>
+        </div>
+        <i class="slide__spill" aria-hidden="true"></i>
+      </div>
+
     </div>
 
-    <div class="chip hero__caption">Speaking at VAM!, Northeastern University Vancouver &middot; Jan 2026</div>
-    <div class="hero__hint" aria-hidden="true">Scroll to bring the lights up</div>
-    <div class="hero__meter" aria-hidden="true"><i></i></div>
+    <div class="hero__edge" aria-hidden="true"></div>
+
+    <div class="hero__meta">
+      <p class="chip hero__chip" data-tbc data-note="When and where was this session? I will put the date and the place in this caption.">A Temple of Speak session</p>
+      <div class="hero__ticks" aria-hidden="true"><i class="tick is-on"><b></b></i><i class="tick"><b></b></i><i class="tick"><b></b></i></div>
+    </div>
+  </div>
+
+  <div class="hero__copy" data-spot>
+    <p class="eyebrow" data-after style="--d:.12s"><span class="nb">Temple of Speak &middot;</span> <span class="nb">A 10-week programme by Vahan Bedros</span><span class="hero__va"> &middot; <span class="nb">Vocal Alchemy</span></span></p>
+    <h1 class="quote quote--xl hero__line" data-deliver data-tbc data-note="Do you want this to be the first line people read on the Temple of Speak page? I took it from your August workshop post."><span class="row"><span class="w" style="--d:.22s">Come</span> <span class="w" data-fx="tremble" style="--d:.265s">shaking</span> <span class="w" style="--d:.31s">if</span> <span class="w" style="--d:.355s">you</span> <span class="w" style="--d:.4s">need</span> <span class="w" style="--d:.445s">to.</span></span> <span class="row"><span class="w" style="--d:.49s">You&rsquo;ll</span> <span class="w" style="--d:.535s">leave</span> <span class="w" style="--d:.58s">standing</span> <span class="w" data-fx="rise" style="--d:.625s">taller.</span></span></h1>
+    <p class="lede hero__sub" data-after data-tbc data-note="I wrote this line from your June post about why you built Temple of Speak. Does it sound like you?" style="--d:.62s">Temple of Speak is the better way I built to get there: a small, <span class="nb">in-person</span> circle where your voice gets to be yours.</p>
+    <div class="hero__ctas" data-after style="--d:.76s">
+      <a class="btn" href="mailto:vahanbedros@gmail.com?subject=Temple%20of%20Speak%20waitlist" data-tbc data-note="Should waitlist requests go to vahanbedros@gmail.com, and when does the next cohort open?">Join the waitlist for the next cohort</a>
+      <a class="link-arrow" href="https://calendly.com/vahanbedros/30min" target="_blank" rel="noopener">Book a discovery call</a>
+    </div>
   </div>
 </section>
+<div class="marquee marquee--type pillars-banner" data-marquee data-speed="56" data-skew>
+  <div class="marquee__track">
+    <ul class="marquee__group">
+      <li class="marquee__item">Emotional Embodiment</li>
+      <li class="marquee__sep" aria-hidden="true"></li>
+      <li class="marquee__item">Authentic Expression</li>
+      <li class="marquee__sep" aria-hidden="true"></li>
+      <li class="marquee__item">Vocal Empowerment</li>
+      <li class="marquee__sep" aria-hidden="true"></li>
+      <li class="marquee__item">Vocal Alchemy</li>
+      <li class="marquee__sep" aria-hidden="true"></li>
+    </ul>
+  </div>
+</div>
 <section class="room room--navy" id="not-performance" aria-labelledby="np-title">
   <div class="grain" aria-hidden="true"></div>
   <div class="room__inner">
@@ -103,6 +163,51 @@
     </div>
 
     <p class="np__by" data-reveal><span class="mark-ellipse" aria-hidden="true"></span>Vahan Bedros, founder of Temple of Speak</p>
+  </div>
+</section>
+<!-- v4: a rolling strip of Vahan at a Temple of Speak session, between his own words and the pillars.
+     Every photo shows Vahan alone. The caption's date and place are still open questions. -->
+<section class="session-strip" id="session" aria-label="Vahan Bedros at a Temple of Speak session">
+  <div class="marquee marquee--photos marquee--fade session-strip__band" data-marquee data-speed="34" data-hover="pause">
+    <div class="marquee__track">
+    <ul class="marquee__group">
+      <li><picture>
+        <source type="image/webp" srcset="../assets/img/strip-arcade-smiling-360.webp 360w, ../assets/img/strip-arcade-smiling-540.webp 540w" sizes="(min-width: 900px) 254px, 180px">
+        <img src="../assets/img/strip-arcade-smiling-360.jpg" srcset="../assets/img/strip-arcade-smiling-360.jpg 360w, ../assets/img/strip-arcade-smiling-540.jpg 540w" sizes="(min-width: 900px) 254px, 180px" width="360" height="540" alt="Vahan Bedros smiling mid-sentence, both hands open, an arcade machine behind him." loading="lazy" decoding="async">
+      </picture></li>
+      <li><picture>
+        <source type="image/webp" srcset="../assets/img/strip-big-gesture-360.webp 360w, ../assets/img/strip-big-gesture-540.webp 540w" sizes="(min-width: 900px) 254px, 180px">
+        <img src="../assets/img/strip-big-gesture-360.jpg" srcset="../assets/img/strip-big-gesture-360.jpg 360w, ../assets/img/strip-big-gesture-540.jpg 540w" sizes="(min-width: 900px) 254px, 180px" width="360" height="540" alt="Vahan Bedros reaching both hands up and out as he speaks." loading="lazy" decoding="async">
+      </picture></li>
+      <li><picture>
+        <source type="image/webp" srcset="../assets/img/strip-closeup-360.webp 360w, ../assets/img/strip-closeup-540.webp 540w" sizes="(min-width: 900px) 254px, 180px">
+        <img src="../assets/img/strip-closeup-360.jpg" srcset="../assets/img/strip-closeup-360.jpg 360w, ../assets/img/strip-closeup-540.jpg 540w" sizes="(min-width: 900px) 254px, 180px" width="360" height="540" alt="Vahan Bedros speaking, his fingers loosely laced in front of him." loading="lazy" decoding="async">
+      </picture></li>
+      <li><picture>
+        <source type="image/webp" srcset="../assets/img/strip-explaining-360.webp 360w, ../assets/img/strip-explaining-540.webp 540w" sizes="(min-width: 900px) 254px, 180px">
+        <img src="../assets/img/strip-explaining-360.jpg" srcset="../assets/img/strip-explaining-360.jpg 360w, ../assets/img/strip-explaining-540.jpg 540w" sizes="(min-width: 900px) 254px, 180px" width="360" height="540" alt="Vahan Bedros explaining with open hands, in front of a slatted wall and an arcade machine." loading="lazy" decoding="async">
+      </picture></li>
+      <li><picture>
+        <source type="image/webp" srcset="../assets/img/strip-hands-door-360.webp 360w, ../assets/img/strip-hands-door-540.webp 540w" sizes="(min-width: 900px) 254px, 180px">
+        <img src="../assets/img/strip-hands-door-360.jpg" srcset="../assets/img/strip-hands-door-360.jpg 360w, ../assets/img/strip-hands-door-540.jpg 540w" sizes="(min-width: 900px) 254px, 180px" width="360" height="540" alt="Vahan Bedros speaking with his hands together, a dark door behind him." loading="lazy" decoding="async">
+      </picture></li>
+      <li><picture>
+        <source type="image/webp" srcset="../assets/img/strip-profile-360.webp 360w, ../assets/img/strip-profile-540.webp 540w" sizes="(min-width: 900px) 254px, 180px">
+        <img src="../assets/img/strip-profile-360.jpg" srcset="../assets/img/strip-profile-360.jpg 360w, ../assets/img/strip-profile-540.jpg 540w" sizes="(min-width: 900px) 254px, 180px" width="360" height="540" alt="Vahan Bedros in profile, speaking, one hand held out." loading="lazy" decoding="async">
+      </picture></li>
+      <li><picture>
+        <source type="image/webp" srcset="../assets/img/strip-smiling-wall-360.webp 360w, ../assets/img/strip-smiling-wall-540.webp 540w" sizes="(min-width: 900px) 254px, 180px">
+        <img src="../assets/img/strip-smiling-wall-360.jpg" srcset="../assets/img/strip-smiling-wall-360.jpg 360w, ../assets/img/strip-smiling-wall-540.jpg 540w" sizes="(min-width: 900px) 254px, 180px" width="360" height="540" alt="Vahan Bedros smiling, hands clasped, against a pale wall." loading="lazy" decoding="async">
+      </picture></li>
+      <li><picture>
+        <source type="image/webp" srcset="../assets/img/strip-workbook-360.webp 360w, ../assets/img/strip-workbook-540.webp 540w" sizes="(min-width: 900px) 254px, 180px">
+        <img src="../assets/img/strip-workbook-360.jpg" srcset="../assets/img/strip-workbook-360.jpg 360w, ../assets/img/strip-workbook-540.jpg 540w" sizes="(min-width: 900px) 254px, 180px" width="360" height="540" alt="Vahan Bedros smiling, a printed workbook in one hand, below the projected Temple of Speak logo." loading="lazy" decoding="async">
+      </picture></li>
+    </ul>
+    </div>
+  </div>
+  <div class="room__inner session-strip__cap">
+    <p class="chip" data-tbc data-note="When and where was this session? I will put the date and the place in this caption.">A Temple of Speak session</p>
   </div>
 </section>
 <section class="room room--navy" id="pillars" aria-labelledby="pillars-title">
@@ -162,7 +267,7 @@
     </div>
   </div>
 </section>
-<section class="scene room--navy" id="circle-of-ten" style="--scene-h: 220vh" aria-labelledby="cot-title">
+<section class="scene room--navy" id="circle-of-ten" style="--scene-h: 150vh" aria-labelledby="cot-title">
   <div class="scene__stage">
     <div class="grain" aria-hidden="true"></div>
     <div class="room__inner cot__inner">
@@ -273,8 +378,32 @@
     </div>
   </div>
 </section>
+<!-- v4: the circle, in the room. Right after the Circle of Ten scene: a real session at the lilac tables. -->
+<section class="room room--navy" id="in-session" aria-label="A Temple of Speak session">
+  <div class="room__inner">
+    <figure class="ins__fig" data-reveal>
+      <div class="ins__frame" data-tbc data-note="Are the people in this photo happy to appear on your site?">
+        <picture>
+          <source type="image/webp" srcset="../assets/img/tos-group-640.webp 640w, ../assets/img/tos-group-1024.webp 1024w, ../assets/img/tos-group-1600.webp 1600w" sizes="(min-width: 1200px) 1150px, calc(100vw - 32px)">
+          <img src="../assets/img/tos-group-1024.jpg" srcset="../assets/img/tos-group-640.jpg 640w, ../assets/img/tos-group-1024.jpg 1024w, ../assets/img/tos-group-1600.jpg 1600w" sizes="(min-width: 1200px) 1150px, calc(100vw - 32px)" width="1600" height="1067" alt="Participants writing in workbooks around a table with a lilac cloth while Vahan Bedros stands behind them, watching, one hand at his chin." loading="lazy" decoding="async">
+        </picture>
+      </div>
+      <figcaption class="ins__cap"><span class="chip" data-tbc data-note="When and where was this session? I will put the date and the place in this caption.">A Temple of Speak session</span></figcaption>
+    </figure>
+  </div>
+</section>
 <section class="room room--linen" id="workshops" data-spot aria-labelledby="ws-title">
   <div class="room__inner ws__grid">
+
+    <figure class="ws__lead" data-reveal>
+      <div class="ws__lead-frame" data-tbc data-note="Are the people in this photo happy to appear on your site?">
+        <picture>
+          <source type="image/webp" srcset="../assets/img/tos-room-640.webp 640w, ../assets/img/tos-room-1066.webp 1066w" sizes="(min-width: 1200px) 1150px, calc(100vw - 32px)">
+          <img src="../assets/img/tos-room-1066.jpg" srcset="../assets/img/tos-room-640.jpg 640w, ../assets/img/tos-room-1066.jpg 1066w" sizes="(min-width: 1200px) 1150px, calc(100vw - 32px)" width="1066" height="1600" alt="The room from the back rows: people seated at tables with lilac cloths face Vahan Bedros, who speaks in front of a projected slide titled &ldquo;The Spells we Weave&rdquo;." loading="lazy" decoding="async">
+        </picture>
+      </div>
+      <figcaption class="ws__lead-cap"><span class="chip" data-tbc data-note="When and where was this session? I will put the date and the place in this caption.">A Temple of Speak session. On the screen: &ldquo;The Spells we Weave&rdquo;</span></figcaption>
+    </figure>
 
     <div class="ws__copy">
       <p class="eyebrow" data-reveal>Intro workshops</p>

@@ -1,74 +1,106 @@
-/* Temple of Speak, room 1: House Lights.
-   Scrubs the canvas film over the sticky scene, keeps the lamp's hole on Vahan, and shows the caption
-   chip only when the last frame (the untouched real photo) is what is on the canvas.
-
-   Needs window.VB (core.js). Does not use GSAP, so a blocked CDN changes nothing. If anything is
-   missing the poster (frame 0, a CSS background) and the copy simply stay as they are. Never throws. */
+/* Temple of Speak, room 1: The projector comes on.
+   The intro (the screen lights, then the room, then the copy) is plain CSS and needs nothing from here.
+   This file does four small things:
+     1. cycles the three photos: the active cycle tick (a CSS animation) is the clock, and its animationend
+        hands over to the next photo, so pausing the animations pauses the cycle too;
+     2. pauses all of it while the hero is off screen or the tab is hidden;
+     3. trails the photos behind the page a little as it scrolls out (transform only, no pin);
+     4. the failsafe: ~2 s in it marks the intro done (.done), which snaps the finished state with no animation
+        and finishes any intro animation still running, so a stalled animation clock can not strand anything.
+   Reduced motion: the first photo only, no cycle, no parallax. Does not use GSAP, so a blocked CDN changes
+   nothing. Never throws. */
 (function () {
   'use strict';
+
   try {
-    var VB = window.VB;
-    var hero = document.getElementById('hero');
-    if (!VB || !hero || typeof VB.scene !== 'function' || typeof VB.frames !== 'function') return;
+    var win = window, doc = document;
+    var hero = doc.getElementById('hero');
+    if (!hero) return;
 
-    var media = hero.querySelector('.scene__media');
-    var canvas = hero.querySelector('canvas.film');
-    var chip = hero.querySelector('.hero__caption');
-    if (!media || !canvas) return;
+    var VB = win.VB;
+    var reduced = false;
+    try {
+      reduced = VB ? !!VB.reduced : !!(win.matchMedia && win.matchMedia('(prefers-reduced-motion: reduce)').matches);
+    } catch (e) { reduced = false; }
 
-    var num = function (name, fallback) {
-      var v = parseFloat(canvas.getAttribute(name));
-      return v === v && v > 0 ? v : fallback;
-    };
-    var N = Math.round(num('data-frame-count', 47));          // Task 10 may change the count: only this attribute changes
-    var FW = num('data-frame-w', 1280), FH = num('data-frame-h', 720);
-    var FX = num('data-focus-x', 0.47), FY = num('data-focus-y', 0.53);   // where Vahan stands in every frame
-    var base = canvas.getAttribute('data-frame-src') || '../assets/frames/tos-hero/f-';
-    var ext = canvas.getAttribute('data-frame-ext') || 'webp';
+    var slides = Array.prototype.slice.call(hero.querySelectorAll('.slide'));
+    var ticks = Array.prototype.slice.call(hero.querySelectorAll('.tick'));
+    var copy = hero.querySelector('.hero__copy');
+    var line = hero.querySelector('.hero__line');
+    var shift = hero.querySelector('.hero__shift');
+    var slowK = function () { return VB && VB.slow ? 1.82 : 1; };
 
-    var urls = [];
-    for (var i = 0; i < N; i++) urls.push(base + ('000' + i).slice(-3) + '.' + ext);
+    // ---- 4. failsafe: the finished state, whatever the animation clock is doing
+    function settleIntro() {
+      [copy, line].forEach(function (el) { if (el) el.classList.add('done'); });
+      hero.classList.add('done');
+      var intro = Array.prototype.slice.call(hero.querySelectorAll('.hero__copy, .hero__copy *, .hero__meta, .slide:first-child .slide__veil, .slide:first-child .slide__bloom'));
+      intro.forEach(function (el) {
+        if (typeof el.getAnimations !== 'function') return;
+        try { el.getAnimations().forEach(function (a) { try { a.finish(); } catch (e) { /* ignore */ } }); } catch (e) { /* ignore */ }
+      });
+    }
+    win.setTimeout(settleIntro, 2000 * slowK());
 
-    var film = VB.frames({ canvas: canvas, urls: urls, fx: FX, fy: FY });
+    // ---- 1. the cycle
+    hero.classList.add('is-live');
+    if (slides.length) slides[0].classList.add('is-on');
+    if (reduced || slides.length < 2) return;
 
-    // reduced motion shows the last frame (the untouched photo) from the start: use it as the poster too
-    if (VB.reduced) {
-      var last = 'url("' + urls[N - 1] + '")';
-      media.style.backgroundImage = last;
-      var poster = hero.querySelector('.poster');
-      if (poster) poster.style.backgroundImage = last;
+    var cur = 0, fadeTimer = 0;
+
+    function go(next) {
+      var prev = cur;
+      cur = next;
+      slides.forEach(function (s, i) {
+        if (i !== prev && i !== cur) s.classList.remove('is-on', 'is-prev', 'is-pulse');
+      });
+      slides[prev].classList.remove('is-on', 'is-pulse');
+      slides[prev].classList.add('is-prev');
+      slides[cur].classList.remove('is-prev');
+      slides[cur].classList.add('is-on', 'is-pulse');
+      ticks.forEach(function (t, i) { t.classList.toggle('is-on', i === cur); });
+      // the outgoing photo stays solid underneath until the incoming one has finished fading in
+      win.clearTimeout(fadeTimer);
+      fadeTimer = win.setTimeout(function () { slides[prev].classList.remove('is-prev'); }, 1900 * slowK() + 200);
     }
 
-    // ---- the lamp's hole follows Vahan, wherever the cover-fit puts him
-    function placeSpot() {
-      var bw = media.offsetWidth, bh = media.offsetHeight;
-      if (!bw || !bh) return;
-      var g = VB.cover(bw, bh, FW, FH, FX, FY);
-      VB.spot(hero, g.dx + FX * g.dw, g.dy + FY * g.dh);
-    }
-    placeSpot();
-    if ('ResizeObserver' in window) {
-      try { new ResizeObserver(placeSpot).observe(media); } catch (e) { window.addEventListener('resize', placeSpot); }
-    } else {
-      window.addEventListener('resize', placeSpot);
-    }
-
-    // ---- caption: only on the last frame, and only once that frame has really loaded
-    var lastReady = false, idx = 0;
-    function syncCaption() {
-      if (chip) chip.classList.toggle('show', lastReady && idx >= N - 1);
-    }
-    var probe = new Image();
-    probe.onload = function () { lastReady = true; syncCaption(); };
-    probe.onerror = function () { lastReady = false; };
-    probe.src = urls[N - 1];
-
-    // ---- scroll progress -> frame
-    VB.scene(hero, function (p) {
-      idx = Math.round(VB.smooth(0.04, 0.9, p) * (N - 1));
-      film.draw(idx);
-      syncCaption();
+    ticks.forEach(function (t, i) {
+      var fill = t.firstElementChild;
+      if (!fill) return;
+      fill.addEventListener('animationend', function (e) {
+        if (e.target === fill && i === cur) go((cur + 1) % slides.length);
+      });
     });
+
+    // ---- 2. hold still while nobody is looking
+    var onScreen = true;
+    function sync() { hero.classList.toggle('is-paused', !onScreen || doc.hidden); }
+    if ('IntersectionObserver' in win) {
+      new IntersectionObserver(function (entries) {
+        onScreen = entries[entries.length - 1].isIntersecting;
+        sync();
+      }, { threshold: 0.05 }).observe(hero);
+    }
+    doc.addEventListener('visibilitychange', sync);
+    sync();
+
+    // ---- 3. parallax on the way out
+    if (shift) {
+      var pending = false;
+      var run = function () {
+        pending = false;
+        var y = win.pageYOffset || doc.documentElement.scrollTop || 0;
+        if (y > hero.offsetHeight * 1.1) return;
+        shift.style.setProperty('--py', (y * 0.16).toFixed(1) + 'px');
+      };
+      win.addEventListener('scroll', function () {
+        if (pending) return;
+        pending = true;
+        if (win.requestAnimationFrame) win.requestAnimationFrame(run); else win.setTimeout(run, 16);
+      }, { passive: true });
+      run();
+    }
   } catch (err) {
     try { console.error('[tos hero]', err); } catch (e) { /* ignore */ }
   }

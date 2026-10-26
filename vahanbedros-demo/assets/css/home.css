@@ -1,335 +1,431 @@
-/* ==========================================================================
-   Room 1: Spotlight (hero). Everything is scoped under #hero.
-   Desktop: copy left, a tall arch-topped photo panel right. A code-drawn warm spot finds
-   him (lamp flicker), then scroll brings the house lights up to the untouched photo.
-   Phones: the panel sits on top (about 54% of the screen), copy below on solid House Dark.
-   ========================================================================== */
+/* Home hero v4, "Centre stage" (#hero). One screen, no pin: a dark stage, a spotlight drawn in code, the giant
+   name behind the cut-out figure, his line, the call, and a tilted gold band of credentials.
 
-#hero { position: relative; background: var(--house-dark); }
+   Layers, back to front: .hero__stage (the room) · .hero__name (h1) · .hero__light (the dark outside the beam,
+   which is what lights the name; the beam; the lamp's glow; the pool on the floor; the dimmer) · .hero__figure ·
+   .hero__floor (dark at the feet + grain) · the copy · .hero__band.
 
-#hero .hero__stage { background: var(--house-dark); }
+   Robustness: every hidden start state is the first frame of an animation with backwards fill, under html.js and
+   prefers-reduced-motion: no-preference only. The static styles are the finished state, so no JS = visible,
+   reduced motion = visible, and an animation that ends on its own leaves things visible. 01-hero.js adds .is-done
+   about 2 s after it starts (animations off, any still running are finished): a frozen clock can not strand anything.
 
-/* backdrop: a faint warm spill behind the panel, a cool pool low left, film grain */
-#hero .hero__bg {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background:
-    radial-gradient(52% 70% at 77% 52%, rgba(212, 168, 75, .13), rgba(212, 168, 75, 0) 72%),
-    radial-gradient(80% 55% at 8% 108%, rgba(14, 36, 59, .95), rgba(14, 36, 59, 0) 70%);
-}
+   Scroll and pointer: 01-hero.js writes --p (0..1, how far the hero has scrolled out; 0 again once it is off screen)
+   and --mx / --my (-1..1, the lerped pointer, fine pointers only). Scroll motion is transform and opacity only. */
 
-/* the page itself warms as the house lights come up (--p is set on .scene by core.js) */
-#hero .hero__bg::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(46% 64% at 77% 52%, rgba(246, 217, 166, .2), rgba(246, 217, 166, 0) 72%);
-  opacity: var(--p, 0);
-}
+#hero {
+  --p: 0;
+  --mx: 0;
+  --my: 0;
+  --hg: max(var(--gutter-l), clamp(16px, 4.4vw, 72px));      /* side gutter */
+  --name-size: min(17.2vw, 27svh);
+  --fig-h: 76%;                                               /* figure height, share of the stage (about 40svh wide) */
+  --n-end: calc(var(--hg) + var(--name-size) * 2.29);         /* where "Vahan" ends */
+  --fig-left: calc(var(--n-end) - 22.8svh);                   /* his hair just overlaps the "n"; "Bedros" starts past his shoulder */
+  --head-x: calc(var(--n-end) + 2.4svh);                      /* the beam falls on his head */
+  --fig-nudge: -6%;                                           /* (phones and tablets: centred, nudged so his head is mid-screen) */
+  --cone-y: -9%;
+  --cone-from: 151deg;                                        /* the beam: from this angle, --cone-w wide */
+  --cone-w: 58deg;
 
-/* ---------- layout (desktop) ---------- */
-#hero .hero__grid {
-  height: 100%;
+  position: relative;
+  isolation: isolate;
+  overflow: clip;
   display: grid;
-  grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
-  column-gap: clamp(32px, 5.4vw, 84px);
-  align-items: center;
-  padding-top: calc(var(--header-h) + env(safe-area-inset-top, 0px) + clamp(4px, 1.6vh, 20px));
-  padding-bottom: clamp(20px, 4.4vh, 44px);
-}
-
-#hero .hero__copy {
-  min-width: 0;
-  max-width: min(44vw, 36rem);
-}
-
-#hero .hero__eyebrow { margin-bottom: clamp(14px, 2.2vh, 22px); }
-
-#hero .hero__line {
-  margin: 0 0 clamp(16px, 2.6vh, 28px);
+  grid-template-columns: var(--hg) minmax(0, 1fr) minmax(15rem, 30vw) minmax(0, 1fr) var(--hg);
+  grid-template-rows: var(--header-h) auto minmax(1.5rem, 1fr) auto;
+  grid-template-areas:
+    ".    .    .    .    .   "
+    ".    name name name .   "
+    ".    lead .    side .   "
+    "band band band band band";
+  background: var(--house-dark);
   color: var(--linen);
 }
 
-/* "medicine." grows heavier as it arrives (3.60em to 3.73em wide); reserve the final width so the line never rewraps */
-#hero .hero__line [data-fx="rise"] { min-width: 3.74em; }
+/* ---------- the stage ---------- */
 
-#hero .hero__sub {
-  max-width: 44ch;
-  margin: 0 0 clamp(20px, 3vh, 30px);
-  font-size: clamp(.98rem, .9rem + .22vw, 1.1rem);
-  line-height: 1.58;
+/* in the flow and spanning the stage rows, so the stage is at least one screen tall and grows with its content */
+#hero .hero__stage {
+  position: relative;
+  grid-row: 1 / -1;
+  grid-column: 1 / -1;
+  z-index: 0;
+  min-height: max(32rem, 100vh);
+  min-height: max(32rem, 100svh);
+}
+#hero .hero__room {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(70% 60% at 50% 18%, rgba(14, 36, 59, .55), transparent 70%),
+    linear-gradient(180deg, #050d17 0%, var(--night) 70%, #010306 100%);
 }
 
+/* the layers that cover the stage: absolutely positioned inside the stage's grid area */
+#hero :is(.hero__light, .hero__figure, .hero__floor) {
+  position: absolute;
+  grid-row: 1 / -1;
+  grid-column: 1 / -1;
+  pointer-events: none;
+}
+#hero :is(.hero__light, .hero__floor) { inset: 0; }
+
+/* ---------- the name (h1) ---------- */
+
+#hero .hero__name {
+  grid-area: name;
+  z-index: 1;
+  position: relative;
+  margin: clamp(.25rem, 1.6vh, 1.25rem) 0 0;
+  font-family: var(--font-display);
+  font-style: normal;
+  font-weight: 420;
+  font-variation-settings: "opsz" 144;
+  font-size: var(--name-size);
+  line-height: .8;
+  letter-spacing: -.045em;
+  color: var(--linen);
+  text-align: left;
+  text-wrap: nowrap;
+  white-space: nowrap;
+}
+#hero .hero__line { display: block; }
+#hero .hero__line--a {
+  transform: translate3d(calc(var(--p) * -42vw + var(--mx) * -7px), calc(var(--my) * -3px), 0);
+}
+#hero .hero__line--b {
+  text-align: right;
+  transform: translate3d(calc(var(--p) * 42vw + var(--mx) * -7px), calc(var(--my) * -3px), 0);
+}
+/* the line mask: only the bottom edge clips (the letters rise from under it); sideways and up it lets glyphs breathe */
+#hero .hero__mask {
+  display: inline-block;
+  clip-path: inset(-50% -15% 0 -15%);
+}
+#hero .hero__ch { display: inline-block; }
+
+/* ---------- the light ---------- */
+
+#hero .hero__light { z-index: 2; }
+#hero .hero__lamp {
+  position: absolute;
+  inset: -40px;
+  transform: translate3d(calc(var(--mx) * 16px), calc(var(--my) * 9px), 0);
+}
+#hero .hero__lamp > i {
+  position: absolute;
+  inset: 0;
+  display: block;
+}
+/* the dark outside the beam: what makes the name look lit inside the cone */
+#hero .hero__shade {
+  background: conic-gradient(from var(--cone-from) at calc(var(--head-x) + 40px) var(--cone-y),
+    rgba(2, 6, 11, .5) 0deg,
+    rgba(2, 6, 11, 0) calc(var(--cone-w) * .34),
+    rgba(2, 6, 11, 0) calc(var(--cone-w) * .66),
+    rgba(2, 6, 11, .5) var(--cone-w),
+    rgba(2, 6, 11, .5) 360deg);
+}
+/* the beam: warm, brightest down its axis, falling off towards the floor */
+#hero .hero__cone {
+  opacity: calc(1 - var(--p) * .85);
+  background: conic-gradient(from var(--cone-from) at calc(var(--head-x) + 40px) var(--cone-y),
+    rgba(246, 217, 166, 0) 0deg,
+    rgba(246, 217, 166, .06) calc(var(--cone-w) * .14),
+    rgba(246, 217, 166, .16) calc(var(--cone-w) * .36),
+    rgba(246, 217, 166, .22) calc(var(--cone-w) * .5),
+    rgba(246, 217, 166, .16) calc(var(--cone-w) * .64),
+    rgba(246, 217, 166, .06) calc(var(--cone-w) * .86),
+    rgba(246, 217, 166, 0) var(--cone-w),
+    rgba(246, 217, 166, 0) 360deg);
+  -webkit-mask-image: linear-gradient(180deg, #000 0%, rgba(0, 0, 0, .7) 55%, rgba(0, 0, 0, .35) 100%);
+  mask-image: linear-gradient(180deg, #000 0%, rgba(0, 0, 0, .7) 55%, rgba(0, 0, 0, .35) 100%);
+  mix-blend-mode: screen;
+}
+/* the lamp itself, just above the frame */
+#hero .hero__halo {
+  opacity: calc(1 - var(--p) * .85);
+  background: radial-gradient(28% 16% at calc(var(--head-x) + 40px) 0%, rgba(246, 217, 166, .3), rgba(212, 168, 75, .08) 55%, transparent 100%);
+  mix-blend-mode: screen;
+}
+/* the pool of light on the floor (the speaker's mark), behind his knees */
+#hero .hero__pool {
+  opacity: calc(1 - var(--p) * .85);
+  background: radial-gradient(30% 7% at calc(var(--head-x) + 40px) 85%, rgba(246, 217, 166, .3), rgba(212, 168, 75, .09) 55%, transparent 100%);
+  mix-blend-mode: screen;
+}
+/* the dimmer: dark at load until the spot comes on, and the light going down as the hero scrolls away */
+#hero .hero__dim {
+  position: absolute;
+  inset: 0;
+  display: block;
+  background: var(--night);
+  opacity: calc(var(--p) * .72);
+}
+
+/* ---------- the figure ---------- */
+
+#hero .hero__figure {
+  z-index: 3;
+  left: var(--fig-left);
+  bottom: 0;
+  height: var(--fig-h);
+  aspect-ratio: 760 / 1442;
+  transform-origin: 50% 100%;
+  transform: translate3d(calc(var(--mx) * 10px), calc(var(--p) * 24vh + var(--my) * 4px), 0) scale(calc(1 + var(--p) * .07));
+}
+#hero .hero__fig {
+  width: 100%;
+  height: 100%;
+  -webkit-mask-image: linear-gradient(180deg, #000 56%, rgba(0, 0, 0, .55) 76%, transparent 95%);
+  mask-image: linear-gradient(180deg, #000 56%, rgba(0, 0, 0, .55) 76%, transparent 95%);
+}
+#hero .hero__img {
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  object-fit: contain;
+  object-position: 50% 0;
+  filter: contrast(1.05) saturate(.9);
+}
+
+/* dark at his feet, so the band and the copy sit on the floor; grain over everything on the stage */
+#hero .hero__floor {
+  z-index: 4;
+  background:
+    linear-gradient(0deg, var(--night) 0%, rgba(2, 6, 11, .72) 12%, rgba(2, 6, 11, 0) 34%),
+    var(--front-shade);
+}
+/* the same beam, lighter, in front of him: his hands and sides fall off into the dark like the letters do */
+#hero {
+  --front-shade: conic-gradient(from var(--cone-from) at var(--head-x) var(--cone-y),
+    rgba(2, 6, 11, .34) 0deg,
+    rgba(2, 6, 11, 0) calc(var(--cone-w) * .32),
+    rgba(2, 6, 11, 0) calc(var(--cone-w) * .68),
+    rgba(2, 6, 11, .34) var(--cone-w),
+    rgba(2, 6, 11, .34) 360deg);
+}
+#hero .hero__floor .grain { opacity: .06; }
+
+/* ---------- the copy ---------- */
+
+#hero :is(.hero__lead, .hero__side) {
+  position: relative;
+  z-index: 5;
+  align-self: end;
+  min-width: 0;
+  transform: translate3d(0, calc(var(--p) * -10vh), 0);
+  opacity: calc(1 - var(--p) * 1.8);
+}
+/* the line ends before his hand */
+#hero .hero__lead { grid-area: lead; max-width: min(31rem, max(16rem, calc(var(--fig-left) - var(--hg) - 1.5rem))); padding-bottom: .4rem; }
+#hero .hero__side { grid-area: side; justify-self: end; max-width: 25rem; margin-top: clamp(1rem, 2.6vh, 2rem); padding-bottom: .4rem; }
+
+#hero .hero__eyebrow { margin-bottom: 1.1rem; color: var(--brass); letter-spacing: .13em; text-wrap: balance; }
+#hero .hero__quote {
+  max-width: 15ch;
+  font-size: clamp(1.75rem, .85rem + 2.15vw, 3.05rem);
+  line-height: 1.06;
+  color: var(--linen);
+}
+#hero .hero__sub {
+  margin: 0 0 1.5rem;
+  font-size: clamp(1rem, .94rem + .2vw, 1.1rem);
+  line-height: 1.6;
+  color: var(--fg-soft);
+}
 #hero .hero__ctas {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 14px 26px;
+  gap: .9rem 1.6rem;
 }
+#hero .hero__alt { display: inline-block; }
 
-#hero .hero__proof {
-  display: grid;
-  gap: 6px;
-  margin: clamp(20px, 3.4vh, 34px) 0 0;
-  padding: clamp(14px, 2vh, 18px) 0 0;
-  border-top: 1px solid var(--rule);
-  list-style: none;
-  font-size: .8rem;
-  line-height: 1.45;
-  color: color-mix(in srgb, var(--linen) 76%, transparent);
-}
-/* each line starts with the small gold ellipse: the pool of light */
-#hero .hero__proof li {
+/* ---------- the band ---------- */
+
+#hero .hero__band {
+  grid-area: band;
   position: relative;
-  padding-left: 1.7em;
+  z-index: 6;
+  margin: clamp(1.4rem, 3vh, 2.6rem) 0 clamp(1rem, 3vh, 2.6rem);
 }
-#hero .hero__proof li::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: .62em;
-  width: 1.05em;
-  height: .36em;
-  border-radius: 50%;
-  background: radial-gradient(closest-side, var(--tungsten), var(--stage-gold) 55%, rgba(212, 168, 75, 0) 100%);
+#hero .hero__band .marquee--band {
+  box-shadow: 0 18px 40px -18px rgba(0, 0, 0, .7);
 }
 
-/* ---------- the photo panel ---------- */
-#hero .hero__media {
-  min-width: 0;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  align-self: stretch;
-}
+/* ---------- tablets and phones: the stage on top, the sub and the speaking link under the band ---------- */
 
-#hero .hero__frame {
-  /* the tallest the panel may be: the stage minus header, breathing room and the door-frame outline */
-  --stage-h: 100vh;
-  --avail: calc(var(--stage-h) - var(--header-h) - env(safe-area-inset-top, 0px) - clamp(4px, 1.6vh, 20px) - clamp(20px, 4.4vh, 44px) - 30px);
-  position: relative;
-  width: min(100%, calc(var(--avail) * .8));
-  aspect-ratio: 4 / 5;
-}
-@supports (height: 100dvh) {
-  #hero .hero__frame { --stage-h: 100dvh; }
-}
-/* a second, offset arch outline: the door frame around the light */
-#hero .hero__frame::before {
-  content: "";
-  position: absolute;
-  inset: -14px;
-  border: 1px solid rgba(183, 161, 122, .3);
-  border-radius: 999px 999px 4px 4px;
-  pointer-events: none;
-}
-
-#hero .hero__arch {
-  --sx: 42%;
-  --sy: 42%;
-  --rx: 150px;
-  --ry: 320px;
-  --dim: .9;
-  --warm: 1;
-  position: absolute;
-  inset: 0;
-  aspect-ratio: auto;
-  background: var(--night);
-}
-#hero .hero__arch > picture {
-  position: absolute;
-  inset: 0;
-  display: block;
-  width: auto;
-  height: auto;
-}
-/* Fallback geometry (no JS): plain cover. 01-hero.js then sets exact pixels. */
-#hero .hero__arch > picture > img {
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  max-width: none;
-  object-fit: cover;
-  object-position: 58% 20%;
-  transform-origin: var(--sx) var(--sy);
-  will-change: transform;
-}
-
-/* The warm spot and the dark house around it. Only exist under JS, so with scripts off the
-   visitor simply gets the untouched photo. */
-#hero .hero__glow,
-#hero .hero__house { display: none; }
-html.js #hero .hero__glow,
-html.js #hero .hero__house {
-  display: block;
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-}
-html.js #hero .hero__glow {
-  mix-blend-mode: soft-light;
-  opacity: var(--warm);
-  background: radial-gradient(ellipse var(--rx) var(--ry) at var(--sx) var(--sy), rgba(246, 217, 166, .9), rgba(246, 217, 166, 0) 70%);
-}
-html.js #hero .hero__house {
-  background: rgba(4, 10, 18, var(--dim));
-  -webkit-mask-image: radial-gradient(ellipse var(--rx) var(--ry) at var(--sx) var(--sy), transparent 0%, rgba(0, 0, 0, .04) 30%, rgba(0, 0, 0, .34) 58%, rgba(0, 0, 0, .78) 82%, #000 100%);
-  mask-image: radial-gradient(ellipse var(--rx) var(--ry) at var(--sx) var(--sy), transparent 0%, rgba(0, 0, 0, .04) 30%, rgba(0, 0, 0, .34) 58%, rgba(0, 0, 0, .78) 82%, #000 100%);
-}
-
-/* caption chip: only on the finished, untouched photo */
-#hero .hero__chip {
-  position: absolute;
-  left: 14px;
-  right: 14px;
-  bottom: 14px;
-  z-index: 3;
-  justify-content: center;
-  width: fit-content;
-  max-width: calc(100% - 28px);
-  margin-inline: auto;
-  text-align: center;
-  transition: opacity var(--t-med) var(--ease), transform var(--t-med) var(--ease);
-}
-html.js #hero .hero__chip:not(.is-show) { opacity: 0; transform: translateY(6px); }
-
-/* scroll hint */
-#hero .hero__hint {
-  position: absolute;
-  z-index: 3;
-  left: max(var(--gutter-l), calc((100% - 72rem) / 2));
-  bottom: clamp(18px, 3.4vh, 34px);
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  font-size: .7rem;
-  font-weight: 500;
-  letter-spacing: .2em;
-  text-transform: uppercase;
-  color: color-mix(in srgb, var(--linen) 62%, transparent);
-  transition: opacity var(--t-med) var(--ease);
-}
-#hero .hero__hint i {
-  display: block;
-  width: 1px;
-  height: 30px;
-  background: linear-gradient(var(--stage-gold), rgba(212, 168, 75, 0));
-  transform-origin: top;
-  animation: hero-hint calc(2.6s * var(--slow)) var(--ease) infinite;
-}
-@keyframes hero-hint {
-  0% { transform: scaleY(0); opacity: 0; }
-  35% { opacity: 1; }
-  70%, 100% { transform: scaleY(1); opacity: 0; }
-}
-#hero .hero__hint.is-gone { opacity: 0; visibility: hidden; transition: opacity var(--t-med) var(--ease), visibility 0s linear var(--t-med); }
-
-/* the proof strip as a band under the hero is for phones only */
-#hero .hero__band { display: none; }
-
-/* shorter laptop screens */
-@media (min-width: 760px) and (max-height: 760px) {
-  #hero .hero__sub { font-size: .95rem; margin-bottom: 18px; }
-  #hero .hero__proof { margin-top: 16px; padding-top: 12px; }
-  #hero .hero__line { font-size: clamp(2rem, 3.2vw, 3.4rem); }
-}
-
-/* ---------- phones and tablets held upright: panel top, copy below on House Dark ---------- */
-@media (max-width: 759.98px), (min-width: 760px) and (max-aspect-ratio: 1/1) {
-  #hero .hero__grid {
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    padding-top: calc(var(--header-h) + env(safe-area-inset-top, 0px) + 12px);
-    padding-bottom: 12px;
+@media (max-width: 1099.98px) {
+  #hero {
+    --name-size: min(24.5vw, 22svh);
+    --fig-h: 63%;
+    --head-x: 53vw;
+    --cone-y: -26%;
+    --cone-from: 160deg;
+    --cone-w: 40deg;
+    grid-template-columns: var(--hg) minmax(0, 1fr) var(--hg);
+    grid-template-rows: var(--header-h) auto minmax(2rem, 1fr) auto auto auto auto auto;
+    grid-template-areas:
+      ".    .    .   "
+      ".    name .   "
+      ".    .    .   "
+      ".    lead .   "
+      ".    btn  .   "
+      "band band band"
+      ".    sub  .   "
+      ".    alt  .   ";
   }
-  #hero .hero__media {
-    order: -1;
-    flex: 0 0 auto;
-    height: max(236px, calc(54dvh - var(--header-h) - 12px));
-    align-self: stretch;
+  /* the stage ends where the band begins; the band peeks above the fold */
+  #hero .hero__stage {
+    grid-row: 1 / 6;
+    min-height: max(26rem, calc(100vh - 3.4rem));
+    min-height: max(26rem, calc(100svh - 3.4rem));
   }
-  #hero .hero__frame {
-    width: 100%;
-    height: 100%;
-    aspect-ratio: auto;
-  }
-  #hero .hero__frame::before { inset: -8px; }
-  #hero .hero__copy {
-    flex: 1 1 auto;
-    max-width: none;
-    padding-top: clamp(18px, 3.2dvh, 28px);
-  }
-  #hero .hero__eyebrow { font-size: .64rem; letter-spacing: .12em; margin-bottom: 9px; }
-  #hero .hero__line { font-size: clamp(1.8rem, 8.2vw, 2.6rem); line-height: 1.04; margin-bottom: 11px; }
-  #hero .hero__sub { font-size: .88rem; line-height: 1.5; margin-bottom: 14px; max-width: none; }
-  #hero .hero__ctas { gap: 10px 20px; }
-  #hero .hero__ctas .btn { min-height: 44px; padding: .7rem 1.15rem; font-size: .9rem; }
-  #hero .hero__ctas .link-arrow { font-size: .88rem; }
-  /* the proof strip moves to a band under the scene so nothing is clipped on small screens */
-  #hero .hero__copy .hero__proof { display: none; }
-  #hero .hero__hint { display: none; }
-  #hero .hero__chip { font-size: .7rem; left: 10px; right: 10px; bottom: 10px; padding: .34rem .8rem; border-radius: 16px; text-wrap: balance; }
+  #hero :is(.hero__light, .hero__figure, .hero__floor) { grid-row: 1 / 6; }
+  #hero .hero__figure { left: var(--fig-nudge); right: calc(-1 * var(--fig-nudge)); margin-inline: auto; }
 
-  #hero .hero__band {
-    display: block;
-    padding: 22px var(--gutter-r) 26px var(--gutter-l);
-    background: var(--house-dark);
-    border-top: 1px solid var(--rule);
+  #hero .hero__floor {
+    background:
+      linear-gradient(0deg, var(--night) 0%, rgba(2, 6, 11, .9) 22%, rgba(2, 6, 11, .55) 38%, rgba(2, 6, 11, 0) 56%),
+      var(--front-shade);
   }
-  #hero .hero__band .hero__proof { margin: 0; padding: 0; border: 0; font-size: .82rem; }
-}
-/* tablets held upright get roomier type than phones */
-@media (min-width: 760px) and (max-aspect-ratio: 1/1) {
-  #hero .hero__media { justify-content: center; height: max(380px, calc(54dvh - var(--header-h) - 12px)); }
-  #hero .hero__frame { width: min(100%, 34rem); }
-  #hero .hero__copy { max-width: 38rem; margin-inline: auto; width: 100%; padding-top: clamp(28px, 4dvh, 44px); display: flex; flex-direction: column; justify-content: center; }
-  #hero .hero__eyebrow { font-size: .72rem; letter-spacing: .16em; margin-bottom: 14px; }
-  #hero .hero__line { font-size: clamp(2.3rem, 5.4vw, 3.4rem); margin-bottom: 16px; }
-  #hero .hero__sub { font-size: 1.02rem; margin-bottom: 20px; }
-  #hero .hero__ctas .btn { min-height: 46px; font-size: .95rem; }
-  #hero .hero__band .hero__proof { max-width: 38rem; margin-inline: auto; }
-}
-@media (max-width: 759.98px) and (max-height: 760px) {
-  #hero .hero__sub { font-size: .82rem; line-height: 1.45; margin-bottom: 11px; }
-  #hero .hero__line { font-size: clamp(1.65rem, 7.6vw, 2.2rem); margin-bottom: 9px; }
-  #hero .hero__eyebrow { margin-bottom: 7px; }
+
+  #hero .hero__side,
+  #hero .hero__ctas { display: contents; }
+  #hero .hero__lead { max-width: 34rem; padding-bottom: 0; }
+  #hero .hero__quote { max-width: 16ch; font-size: clamp(1.75rem, 1.1rem + 2.6vw, 2.6rem); }
+  #hero .hero__eyebrow { margin-bottom: .8rem; }
+  #hero .hero__btn {
+    grid-area: btn;
+    position: relative;
+    z-index: 5;
+    justify-self: start;
+    margin: 1.35rem 0 clamp(1.6rem, 3.4vh, 2.4rem);
+  }
+  #hero .hero__band { margin: 0; }
+  #hero :is(.hero__sub, .hero__alt) { position: relative; z-index: 5; }
+  #hero .hero__sub {
+    grid-area: sub;
+    max-width: 36rem;
+    margin: clamp(2.2rem, 6vw, 3rem) 0 1.1rem;
+  }
+  #hero .hero__alt {
+    grid-area: alt;
+    justify-self: start;
+    margin-bottom: clamp(3rem, 9vw, 4.5rem);
+  }
 }
 
-/* no scripts: nothing will bring the lights up, so the hero is an ordinary block, not a tall pinned scene */
-html:not(.js) #hero .scene { height: auto; }
-html:not(.js) #hero .scene__stage { position: relative; height: auto; min-height: 100vh; min-height: 100dvh; }
-html:not(.js) #hero .hero__grid { height: auto; min-height: 100dvh; }
-html:not(.js) #hero .hero__hint { display: none; }
-
-/* very short screens (small phones, phones on their side): the stage would clip the copy, so the
-   hero becomes an ordinary block and the lights simply come up as it scrolls by */
-@media (max-height: 560px), (max-width: 759.98px) and (max-height: 640px) {
-  #hero .scene { height: auto; }
-  #hero .scene__stage { position: relative; height: auto; min-height: 100vh; min-height: 100dvh; }
-  #hero .hero__grid { height: auto; min-height: 100dvh; padding-bottom: 28px; }
-  #hero .hero__hint { display: none; }
-}
-@media (max-height: 560px) and (min-width: 760px) {
-  #hero .hero__media { align-self: center; }
-  #hero .hero__frame { width: min(100%, 440px); }
+@media (max-width: 759.98px) {
+  #hero {
+    --name-size: min(26.5vw, 16svh);
+    --fig-h: 71%;
+    --cone-y: -34%;
+    --cone-from: 161deg;
+    --cone-w: 38deg;
+  }
+  #hero .hero__quote { font-size: clamp(1.6rem, .9rem + 3.4vw, 2rem); }
+  #hero .hero__sub { font-size: 1rem; }
 }
 
-/* ---------- reduced motion: static stage, full photo, nothing waits ---------- */
+/* short landscape screens (phones on their side): name and copy on the left, the figure stands to the right */
+@media (max-height: 560px) and (min-width: 600px) and (max-width: 1099.98px) {
+  #hero {
+    --name-size: min(14vw, 24svh);
+    --fig-h: 92%;
+    --fig-nudge: 24%;
+    --head-x: 78vw;
+    --cone-y: -20%;
+  }
+  #hero .hero__line--b { text-align: left; padding-left: .5em; }
+  #hero .hero__lead { max-width: 54%; }
+  #hero .hero__quote { max-width: 22ch; font-size: clamp(1.35rem, .8rem + 1.8vw, 1.8rem); }
+}
+
+/* ---------- the load sequence (done by about 1.3 s) ---------- */
+
+@media (prefers-reduced-motion: no-preference) {
+  /* the spot snaps on with a flicker; until then the room is dark */
+  html.js #hero:not(.is-done) :is(.hero__cone, .hero__halo, .hero__pool) {
+    animation: hero-flicker calc(.52s * var(--slow)) linear calc(.04s * var(--slow)) backwards;
+  }
+  html.js #hero:not(.is-done) .hero__dim {
+    animation: hero-dark calc(.52s * var(--slow)) linear calc(.04s * var(--slow)) backwards;
+  }
+  /* the name's letters rise out of their line masks */
+  html.js #hero:not(.is-done) .hero__ch {
+    animation: hero-rise calc(.74s * var(--slow)) cubic-bezier(.2, .8, .16, 1) calc((.1s + var(--i) * .034s) * var(--slow)) backwards;
+  }
+  /* the figure rises and sharpens into the light */
+  html.js #hero:not(.is-done) .hero__fig {
+    animation: hero-figure calc(.95s * var(--slow)) cubic-bezier(.22, .7, .2, 1) calc(.16s * var(--slow)) backwards;
+  }
+  /* the copy */
+  html.js #hero:not(.is-done) .hero__eyebrow { animation: hero-up calc(.6s * var(--slow)) var(--ease) calc(.26s * var(--slow)) backwards; }
+  /* his line: see the Delivered Type block below */
+  html.js #hero:not(.is-done) .hero__sub { animation: hero-up calc(.6s * var(--slow)) var(--ease) calc(.6s * var(--slow)) backwards; }
+  html.js #hero:not(.is-done) .hero__btn { animation: hero-up calc(.6s * var(--slow)) var(--ease) calc(.68s * var(--slow)) backwards; }
+  html.js #hero:not(.is-done) .hero__alt { animation: hero-up calc(.6s * var(--slow)) var(--ease) calc(.74s * var(--slow)) backwards; }
+  /* the band unrolls across the floor */
+  html.js #hero:not(.is-done) .hero__band {
+    animation: hero-band calc(.72s * var(--slow)) cubic-bezier(.6, 0, .2, 1) calc(.52s * var(--slow)) backwards;
+  }
+}
+
+/* Delivered Type here runs on the hero's own clock (it plays at load, wherever the line sits), so the shared
+   "hidden until .on" state is lifted: the words' hidden state is the first frame of hero-word. */
+html.js #hero .hero__quote .w { opacity: 1; transform: none; filter: none; animation: none; }
+html.js #hero .hero__quote :is([data-fx="settle"], .fx-settle) { animation: none; translate: none; scale: none; }
+html.js #hero .hero__quote :is([data-fx="rise"], .fx-rise) {
+  animation: none;
+  font-variation-settings: "wght" 640, "opsz" 144;
+  translate: 0 -.05em;
+  scale: 1 1.07;
+}
+@media (prefers-reduced-motion: no-preference) {
+  html.js #hero:not(.is-done) .hero__quote .w {
+    animation: hero-word calc(.55s * var(--slow)) var(--ease) calc(var(--d, 0s) * var(--slow)) backwards;
+  }
+  html.js #hero:not(.is-done) .hero__quote :is([data-fx="settle"], .fx-settle) {
+    animation: vb-settle calc(.9s * var(--slow)) var(--ease) calc((var(--d, 0s) + .1s) * var(--slow)) backwards;
+  }
+  html.js #hero:not(.is-done) .hero__quote :is([data-fx="rise"], .fx-rise) {
+    animation: vb-rise calc(.85s * var(--slow)) var(--ease) calc((var(--d, 0s) + .14s) * var(--slow)) backwards;
+  }
+}
+
+@keyframes hero-flicker {
+  0% { opacity: 0; }
+  12% { opacity: .9; }
+  20% { opacity: .08; }
+  31% { opacity: 1; }
+  41% { opacity: .3; }
+  52% { opacity: 1; }
+  100% { opacity: 1; }
+}
+@keyframes hero-dark {
+  0% { opacity: 1; }
+  12% { opacity: .2; }
+  20% { opacity: .92; }
+  31% { opacity: 0; }
+  41% { opacity: .55; }
+  52% { opacity: 0; }
+  100% { opacity: 0; }
+}
+@keyframes hero-rise { from { translate: 0 112%; } }
+@keyframes hero-figure {
+  from { translate: 0 6%; opacity: 0; filter: blur(12px) brightness(.3); }
+  55% { opacity: 1; }
+}
+@keyframes hero-up { from { opacity: 0; translate: 0 .7em; } }
+@keyframes hero-word { from { opacity: 0; transform: translateY(.32em); filter: blur(6px); } }
+@keyframes hero-band { from { clip-path: inset(-60% 100% -60% -10vw); translate: -4vw 0; } to { clip-path: inset(-60% -10vw -60% -10vw); translate: 0 0; } }
+
+/* reduced motion: the stage is simply lit, the copy simply there (01-hero.js leaves --p and --mx at 0) */
 @media (prefers-reduced-motion: reduce) {
-  #hero .hero__stage { min-height: 0; }
-  #hero .hero__grid { height: auto; min-height: 92svh; }
-  #hero .hero__hint { display: none; }
-  #hero .hero__hint i { animation: none; }
-  html.js #hero .hero__chip:not(.is-show) { opacity: 1; transform: none; }
-  html.js #hero .hero__glow,
-  html.js #hero .hero__house { display: none; }
-}
-@media (prefers-reduced-motion: reduce) and (max-width: 759.98px) {
-  #hero .hero__grid { min-height: 0; }
+  #hero { --p: 0; --mx: 0; --my: 0; }
 }
 /* ==========================================================================
    Room 2: Four Rooms, One Voice. Scoped under #rooms.
@@ -1311,6 +1407,44 @@ html.js #teaching .cls-board.is-in.done .cls-board__img img {
 #temple .tmp-quote figcaption { margin-top: 1.4rem; }
 #temple .tmp-quote cite { font-style: normal; color: var(--linen); font-weight: 500; }
 
+/* ---------- The session: an arch photo beside the testimonial, then a strip of photos ---------- */
+
+#temple .tmp-session {
+  display: grid;
+  grid-template-columns: minmax(0, 22rem) minmax(0, 1fr);
+  gap: clamp(2rem, 6vw, 6rem);
+  align-items: center;
+  margin-top: clamp(3.5rem, 7vw, 6rem);
+}
+#temple .tmp-photo { margin: 0; min-width: 0; }
+#temple .tmp-photo__arch {
+  box-shadow: 0 40px 80px -40px rgba(2, 6, 11, .9);
+}
+/* the photo is graded warm; a whisper of navy at its foot seats it in the room */
+#temple .tmp-photo__arch::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(180deg, transparent 68%, rgba(14, 36, 59, .45) 100%);
+  pointer-events: none;
+}
+#temple .tmp-session .tmp-quote { margin: 0; }
+
+#temple .tmp-strip {
+  position: relative;
+  z-index: 1;
+  margin: clamp(3.5rem, 7vw, 6rem) 0 0;
+}
+#temple .tmp-strip .marquee--photos { --strip-h: clamp(220px, 24vw, 340px); }
+#temple .tmp-strip img { border-radius: 2px; }
+#temple .tmp-strip__cap {
+  width: 100%;
+  max-width: calc(72rem + var(--gutter-l) + var(--gutter-r));
+  margin: 1.1rem auto 0;
+  padding-inline: var(--gutter-l) var(--gutter-r);
+}
+
 /* ---------- Tablet and phone ---------- */
 
 @media (max-width: 959.98px) {
@@ -1318,6 +1452,11 @@ html.js #teaching .cls-board.is-in.done .cls-board__img img {
   #temple .tmp-grid { grid-template-columns: minmax(0, 1fr); }
   #temple .tmp-copy .display { max-width: 14ch; }
   #temple .tmp-door { width: min(100%, 22rem); }
+}
+
+@media (max-width: 759.98px) {
+  #temple .tmp-session { grid-template-columns: minmax(0, 1fr); }
+  #temple .tmp-photo { width: min(78%, 20rem); }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -2356,4 +2495,24 @@ html.js #signoff .so-ring-box:not([data-draw]).done .so-ring__arc {
 @media (prefers-reduced-motion: reduce) {
   html.js #signoff .so-ring-box:not([data-draw]) .so-ring__arc { stroke-dashoffset: 0; animation: none; }
   html.js #signoff .arch[data-reveal="unmask"] img { clip-path: none; transform: none; transition: none; }
+}
+
+/* ---------- the rolling sign-off ----------
+   His own words, so Fraunces italic (the one banner on the site set in italic). Ink on Linen, every other phrase
+   outlined in Deep Brass. */
+#signoff .so-banner {
+  margin: clamp(-56px, -3.5vw, -20px) 0 clamp(3rem, 6vw, 5.5rem);
+  font-style: italic;
+  font-weight: 330;
+  font-variation-settings: "opsz" 144;
+  font-size: clamp(3rem, 9vw, 9.5rem);
+  letter-spacing: -.025em;
+  color: var(--ink);
+}
+#signoff .so-banner .marquee__item:nth-child(4n+3) {
+  color: transparent;
+  -webkit-text-stroke: 1.2px var(--deep-brass);
+}
+#signoff .so-banner .marquee__sep {
+  background: radial-gradient(closest-side, var(--stage-gold), var(--deep-brass) 70%, rgba(125, 106, 69, 0) 100%);
 }

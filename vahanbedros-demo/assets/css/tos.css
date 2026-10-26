@@ -1,74 +1,294 @@
-/* Temple of Speak, room 1: House Lights (the film hero).
-   A tall .scene holds one sticky stage; scroll progress (--p, set by core.js) scrubs a canvas film
-   (01-hero.js) from a dusk room with one warm spot on Vahan to the untouched real photo.
-   Desktop: copy bottom-left, never wider than 45% of the screen so it stays clear of him.
-   Phones and tablets (under 900px): the film takes the top 54% of the screen, copy sits below on solid navy.
-   Nothing here hides anything unless html.js is set (the shared system owns that). */
+/* Temple of Speak, room 1: The projector comes on.
+   One screen tall, nothing pinned. Three photos of the same room, each taken under the projected
+   logo in a different colour, crossfade slowly (01-hero.js drives the cycle) like the logo changing
+   colour in the room. On load the room is dark, the projector screen lights first, then the room
+   comes up; the copy is delivered over the same 1.2 seconds.
+   Desktop: copy on Temple Navy at the left, the photos in a full-height panel that bleeds off the right edge.
+   Phones and tablets held upright: the photo on top, the copy below.
+   Robustness: everything is visible by default. The dark veil and the hidden starting states exist only
+   under html.js, every intro animation ends visible, and 01-hero.js adds .done ~2 s in, which snaps the
+   finished state with no animation (a stalled animation clock can not strand anything). */
+
+/* the projector screen is a soft-edged window in the dark: --hk (0 shut, 1 the screen, 4+ the whole room) opens it */
+@property --hk {
+  syntax: "<number>";
+  inherits: false;
+  initial-value: 1;
+}
+
+body[data-page="tos"] {
+  --pb-fs: clamp(2.1rem, 1rem + 3.6vw, 4.4rem);
+  --pb-h: calc(var(--pb-fs) * 1.3);
+}
 
 #hero {
   /* left edge of the copy: the same line the header content sits on */
   --hero-left: max(var(--gutter-l), calc((100% - 72rem) / 2));
   --hero-right: max(var(--gutter-r), calc((100% - 72rem) / 2));
-  --hero-bottom: calc(clamp(28px, 6vh, 64px) + env(safe-area-inset-bottom, 0px));
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  /* one screen with the pillars banner (01b) under it, so the banner rolls on the first screen too */
+  height: calc(100vh - var(--pb-h));
+  height: calc(100svh - var(--pb-h));
+  min-height: 34rem;
+  max-height: 60rem;
+  background: var(--temple-navy);
+  color: var(--linen);
 }
 
-/* ---------- the film ---------- */
-
-/* container-type lets the poster use the same cover-fit maths as the canvas (cqw/cqh), so the
-   first painted film frame lands exactly on the poster: no jump. */
-#hero .scene__media {
-  container-type: size;
-  /* fallback poster for browsers without container query units */
-  background: var(--night) url("../frames/tos-hero/f-000.webp") 47% 53% / cover no-repeat;
-}
-#hero .poster {
-  --W: max(100cqw, calc(100cqh * 16 / 9));
-  --H: calc(var(--W) * 9 / 16);
-  position: absolute;
-  width: var(--W);
-  height: var(--H);
-  left: clamp(calc(100cqw - var(--W)), calc(50cqw - var(--W) * .47), 0px);
-  top: clamp(calc(100cqh - var(--H)), calc(50cqh - var(--H) * .53), 0px);
-  background: var(--night) url("../frames/tos-hero/f-000.webp") center / 100% 100% no-repeat;
-}
-#hero .film {
+/* the room around the panel: a warm spill where the photo meets the navy, a deep pool low at the left */
+#hero .hero__bg {
   position: absolute;
   inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(34% 70% at 28% 44%, rgba(212, 168, 75, .1), rgba(212, 168, 75, 0) 70%),
+    radial-gradient(70% 60% at 0% 110%, rgba(8, 22, 36, .85), rgba(8, 22, 36, 0) 70%);
+}
+#hero > .grain { opacity: .05; }
+
+/* ---------- the photo panel ---------- */
+
+#hero .hero__panel {
+  position: absolute;
+  z-index: 1;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 50%;
+}
+/* scroll parallax (01-hero.js sets --py): the photos trail the page a little. Transform only. */
+#hero .hero__shift {
+  position: absolute;
+  inset: 0;
+  transform: translate3d(0, var(--py, 0px), 0);
+}
+
+#hero .slide {
+  position: absolute;
+  inset: 0;
+  container-type: size;
+  opacity: 0;
+}
+/* before the script runs (or without it) the first photo simply stands there */
+#hero .slide:first-child { opacity: 1; }
+/* once live, the incoming photo fades in over the outgoing one, which stays solid underneath
+   until the fade is done (so the room never dips dark between two photos) */
+#hero.is-live .slide { opacity: 0; transition: none; }
+#hero.is-live .slide.is-prev { opacity: 1; z-index: 1; }
+#hero.is-live .slide.is-on {
+  opacity: 1;
+  z-index: 2;
+  transition: opacity calc(1.7s * var(--slow)) cubic-bezier(.45, 0, .25, 1);
+}
+
+#hero .slide__clip { position: absolute; inset: 0; overflow: hidden; }
+
+/* The frame has the photo's own proportions and covers the panel like object-fit: cover, anchored at
+   (--fx, --fy), so the screen, the bloom and the veil (all in % of the photo) stay on the projector screen
+   whatever the panel's shape. */
+#hero .slide__frame {
+  position: absolute;
+  left: var(--fx, 50%);
+  top: var(--fy, 0%);
+  width: 100%;
+  height: 100%;
+  translate: calc(var(--fx, 50%) * -1) calc(var(--fy, 0%) * -1);
+  transform-origin: var(--ox, 50%) var(--oy, 40%);
+  will-change: transform;
+}
+@supports (width: 1cqw) {
+  #hero .slide__frame {
+    width: max(100cqw, calc(100cqh * 1066 / 1600));
+    height: auto;
+    aspect-ratio: 1066 / 1600;
+  }
+}
+#hero .slide__frame picture,
+#hero .slide__frame img {
+  position: absolute;
+  inset: 0;
+  display: block;
   width: 100%;
   height: 100%;
 }
-#hero .grain { opacity: .07; }
-/* a darker pool behind the copy, so it reads over the bright last frame too */
-#hero .scrim {
-  background:
-    radial-gradient(ellipse 52% 58% at 24% 86%, rgba(8, 22, 36, .74) 0%, rgba(8, 22, 36, .4) 55%, rgba(8, 22, 36, 0) 100%),
-    linear-gradient(180deg, rgba(8, 22, 36, .55) 0%, rgba(8, 22, 36, 0) 22%, rgba(8, 22, 36, 0) 42%, rgba(8, 22, 36, .72) 74%, rgba(8, 22, 36, .94) 100%),
-    linear-gradient(90deg, rgba(8, 22, 36, .55) 0%, rgba(8, 22, 36, 0) 55%);
+#hero .slide__frame img {
+  max-width: none;
+  object-fit: cover;
+  filter: contrast(1.03) saturate(1.04);
 }
+
+/* the slow zoom (about 7 % over the time the photo is on show), around his face */
+@keyframes hero-kb {
+  from { transform: scale(1) translate3d(0, 0, 0); }
+  to { transform: scale(1.075) translate3d(-.5%, -.9%, 0); }
+}
+#hero.is-live :is(.slide.is-on, .slide.is-prev) .slide__frame {
+  animation: hero-kb calc(10s * var(--slow)) cubic-bezier(.3, .1, .3, 1) both;
+}
+
+/* bloom: the screen's light spilling past its own frame, screen-blended on the photo */
+#hero .slide__bloom {
+  position: absolute;
+  left: calc(var(--sx) - var(--sw) * 1.15);
+  top: calc(var(--sy) - var(--sh) * 1.3);
+  width: calc(var(--sw) * 2.3);
+  height: calc(var(--sh) * 2.6);
+  pointer-events: none;
+  mix-blend-mode: screen;
+  background: radial-gradient(closest-side, rgba(255, 246, 228, .5) 0%, rgba(246, 217, 166, .2) 48%, rgba(246, 217, 166, 0) 100%);
+  opacity: 0;
+}
+/* when a photo takes over the logo changes colour: the screen flares as it fades in */
+@keyframes hero-bloom {
+  0%, 30% { opacity: 0; }
+  52% { opacity: .9; }
+  100% { opacity: 0; }
+}
+#hero .slide.is-pulse .slide__bloom { animation: hero-bloom calc(2s * var(--slow)) ease-out both; }
+
+/* the colour the logo throws into the room, on the navy beside the panel */
+#hero .slide__spill {
+  position: absolute;
+  top: 6%;
+  bottom: 2%;
+  right: 100%;
+  width: 70%;
+  pointer-events: none;
+  /* centred inside the navy and gone by the photo's edge, so the two never meet on a seam */
+  background: radial-gradient(closest-side at 64% 40%, rgba(var(--glow), .2), rgba(var(--glow), .07) 55%, rgba(var(--glow), 0) 100%);
+}
+
+/* the veil: the room, dark. Only the projector screen is a window in it, then the window opens
+   until the whole room is lit. It exists only with scripts on, and ends transparent. */
+html.js #hero .slide__veil {
+  /* --hf: the feather; it widens as the window opens, so the light spreads out from the screen softly
+     instead of as a growing box */
+  --hf: calc(3% + 9% * var(--hk));
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: var(--night);
+  -webkit-mask-image:
+    linear-gradient(90deg,
+      #000 calc(var(--sx) - var(--sw) * var(--hk) - var(--hf)), transparent calc(var(--sx) - var(--sw) * var(--hk) + 3%),
+      transparent calc(var(--sx) + var(--sw) * var(--hk) - 3%), #000 calc(var(--sx) + var(--sw) * var(--hk) + var(--hf))),
+    linear-gradient(180deg,
+      #000 calc(var(--sy) - var(--sh) * var(--hk) - var(--hf)), transparent calc(var(--sy) - var(--sh) * var(--hk) + 3%),
+      transparent calc(var(--sy) + var(--sh) * var(--hk) - 3%), #000 calc(var(--sy) + var(--sh) * var(--hk) + var(--hf)));
+  mask-image:
+    linear-gradient(90deg,
+      #000 calc(var(--sx) - var(--sw) * var(--hk) - var(--hf)), transparent calc(var(--sx) - var(--sw) * var(--hk) + 3%),
+      transparent calc(var(--sx) + var(--sw) * var(--hk) - 3%), #000 calc(var(--sx) + var(--sw) * var(--hk) + var(--hf))),
+    linear-gradient(180deg,
+      #000 calc(var(--sy) - var(--sh) * var(--hk) - var(--hf)), transparent calc(var(--sy) - var(--sh) * var(--hk) + 3%),
+      transparent calc(var(--sy) + var(--sh) * var(--hk) - 3%), #000 calc(var(--sy) + var(--sh) * var(--hk) + var(--hf)));
+  animation: hero-veil calc(1.15s * var(--slow)) linear both;
+}
+@keyframes hero-veil {
+  0% { --hk: 0; opacity: 1; animation-timing-function: linear; }
+  6% { --hk: .94; opacity: 1; animation-timing-function: linear; }   /* the screen snaps on */
+  11% { --hk: .5; opacity: 1; animation-timing-function: linear; }   /* flickers down */
+  16% { --hk: 1; opacity: 1; animation-timing-function: linear; }
+  21% { --hk: .78; opacity: 1; animation-timing-function: linear; }
+  27% { --hk: 1.02; opacity: 1; animation-timing-function: cubic-bezier(.5, 0, .2, 1); }
+  100% { --hk: 4.8; opacity: 0; }                                     /* and the room comes up */
+}
+/* the screen's own flash: the same flicker, a little brighter than the photo */
+@keyframes hero-flash {
+  0% { opacity: 0; }
+  6% { opacity: .95; }
+  11% { opacity: .35; }
+  16% { opacity: 1; }
+  21% { opacity: .6; }
+  30% { opacity: .85; }
+  100% { opacity: 0; }
+}
+html.js #hero:not(.done) .slide:first-child .slide__bloom { animation: hero-flash calc(1.3s * var(--slow)) linear both; }
+html.js #hero.done .slide__veil { display: none; }
+
+/* a soft edge: the photo dissolves into the navy at the left; the header and the bottom get a quiet shade */
+#hero .hero__edge {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, var(--temple-navy) 0%, rgba(14, 36, 59, .78) 7%, rgba(14, 36, 59, .22) 20%, rgba(14, 36, 59, 0) 32%),
+    linear-gradient(180deg, rgba(8, 22, 36, .78) 0%, rgba(8, 22, 36, 0) 22%),
+    linear-gradient(0deg, rgba(14, 36, 59, .78) 0%, rgba(14, 36, 59, 0) 20%);
+}
+
+/* ---------- caption and cycle ticks ---------- */
+
+#hero .hero__meta {
+  position: absolute;
+  z-index: 4;
+  left: clamp(20px, 3vw, 44px);
+  bottom: clamp(22px, 4.2vh, 44px);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+html.js #hero:not(.done) .hero__meta { animation: hero-rise calc(.5s * var(--slow)) var(--ease) calc(.82s * var(--slow)) both; }
+@keyframes hero-rise {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+#hero .hero__chip { margin: 0; background: rgba(8, 22, 36, .72); }
+
+#hero .hero__ticks { display: flex; gap: 6px; }
+#hero .tick {
+  position: relative;
+  display: block;
+  width: 30px;
+  height: 3px;
+  overflow: hidden;
+  border-radius: 2px;
+  background: rgba(246, 217, 166, .28);
+}
+#hero .tick b {
+  position: absolute;
+  inset: 0;
+  background: var(--tungsten);
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+}
+#hero:not(.is-live) .tick.is-on b { transform: scaleX(1); }
+/* the tick is also the clock: when it fills, the next photo takes over (01-hero.js listens for animationend) */
+@keyframes hero-tick { to { transform: scaleX(1); } }
+#hero.is-live .tick.is-on b { animation: hero-tick calc(5.4s * var(--slow)) linear forwards; }
+/* off screen or in a hidden tab: everything holds still, the clock included */
+#hero.is-paused :is(.slide__frame, .slide__bloom, .tick b) { animation-play-state: paused; }
 
 /* ---------- copy ---------- */
 
 #hero .hero__copy {
-  position: absolute;
+  position: relative;
   z-index: 3;
-  left: var(--hero-left);
-  bottom: var(--hero-bottom);
-  width: min(40rem, calc(45% - var(--hero-left)));
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: min(calc(50% - 16px), calc(var(--hero-left) + 38rem));
+  height: 100%;
+  padding: calc(var(--header-h) + env(safe-area-inset-top, 0px) + clamp(8px, 2vh, 28px)) 0 clamp(32px, 6vh, 72px) var(--hero-left);
 }
-#hero .eyebrow { max-width: none; margin-bottom: 14px; }
+#hero .eyebrow { max-width: none; margin-bottom: clamp(12px, 2vh, 18px); }
 #hero .nb { white-space: nowrap; }
-#hero h1.quote {
-  margin: 0 0 clamp(14px, 2vh, 22px);
-  font-size: clamp(2.1rem, 3.4vw, 3.9rem);
+#hero .hero__line {
+  margin: 0 0 clamp(14px, 2.4vh, 24px);
+  font-size: clamp(2.2rem, .8rem + 3.2vw, 4.7rem);
   line-height: 1.05;
   color: var(--linen);
 }
 #hero .hero__sub {
   max-width: 44ch;
-  margin: 0 0 clamp(16px, 2.6vh, 26px);
-  font-size: clamp(.96rem, .9rem + .2vw, 1.08rem);
+  margin: 0 0 clamp(18px, 3vh, 30px);
+  font-size: clamp(.96rem, .9rem + .2vw, 1.1rem);
   line-height: 1.55;
-  color: rgba(245, 233, 200, .86);
+  color: rgba(245, 233, 200, .88);
 }
 #hero .hero__ctas {
   display: flex;
@@ -78,64 +298,40 @@
 }
 #hero .link-arrow { font-size: .95rem; }
 
-/* ---------- caption, hint, meter ---------- */
-
-/* The caption belongs to the untouched real photo: core.js never shows it before the last frame is
-   on the canvas (01-hero.js decides), so it stays visibility:hidden (and out of the accessibility tree) until then. */
-#hero .hero__caption {
-  position: absolute;
-  z-index: 3;
-  right: var(--hero-right);
-  /* sits above the fixed "Open questions" pill (bottom right) */
-  bottom: calc(76px + env(safe-area-inset-bottom, 0px));
-  max-width: min(26rem, calc(100% - var(--hero-left) - var(--hero-right)));
-  border-radius: 18px;
-  background: rgba(8, 22, 36, .72);
-  visibility: hidden;
-  opacity: 0;
-  transform: translateY(6px);
-  transition: opacity calc(.7s * var(--slow)) var(--ease), transform calc(.7s * var(--slow)) var(--ease), visibility 0s linear calc(.7s * var(--slow));
+/* Delivered Type, hurried: the shared choreography takes 3 seconds, this room has 1.2. The words land in half the
+   time and "shaking" / "taller" do their thing as they arrive. The finished states are mirrored here because the
+   shared ones are less specific than these overrides. */
+html.js #hero [data-deliver].on .w { animation-duration: calc(.5s * var(--slow)); }
+html.js #hero [data-deliver].on .w[data-fx="tremble"] {
+  animation:
+    vb-word-in calc(.5s * var(--slow)) var(--ease) calc(var(--d, 0s) * var(--slow)) forwards,
+    vb-tremble calc(.7s * var(--slow)) linear calc((var(--d, 0s) + .04s) * var(--slow)) both;
 }
-#hero .hero__caption.show {
-  visibility: visible;
+html.js #hero [data-deliver].on .w[data-fx="rise"] {
+  animation:
+    vb-word-in calc(.5s * var(--slow)) var(--ease) calc(var(--d, 0s) * var(--slow)) forwards,
+    vb-rise calc(.6s * var(--slow)) var(--ease) calc((var(--d, 0s) + .05s) * var(--slow)) both;
+}
+html.js #hero [data-spot].on [data-after] { animation-duration: calc(.5s * var(--slow)); }
+html.js #hero [data-deliver].done .w {
   opacity: 1;
   transform: none;
-  transition-delay: 0s;
+  filter: none;
+  animation: none;
 }
-
-#hero .hero__hint {
-  position: absolute;
-  z-index: 3;
-  right: var(--hero-right);
-  top: 50%;
-  writing-mode: vertical-rl;
-  font-size: .7rem;
-  letter-spacing: .24em;
-  text-transform: uppercase;
-  color: rgba(245, 233, 200, .9);
-  /* it sits over the bright window in the first frame: a soft navy halo keeps it readable */
-  text-shadow: 0 0 6px rgba(8, 22, 36, .85), 0 0 14px rgba(8, 22, 36, .6);
-  pointer-events: none;
-  opacity: clamp(0, calc(1 - var(--p, 0) * 28), 1);
+html.js #hero [data-deliver].done .w[data-fx="tremble"] { translate: none; rotate: none; scale: none; }
+html.js #hero [data-deliver].done .w[data-fx="rise"] {
+  font-variation-settings: "wght" 640, "opsz" 144;
+  translate: 0 -.05em;
+  scale: 1 1.07;
 }
-
-#hero .hero__meter {
-  position: absolute;
-  z-index: 3;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 2px;
-  background: rgba(183, 161, 122, .18);
-  pointer-events: none;
+html.js #hero [data-spot].done [data-after] {
+  opacity: 1;
+  transform: none;
+  animation: none;
 }
-#hero .hero__meter i {
-  display: block;
-  height: 100%;
-  width: calc(var(--p, 0) * 100%);
-  background: var(--stage-gold);
-}
-#hero .hero__meter { opacity: clamp(0, calc((1 - var(--p, 0)) * 14), 1); }
+html.js #hero.done .hero__meta,
+html.js #hero.done .slide__bloom { animation: none; }
 
 /* Open-questions layer: Delivered Type words are inline-block, so a dashed underline would not draw. Outline the line instead. */
 html.notes-on #hero :is(h1, .hero__sub)[data-tbc] {
@@ -144,156 +340,121 @@ html.notes-on #hero :is(h1, .hero__sub)[data-tbc] {
   outline-offset: 8px;
 }
 
-/* ---------- phones and tablets: film on top, copy below on solid Temple Navy ---------- */
+/* ---------- the pillars, rolling, directly under the hero ---------- */
 
-@media (max-width: 899.98px) {
-  #hero .scene__stage { background: var(--temple-navy); }
-  #hero .scene__media {
-    inset: 0 0 auto 0;
-    height: 54%;
-  }
-  #hero .scrim {
-    background: linear-gradient(180deg,
-      rgba(8, 22, 36, .62) 0%, rgba(8, 22, 36, 0) 20%, rgba(8, 22, 36, 0) 38%,
-      rgba(14, 36, 59, .9) 51%, var(--temple-navy) 54%, var(--temple-navy) 100%);
-  }
-  /* the copy fills the area under the film and sits in the middle of it (auto margins: if it is ever
-     taller than the area it simply starts at the top instead of being cut off) */
-  #hero .hero__copy {
-    left: var(--gutter-l);
-    right: var(--gutter-r);
-    width: auto;
-    top: 54%;
-    bottom: 0;
+.pillars-banner {
+  background: var(--house-dark);
+  border-block: 1px solid var(--rule);
+  font-size: var(--pb-fs);
+  line-height: 1.1;
+  padding-block: .06em .14em;
+  box-sizing: border-box;
+  height: var(--pb-h);
+}
+
+/* ---------- phones and tablets held upright: photo on top, copy below on solid Temple Navy ---------- */
+
+@media (max-width: 899.98px) and (min-height: 561px) {
+  #hero {
     display: flex;
     flex-direction: column;
-    padding-bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+    height: auto;
+    min-height: 100vh;
+    min-height: 100svh;
+    max-height: none;
   }
-  #hero .hero__copy > :first-child { margin-top: auto; }
-  #hero .hero__copy > :last-child { margin-bottom: auto; }
+  #hero .hero__panel {
+    position: relative;
+    inset: auto;
+    flex: none;
+    width: 100%;
+    height: clamp(15rem, 54svh, 38rem);
+  }
+  #hero .hero__edge {
+    background:
+      linear-gradient(180deg, rgba(8, 22, 36, .78) 0%, rgba(8, 22, 36, 0) 26%),
+      linear-gradient(0deg, var(--temple-navy) 0%, rgba(14, 36, 59, .7) 12%, rgba(14, 36, 59, 0) 38%);
+  }
+  /* the colour of the logo pools under the photo instead of beside it */
+  #hero .slide__spill {
+    top: 72%;
+    bottom: auto;
+    left: 0;
+    right: 0;
+    width: auto;
+    height: 52%;
+    margin: 0;
+    background: radial-gradient(ellipse 62% 100% at 50% 0%, rgba(var(--glow), .24), rgba(var(--glow), 0) 100%);
+  }
+  #hero .hero__meta { left: var(--gutter-l); right: var(--gutter-r); bottom: 14px; justify-content: space-between; }
+  #hero .hero__copy {
+    flex: 1 1 auto;
+    width: auto;
+    height: auto;
+    padding: 16px var(--gutter-r) calc(18px + env(safe-area-inset-bottom, 0px)) var(--gutter-l);
+  }
   #hero .eyebrow { font-size: .64rem; margin-bottom: 10px; }
-  #hero h1.quote {
-    font-size: clamp(1.72rem, 8.8vw, 3.4rem);
-    margin-bottom: 14px;
-  }
-  #hero .hero__sub {
-    max-width: 52ch;
-    font-size: .9rem;
-    margin-bottom: 14px;
-  }
-  #hero .hero__caption {
-    right: auto;
-    left: var(--gutter-l);
-    bottom: calc(46% + 14px);
-    max-width: calc(100% - var(--gutter-l) - var(--gutter-r));
-  }
-  #hero .hero__hint { display: none; }
+  #hero .hero__line { font-size: clamp(1.7rem, 8.4vw, 3.3rem); margin-bottom: 12px; }
+  #hero .hero__sub { max-width: 52ch; font-size: .9rem; line-height: 1.5; margin-bottom: 14px; }
 }
-/* tablets held upright: a little more room for the type */
-@media (min-width: 600px) and (max-width: 899.98px) {
+/* tablets held upright: more photo, more air */
+@media (min-width: 600px) and (max-width: 899.98px) and (min-height: 561px) {
+  #hero .hero__panel { height: clamp(24rem, 58svh, 46rem); }
+  /* a wide panel shows only about half of the upright photo: frame the logo's title and his face
+     (both near the middle of all three photos) instead of the top of the screen */
+  #hero .slide__frame { top: 26%; translate: calc(var(--fx, 50%) * -1) -26%; }
+  #hero .hero__edge {
+    background:
+      linear-gradient(180deg, rgba(8, 22, 36, .78) 0%, rgba(8, 22, 36, 0) 22%),
+      linear-gradient(0deg, var(--temple-navy) 0%, rgba(14, 36, 59, .6) 8%, rgba(14, 36, 59, 0) 22%);
+  }
   #hero .eyebrow { font-size: .72rem; }
-  #hero .hero__sub { font-size: 1.02rem; max-width: 50ch; }
+  #hero .hero__line { font-size: clamp(2.5rem, 6.2vw, 3.6rem); margin-bottom: 16px; }
+  #hero .hero__sub { font-size: 1.04rem; max-width: 50ch; margin-bottom: 18px; }
 }
 /* keep the first button clear of the compact "?" notes badge that floats bottom right on phones */
 @media (max-width: 599.98px) {
-  #hero .hero__ctas { padding-right: 48px; }
+  /* "Vocal Alchemy" rolls past in the banner right under the hero; on phones the eyebrow keeps to two lines */
+  #hero .hero__va { display: none; }
+  #hero .hero__ctas { padding-right: 48px; gap: 10px 20px; }
   #hero .hero__ctas .btn { padding-inline: 1.1rem; font-size: .92rem; }
 }
 @media (max-width: 380px) {
   #hero .hero__ctas .btn { padding-inline: 1rem; font-size: .88rem; }
 }
-
-/* the tablet range gets the phone layout and the phone scene length */
-@media (min-width: 760px) and (max-width: 899.98px) and (prefers-reduced-motion: no-preference) {
-  #hero.scene { height: 200vh; }
-}
-
-/* very small or short phones: tighten so nothing is clipped */
-@media (max-width: 899.98px) and (max-height: 760px) {
+/* short, narrow phones: tighten so nothing is clipped */
+@media (max-width: 899.98px) and (min-height: 561px) and (max-height: 780px) {
+  #hero .hero__panel { height: clamp(14rem, 51svh, 36rem); }
   #hero .hero__sub { font-size: .86rem; line-height: 1.45; margin-bottom: 12px; }
   #hero .eyebrow { margin-bottom: 8px; }
-  #hero h1.quote { margin-bottom: 10px; }
+  #hero .hero__line { margin-bottom: 10px; }
 }
 
-/* ---------- no JS: a plain, readable first screen ---------- */
-html:not(.js) #hero.scene { height: auto; }
-html:not(.js) #hero .scene__stage { position: relative; height: 100vh; height: 100svh; min-height: 34rem; }
-/* the scroll hint and the progress meter belong to the scrubbed film: with scripts off they would only mislead */
-html:not(.js) #hero .hero__hint,
-html:not(.js) #hero .hero__meter { display: none; }
+/* ---------- short screens (landscape phones, squat windows): the desktop split, tightened ---------- */
 
-/* ---------- short screens (landscape phones, squat windows): nothing pinned, film beside the copy ----------
-   The pinned stage is exactly one screen tall, so under about 560px of height the copy outgrew it and the
-   two buttons were clipped away. Here the stage is an ordinary block that grows with its copy: copy on the
-   left on solid Temple Navy, the film in a panel on the right, and (with scripts) 120px of extra scroll so
-   the lights still come up. core.js sets --p from the stage's own height, so the film still scrubs. */
-@media (max-height: 560px) and (prefers-reduced-motion: no-preference) {
-  #hero.scene { height: auto; }
-  #hero .scene__stage,
-  html:not(.js) #hero .scene__stage {
-    position: relative;
-    height: auto;
-    min-height: 100vh;
-    min-height: 100dvh;
-    background: var(--temple-navy);
-  }
-  html.js #hero .scene__stage {
-    min-height: calc(100vh + 120px);
-    min-height: calc(100dvh + 120px);
-  }
-  #hero .scene__media,
-  #hero .scrim { inset: 0 0 0 54%; height: auto; }
-  /* feathers the film panel into the navy beside it, and darkens the top edge under the header */
-  #hero .scrim {
-    background:
-      linear-gradient(90deg, var(--temple-navy) 0%, rgba(14, 36, 59, 0) 26%),
-      linear-gradient(180deg, rgba(8, 22, 36, .6) 0%, rgba(8, 22, 36, 0) 26%);
-  }
-  #hero .hero__copy {
-    position: relative;
-    inset: auto;
-    display: block;
-    width: 54%;
-    padding: calc(var(--header-h) + 12px) 16px 28px var(--hero-left);
-  }
+@media (max-height: 560px) {
+  #hero { height: auto; min-height: 100vh; min-height: 100svh; max-height: none; }
+  #hero .hero__copy { height: auto; min-height: 100vh; min-height: 100svh; padding-bottom: 28px; }
+  #hero .hero__panel { width: 46%; }
+  #hero .hero__copy { width: min(calc(54% - 8px), calc(var(--hero-left) + 38rem)); }
   #hero .eyebrow { font-size: .6rem; letter-spacing: .12em; margin-bottom: 8px; }
-  #hero h1.quote { font-size: clamp(1.4rem, 3.1vw, 2.3rem); margin-bottom: 10px; }
+  #hero .hero__line { font-size: clamp(1.4rem, 3.1vw, 2.3rem); margin-bottom: 10px; }
   #hero .hero__sub { max-width: 48ch; font-size: .82rem; line-height: 1.45; margin-bottom: 12px; }
   #hero .hero__ctas { gap: 8px 18px; padding-right: 0; }
   #hero .hero__ctas .btn { min-height: 44px; padding-inline: 1.1rem; font-size: .9rem; }
   #hero .link-arrow { font-size: .88rem; }
-  #hero .hero__caption {
-    left: auto;
-    right: var(--hero-right);
-    bottom: calc(76px + env(safe-area-inset-bottom, 0px));
-    max-width: calc(46% - var(--hero-right) - 8px);
-  }
-  #hero .hero__hint,
-  #hero .hero__meter { display: none; }
+  #hero .hero__meta { bottom: 14px; }
 }
 
-/* ---------- reduced motion: no tall scene, the film shows its last frame (the untouched photo) ---------- */
+/* ---------- reduced motion: the first photo, still, everything visible at once ---------- */
 @media (prefers-reduced-motion: reduce) {
-  /* the last frame is the real photo. 01-hero.js points these at frame N-1 when the frame count changes;
-     this literal is only the no-JS fallback (update it together with data-frame-count) */
-  #hero .poster,
-  #hero .scene__media { background-image: url("../frames/tos-hero/f-046.webp"); }
-  #hero .hero__hint, #hero .hero__meter { display: none; }
-}
-@media (prefers-reduced-motion: reduce) and (max-width: 899.98px) {
-  #hero .scene__stage { display: flex; flex-direction: column; min-height: 0; }
-  #hero .scene__media { position: relative; inset: auto; flex: none; height: 54svh; min-height: 17rem; }
-  #hero .scrim {
-    bottom: auto;
-    height: 54svh;
-    min-height: 17rem;
-    background: linear-gradient(180deg, rgba(8, 22, 36, .66) 0%, rgba(8, 22, 36, 0) 26%);
-  }
-  #hero .hero__copy { position: relative; display: block; left: auto; right: auto; top: auto; bottom: auto; padding: 22px var(--gutter-r) 36px var(--gutter-l); }
-  #hero .hero__copy > :first-child, #hero .hero__copy > :last-child { margin-block: 0; }
-  #hero .eyebrow { margin-bottom: 10px; }
-  #hero .hero__ctas { margin-bottom: 0; }
-  #hero .hero__caption { position: absolute; bottom: auto; top: calc(54svh - 3.4rem); }
+  #hero .slide__veil,
+  #hero .slide__bloom,
+  #hero .hero__ticks { display: none !important; }
+  #hero .hero__meta,
+  #hero .hero__shift { animation: none !important; transform: none !important; }
+  #hero .slide__frame { animation: none !important; }
+  #hero .slide { transition: none !important; }
 }
 /* Temple of Speak, room 2: Not performance.
    Three of Vahan's own lines on Temple Navy, set large and left to breathe. Each is delivered when it
@@ -400,6 +561,30 @@ html.notes-on #not-performance [data-deliver][data-tbc] {
   #not-performance .said::before { left: -20%; width: 140%; }
   #not-performance .np__q--lead { font-size: clamp(2.05rem, 9.2vw, 3.3rem); }
   #not-performance .np__q { font-size: clamp(1.6rem, 7vw, 2.4rem); }
+}
+/* v4: the session strip. A slow photo banner of Vahan mid-session, set on the same navy as the rooms
+   either side so it reads as part of the page, not an insert. The banner itself (drift, copies, pause on
+   hover, reduced motion) is the shared .marquee component. */
+
+#session {
+  position: relative;
+  background: var(--temple-navy);
+  color: var(--linen);
+  --bg: var(--temple-navy);
+  --fg: var(--linen);
+  --rule: rgba(183, 161, 122, .26);
+  padding-block: clamp(8px, 2vw, 24px) clamp(56px, 7vw, 104px);
+}
+#session .session-strip__band { --strip-h: clamp(250px, 26vw, 380px); }
+#session .marquee--photos img {
+  border-radius: 2px;
+  filter: saturate(.94);
+}
+#session .session-strip__cap { margin-top: clamp(14px, 1.8vw, 22px); }
+#session .chip { margin: 0; }
+
+@media (max-width: 599.98px) {
+  #session .session-strip__band { --strip-h: 270px; }
 }
 /* Temple of Speak, room 3: Three pillars.
    The logo disc sits on the left with its light burst on the rim. Three gold rays leave it and reach the
@@ -604,7 +789,7 @@ html.notes-on #pillars .pillar__line[data-tbc] { text-decoration-thickness: 1.5p
   #pillars .pool, #pillars .pillar::before { transform: none !important; transition: none !important; }
 }
 /* Room 4: The Circle of Ten.
-   A sticky stage inside a 220vh .scene. Scroll progress (--p, via VB.scene) turns the ring a tenth per
+   A sticky stage inside a 150vh .scene (v4: was 220vh). Scroll progress (--p, via VB.scene) turns the ring a tenth per
    step; each chair that reaches the spot lights gold and stays lit, a gold arc joins the lit chairs, the
    panel switches at week 8, and at ten the ring breathes once.
    Phones: the ring sticks under the header while ten week rows scroll beneath it.
@@ -802,7 +987,7 @@ html.notes-on #pillars .pillar__line[data-tbc] { text-decoration-thickness: 1.5p
   grid-template-columns: 3.4rem minmax(0, 1fr);
   column-gap: 12px;
   align-items: start;
-  min-height: 17vh;
+  min-height: 11vh;
   padding-top: 12px;
   border-top: 1px solid var(--rule);
 }
@@ -907,6 +1092,38 @@ html:not(.js) #circle-of-ten .cot__inner { height: auto; padding-block: var(--ro
   #circle-of-ten .cot__lede { max-width: 40ch; }
   #circle-of-ten .cot__ringcol { height: 100%; }
   #circle-of-ten .cot__ring { width: auto; height: 100%; max-width: 100%; }
+}
+/* v4: the circle, in the room. One wide photo straight after the Circle of Ten scene, on the same navy,
+   so the drawn circle of chairs turns into the real table. */
+
+#in-session {
+  padding-block: clamp(8px, 2vw, 28px) clamp(64px, 8vw, 120px);
+}
+#in-session .ins__fig { margin: 0; }
+#in-session .ins__frame {
+  position: relative;
+  overflow: hidden;
+  border-radius: 3px;
+  aspect-ratio: 16 / 8;
+  background: var(--house-dark);
+  box-shadow: 0 0 0 1px rgba(183, 161, 122, .22), 0 40px 80px -40px rgba(2, 6, 11, .9);
+}
+#in-session .ins__frame picture,
+#in-session .ins__frame img {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+#in-session .ins__frame img {
+  max-width: none;
+  object-fit: cover;
+  object-position: 50% 42%;            /* the table and Vahan standing behind it */
+}
+#in-session .ins__cap { margin-top: clamp(12px, 1.6vw, 18px); }
+
+@media (max-width: 759.98px) {
+  #in-session .ins__frame { aspect-ratio: 4 / 3; margin-inline: calc(var(--gutter-l) * -1) calc(var(--gutter-r) * -1); border-radius: 0; }
+  #in-session .ins__frame img { object-position: 46% 40%; }
 }
 /* Room 5: Come experience it. The one Linen pause on the Temple of Speak page.
    Left: the workshop in plain facts. Right: a small dark stage with the same sentence in Performance mode
@@ -1111,6 +1328,35 @@ html:not(.js) #circle-of-ten .cot__inner { height: auto; padding-block: var(--ro
   #workshops .ws__stage .xw,
   #workshops .ws__stage .ws__s,
   #workshops .ws__stage .ws__pool { transition: none !important; }
+}
+
+/* ---------- v4: the lead image, a real session from the back rows, across the top of the room ---------- */
+
+#workshops .ws__lead {
+  grid-column: 1 / -1;
+  margin: 0 0 clamp(4px, 1vw, 12px);
+}
+#workshops .ws__lead-frame {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 1.75 / 1;
+  border-radius: 3px;
+  background: var(--house-dark);
+  box-shadow: 0 0 0 1px rgba(125, 106, 69, .4), 0 34px 70px -40px rgba(8, 22, 36, .7);
+}
+#workshops .ws__lead-frame picture,
+#workshops .ws__lead-frame img { display: block; width: 100%; height: 100%; }
+#workshops .ws__lead-frame img {
+  max-width: none;
+  object-fit: cover;
+  object-position: 50% 28%;            /* the slide, Vahan, and the back rows at the tables */
+}
+#workshops .ws__lead-cap { margin-top: clamp(12px, 1.6vw, 18px); }
+#workshops .ws__lead-cap .chip { max-width: 100%; }
+
+@media (max-width: 759.98px) {
+  #workshops .ws__lead-frame { aspect-ratio: 4 / 3.4; }
+  #workshops .ws__lead-frame img { object-position: 50% 28%; }
 }
 /* Room 6: Voices from the room.
    A ring of ten chairs beside three testimonials and one empty seat. As each voice comes into view its

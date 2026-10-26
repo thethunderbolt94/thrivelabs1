@@ -1,69 +1,94 @@
-/* Room 1: Spotlight (hero).
-   The photo is placed with VB.cover so the warm spot lands on Vahan at every panel size. The
-   spot, the dark house around it and the warm glow are CSS custom properties on the arch; scroll
-   progress (VB.scene) opens the ellipse until the untouched photo is all that is left.
-   Everything here is cosmetic: without it (or without GSAP) the photo and the copy are all there. */
+/* Home hero v4 (#hero), "Centre stage". The load sequence itself is CSS (01-hero.css) and starts at first paint,
+   so it never waits for this file. This file does three small things and never throws:
+     1. Failsafe: .is-done about 2 s after it runs (animations off, finished state on), and any animation still
+        running inside the hero is finished, so a paused or frozen clock can not strand the copy.
+     2. Scroll-out: --p = how far the hero has scrolled out (0..1). "Vahan" slides left, "Bedros" right, the figure
+        lifts slower than the page, the light dims, the copy fades up (all in CSS, transforms and opacity only).
+        Once the hero is wholly off screen --p goes back to 0, so nothing is left half-faded out of sight.
+     3. Depth: on a fine pointer, --mx / --my (-1..1) follow the cursor, lerped; the spot and the layers drift a few px.
+   Reduced motion: only the failsafe runs. */
 (function () {
   'use strict';
+  var hero = document.getElementById('hero');
+  if (!hero) return;
+  var win = window;
+  var VB = win.VB || {};
 
-  var VB = window.VB;
-  var root = document.getElementById('hero');
-  if (!root || !VB || typeof VB.scene !== 'function' || typeof VB.cover !== 'function') return;
-
-  var scene = root.querySelector('.scene');
-  var arch = root.querySelector('.hero__arch');
-  var img = arch && arch.querySelector('img');
-  var chip = root.querySelector('.hero__chip');
-  var hint = root.querySelector('.hero__hint');
-  if (!scene || !arch || !img) return;
-
-  var SRC = 1536;                 // the photo is square
-  var FX = 0.62, FY = 0.4;        // point of the photo to keep near the middle when the panel crops it
-  var SPX = 0.5, SPY = 0.46;      // where the spot sits on him (fractions of the photo): chest, face above
-  var geo = null;
-  var lastP = 0;
-
-  function paint(p) {
-    if (!geo) return;
-    var e = VB.smooth(0.05, 0.9, p);
-    var span = Math.max(geo.boxW, geo.boxH);
-    var rx = geo.dw * 0.24 + e * e * span * 1.7;
-    var ry = geo.dh * 0.46 * (1 - e) + rx * 0.9 * e + e * e * span * 0.6;
-    var dim = 0.9 * (1 - VB.smooth(0.12, 0.95, p));
-    var warm = 1 - VB.smooth(0.2, 0.9, p);
-    arch.style.setProperty('--rx', rx.toFixed(1) + 'px');
-    arch.style.setProperty('--ry', ry.toFixed(1) + 'px');
-    arch.style.setProperty('--dim', dim.toFixed(3));
-    arch.style.setProperty('--warm', warm.toFixed(3));
-    img.style.transform = 'scale(' + (1.06 - 0.06 * e).toFixed(4) + ')';
-    if (chip) chip.classList.toggle('is-show', p > 0.9);
-    if (hint) hint.classList.toggle('is-gone', p > 0.04);
+  var reduced = !!VB.reduced;
+  if (!win.VB) {
+    try { reduced = !!(win.matchMedia && win.matchMedia('(prefers-reduced-motion: reduce)').matches); } catch (e) { /* ignore */ }
   }
 
-  function layout() {
-    var bw = arch.clientWidth, bh = arch.clientHeight;
-    if (!bw || !bh) return;
-    var g = VB.cover(bw, bh, SRC, SRC, FX, FY);
-    g.boxW = bw; g.boxH = bh;
-    geo = g;
-    img.style.width = g.dw + 'px';
-    img.style.height = g.dh + 'px';
-    img.style.left = g.dx + 'px';
-    img.style.top = g.dy + 'px';
-    img.style.objectFit = 'fill';
-    VB.spot(arch, g.dx + SPX * g.dw, g.dy + SPY * g.dh);
-    img.style.transformOrigin = (SPX * g.dw) + 'px ' + (SPY * g.dh) + 'px';   // the light grows from him
-    paint(lastP);
+  // ---- 1. failsafe
+  function finish() {
+    try {
+      hero.classList.add('is-done');
+      if (typeof hero.getAnimations === 'function') {
+        hero.getAnimations({ subtree: true }).forEach(function (a) { try { a.finish(); } catch (e) { /* infinite: can not finish */ } });
+      }
+    } catch (e) { /* ignore */ }
   }
+  try { win.setTimeout(finish, (reduced ? 0 : 2000) * (VB.slow ? 1.8 : 1)); } catch (e) { finish(); }
 
-  VB.scene(scene, function (p) { lastP = p; paint(p); });
+  if (reduced) return;
 
-  layout();
-  if ('ResizeObserver' in window) {
-    try { new ResizeObserver(layout).observe(arch); } catch (e) { window.addEventListener('resize', layout); }
-  } else {
-    window.addEventListener('resize', layout);
+  var raf = win.requestAnimationFrame ? win.requestAnimationFrame.bind(win) : function (f) { return win.setTimeout(f, 16); };
+  var setVar = function (name, v) { try { hero.style.setProperty(name, v); } catch (e) { /* ignore */ } };
+
+  // ---- 2. scroll-out
+  var lastP = '0.000', scrollQueued = false, inView = true;
+  function onScrollFrame() {
+    scrollQueued = false;
+    try {
+      var r = hero.getBoundingClientRect();
+      var vh = win.innerHeight || document.documentElement.clientHeight || 1;
+      var p = 0;
+      inView = r.bottom > 0 && r.top < vh;
+      if (inView && r.height > 0) p = Math.min(1, Math.max(0, -r.top / r.height));
+      var s = p.toFixed(3);
+      if (s !== lastP) { lastP = s; setVar('--p', s); }
+    } catch (e) { /* ignore */ }
   }
+  function queueScroll() {
+    if (scrollQueued) return;
+    scrollQueued = true;
+    raf(onScrollFrame);
+  }
+  try {
+    win.addEventListener('scroll', queueScroll, { passive: true });
+    win.addEventListener('resize', queueScroll);
+    queueScroll();
+  } catch (e) { /* ignore */ }
+
+  // ---- 3. depth on a fine pointer
+  var fine = false;
+  try { fine = !!(win.matchMedia && win.matchMedia('(hover: hover) and (pointer: fine)').matches); } catch (e) { /* ignore */ }
+  if (!fine) return;
+
+  var tx = 0, ty = 0, mx = 0, my = 0, moving = false;
+  function step() {
+    try {
+      mx += (tx - mx) * 0.07;
+      my += (ty - my) * 0.07;
+      if (Math.abs(tx - mx) < 0.002 && Math.abs(ty - my) < 0.002) { mx = tx; my = ty; moving = false; }
+      setVar('--mx', mx.toFixed(3));
+      setVar('--my', my.toFixed(3));
+      if (moving) raf(step);
+    } catch (e) { moving = false; }
+  }
+  function aim(x, y) {
+    tx = x; ty = y;
+    if (!moving) { moving = true; raf(step); }
+  }
+  try {
+    win.addEventListener('pointermove', function (e) {
+      if (e.pointerType && e.pointerType !== 'mouse') return;
+      if (!inView) return;                                          // hero out of sight: leave it be
+      var w = win.innerWidth || 1, h = win.innerHeight || 1;
+      aim(Math.max(-1, Math.min(1, (e.clientX / w - 0.5) * 2)), Math.max(-1, Math.min(1, (e.clientY / h - 0.5) * 2)));
+    }, { passive: true });
+    document.documentElement.addEventListener('pointerleave', function () { aim(0, 0); });
+  } catch (e) { /* ignore */ }
 })();
 ;
 /* Room 2: Four Rooms. Two ways of lighting a word, chosen by the device:

@@ -653,6 +653,102 @@ html.js .bottom-bar:not(.is-shown) {
   .link-arrow:hover::after { transform: none; }
   .wordmark:hover .mark-ellipse { transform: none; }
 }
+
+/* Rolling banners. Markup: .marquee[data-marquee] > .marquee__track > .marquee__group (a <ul> is fine).
+   core.js copies the group and drifts the track; without it the first group simply sits still, clipped.
+   Variants: --type (big serif words, every other one outlined), --band (a gold ribbon; add --tilt to lean it),
+   --photos (a strip of pictures, set --strip-h). Add --fade to soften both ends. */
+.marquee {
+  --marquee-gap: clamp(1.4rem, 3vw, 3rem);
+  position: relative;
+  overflow: hidden;
+  max-width: 100%;
+}
+.marquee__track {
+  display: flex;
+  width: max-content;
+  will-change: transform;
+  backface-visibility: hidden;
+}
+.marquee__group {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: var(--marquee-gap);
+  margin: 0;
+  padding: 0 var(--marquee-gap) 0 0;
+  list-style: none;
+}
+.marquee__group > * { flex: none; }
+.marquee--fade {
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
+}
+/* between items: the small gold ellipse, the pool of light on the speaker's mark */
+.marquee__sep {
+  display: inline-block;
+  width: .9em;
+  height: .3em;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, var(--tungsten), var(--stage-gold) 55%, rgba(212, 168, 75, 0) 100%);
+}
+
+/* big serif words; with items and .marquee__sep alternating, every other word is an outline */
+.marquee--type {
+  --marquee-gap: clamp(1.2rem, 2.6vw, 2.6rem);
+  font-family: var(--font-display);
+  font-size: clamp(2.6rem, 7.2vw, 7.4rem);
+  font-weight: 400;
+  line-height: 1.08;
+  letter-spacing: -.02em;
+  color: var(--linen);
+  padding-block: .06em;
+}
+.marquee--type .marquee__item:nth-child(4n+3) {
+  color: transparent;
+  -webkit-text-stroke: 1px color-mix(in srgb, var(--brass) 85%, transparent);
+}
+.marquee--type .marquee__sep { width: .5em; height: .17em; }
+
+/* a gold ribbon of small caps; .marquee--tilt leans it across whatever sits behind and bleeds it past both
+   edges so the ends never show (the page already clips sideways overflow) */
+.marquee--band {
+  --marquee-gap: clamp(1rem, 2vw, 1.6rem);
+  background: var(--stage-gold);
+  color: var(--house-dark);
+  font-family: var(--font-body);
+  font-size: clamp(.78rem, .7rem + .3vw, .98rem);
+  font-weight: 600;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  padding-block: clamp(.7rem, 1.4vw, 1rem);
+  transform: rotate(var(--tilt, 0deg));
+}
+.marquee--tilt {
+  --tilt: -2.5deg;
+  width: calc(100% + 10vw);
+  max-width: none;
+  margin-inline: -5vw;
+}
+.marquee--band .marquee__sep { background: var(--house-dark); width: 1.4em; height: .45em; }
+
+/* a strip of pictures */
+.marquee--photos { --marquee-gap: clamp(10px, 1.4vw, 18px); }
+.marquee--photos .marquee__group > * { margin: 0; }
+.marquee--photos img {
+  display: block;
+  height: var(--strip-h, clamp(200px, 30vw, 380px));
+  width: auto;
+  max-width: none;
+  border-radius: 3px;
+  object-fit: cover;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee { overflow-x: auto; scrollbar-width: none; }
+  .marquee::-webkit-scrollbar { display: none; }
+  .marquee--band { transform: none; }
+}
 /* Navigation: the desktop links, the Menu button and the full-screen menu overlay.
 
    Header markup lives in header.html; core.js drives the overlay (VB.menu):

@@ -20,6 +20,8 @@
  *   VB.notes.on() / .off() / .count                              the Open questions layer
  *   VB.menu.open() / .close() / .isOpen                          the full-screen menu overlay (below 1024px)
  *
+ * Rolling banners: [data-marquee] > .marquee__track > .marquee__group (see initMarquee for the data- options).
+ *
  * Auto behaviours (on DOMContentLoaded)
  *   [data-reveal]   below-the-fold elements get .below (hidden by CSS only under html.js); .is-in reveals them.
  *                   .done is added 2.4 s later and any still-running transition is finished, so a paused animation
@@ -526,6 +528,92 @@
     win.addEventListener('load', gsapRate);                          // GSAP may arrive after DOMContentLoaded
   }
 
+  // ---------------------------------------------------------------- rolling banners
+  // [data-marquee] > .marquee__track > .marquee__group. The group is copied (aria-hidden, nothing focusable, no notes)
+  // until the track covers two screens, then the track drifts data-speed px/s (default 50) to the left, or to the
+  // right with data-dir="1". Scrolling pushes it faster; data-skew also leans it with the scroll, data-react="flip"
+  // turns it round while the page scrolls back up, data-hover="pause" lets it coast to a stop under the pointer.
+  // It only moves while on screen. Reduced motion leaves it still (the CSS lets it scroll sideways instead).
+  var marquees = [], mqRaf = 0, mqT = 0, mqY = 0, mqV = 0, mqHeading = 1;
+
+  function marqueeFill(m) {
+    all('.marquee__group[data-copy]', m.track).forEach(function (n) { m.track.removeChild(n); });
+    m.w = m.group.getBoundingClientRect().width;
+    if (!m.w) return;
+    var copies = Math.max(1, Math.ceil(m.el.clientWidth * 2 / m.w));
+    for (var i = 0; i < copies; i++) {
+      var c = m.group.cloneNode(true);
+      c.setAttribute('data-copy', '');
+      c.setAttribute('aria-hidden', 'true');
+      all('[id]', c).concat([c]).forEach(function (n) { n.removeAttribute('id'); });
+      all('[data-tbc]', c).forEach(function (n) { n.removeAttribute('data-tbc'); n.removeAttribute('data-tbc-n'); n.removeAttribute('data-note'); });
+      all('a, button, [tabindex]', c).forEach(function (n) { n.setAttribute('tabindex', '-1'); });
+      m.track.appendChild(c);
+    }
+    m.x = m.x % m.w;
+    if (m.x > 0) m.x -= m.w;
+  }
+
+  function marqueeFrame(t) {
+    mqRaf = 0;
+    var dt = mqT ? Math.min((t - mqT) / 1000, 0.05) : 0;
+    mqT = t;
+    var y = scrollY();
+    mqV += ((y - mqY) - mqV) * 0.14;                                  // smoothed scroll speed, px per frame
+    mqY = y;
+    if (mqV > 0.6) mqHeading = 1; else if (mqV < -0.6) mqHeading = -1;
+    var boost = clamp(Math.abs(mqV) * 0.2, 0, 7) * (VB.slow ? 0.5 : 1);
+    var running = false;
+    marquees.forEach(function (m) {
+      if (!m.on || !m.w) return;
+      running = true;
+      m.k += ((m.hover ? 0 : 1) - m.k) * 0.08;
+      var dir = m.dir * (m.flip ? mqHeading : 1);
+      m.x += dir * m.speed * (VB.slow ? 0.5 : 1) * (m.k + boost) * dt;
+      m.x = m.x % m.w;
+      if (m.x > 0) m.x -= m.w;
+      var lean = m.skew ? ' skewX(' + clamp(-mqV * 0.3, -9, 9).toFixed(2) + 'deg)' : '';
+      m.track.style.transform = 'translate3d(' + m.x.toFixed(2) + 'px,0,0)' + lean;
+    });
+    if (running && win.requestAnimationFrame) mqRaf = win.requestAnimationFrame(marqueeFrame);
+    else mqT = 0;
+  }
+
+  function marqueeKick() {
+    if (!mqRaf && !reduced && win.requestAnimationFrame) { mqY = scrollY(); mqRaf = win.requestAnimationFrame(marqueeFrame); }
+  }
+
+  function initMarquee() {
+    all('[data-marquee]').forEach(function (el) {
+      safe('marquee', function () {
+        var track = el.querySelector('.marquee__track');
+        var group = track && track.querySelector('.marquee__group');
+        if (!group) return;
+        var m = {
+          el: el, track: track, group: group, w: 0, x: 0, k: 1, on: false, hover: false,
+          speed: parseFloat(el.getAttribute('data-speed')) || 50,
+          dir: el.getAttribute('data-dir') === '1' ? 1 : -1,
+          skew: el.hasAttribute('data-skew'),
+          flip: el.getAttribute('data-react') === 'flip'
+        };
+        marqueeFill(m);
+        marquees.push(m);
+        el.classList.add('is-ready');
+        if (el.getAttribute('data-hover') === 'pause') {
+          el.addEventListener('pointerenter', function (e) { if (e.pointerType === 'mouse') m.hover = true; });
+          el.addEventListener('pointerleave', function () { m.hover = false; });
+        }
+        var refill = function () { var w = group.getBoundingClientRect().width; if (Math.abs(w - m.w) > 1) marqueeFill(m); };
+        if ('ResizeObserver' in win) { try { new ResizeObserver(refill).observe(group); } catch (e) { /* ignore */ } }
+        win.addEventListener('resize', refill);
+        if ('IntersectionObserver' in win) {
+          new IntersectionObserver(function (en) { m.on = en[en.length - 1].isIntersecting; if (m.on) marqueeKick(); }, { rootMargin: '80px 0px' }).observe(el);
+        } else { m.on = true; }
+      });
+    });
+    if (marquees.length) marqueeKick();
+  }
+
   // ---------------------------------------------------------------- Menu (full-screen overlay below 1024px)
   var menuApi = { isOpen: false, open: function () {}, close: function () {} };
   VB.menu = menuApi;
@@ -674,6 +762,7 @@
     safe('menu', initMenu);
     safe('deliver', initDeliver);
     safe('reveal', initReveal);
+    safe('marquee', initMarquee);
     safe('scenes', function () { all('.scene').forEach(sceneRec); });
     safe('spots', function () { all('[data-spot]').forEach(function (el) { if (!el.classList.contains('scene')) watchState(el, 'spot'); }); });
     safe('first update', function () { updateChrome(); updateScenes(true); sweep(false); });

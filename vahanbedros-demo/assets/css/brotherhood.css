@@ -53,8 +53,8 @@ body[data-page="brotherhood"] .nw { white-space: nowrap; }
   /* the hero is one screen, not a scene: no sticky stage, nothing to scrub */
   display: flex;
   align-items: center;
-  min-height: 100vh;
-  min-height: 100svh;
+  min-height: calc(100vh - var(--band-h, 0px));
+  min-height: calc(100svh - var(--band-h, 0px));   /* the Ember band (01b) shows on the first screen too */
   padding-top: calc(var(--header-h) + env(safe-area-inset-top, 0px) + clamp(20px, 5vh, 56px));
   padding-bottom: clamp(48px, 9vh, 104px);
 }
@@ -274,6 +274,63 @@ body[data-page="brotherhood"] .nw { white-space: nowrap; }
   #hero .hero__frame::before,
   #hero .hero__light { animation: none; }
 }
+
+/* ---------- v4: the whole hero is on screen within 1.3 s ----------
+   The shared Delivered Type choreography runs about three seconds. Here the words land in half the time
+   (01-hero.html sets their delays by hand), the quote, sub and buttons follow at once, and the portrait
+   catches the firelight as the line arrives. 01-hero.js adds .done about 2 s in, which snaps every finished
+   state with no animation, so a stalled animation clock can not strand anything. */
+html.js #hero [data-deliver].on .w { animation-duration: calc(.5s * var(--slow)); }
+html.js #hero [data-deliver].on .w[data-fx="settle"] {
+  animation:
+    vb-word-in calc(.5s * var(--slow)) var(--ease) calc(var(--d, 0s) * var(--slow)) forwards,
+    vb-settle calc(.8s * var(--slow)) var(--ease) calc((var(--d, 0s) + .05s) * var(--slow)) both;
+}
+html.js #hero [data-spot].on [data-after] { animation-duration: calc(.5s * var(--slow)); }
+html.js #hero [data-deliver].done .w {
+  opacity: 1;
+  transform: none;
+  filter: none;
+  animation: none;
+  translate: none;
+  scale: none;
+}
+html.js #hero [data-spot].done [data-after] {
+  opacity: 1;
+  transform: none;
+  animation: none;
+}
+
+/* the portrait catches the light: it comes up out of the dark as the line is delivered */
+@keyframes bro-catch {
+  from { opacity: 0; filter: brightness(.35); transform: translateY(10px); }
+  to { opacity: 1; filter: none; transform: none; }
+}
+html.js #hero:not(.done) .hero__frame { animation: bro-catch calc(.95s * var(--slow)) var(--ease) calc(.1s * var(--slow)) both; }
+html.js #hero.done .hero__frame { animation: none; opacity: 1; filter: none; transform: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  html.js #hero .hero__frame { animation: none; }
+}
+/* v4: the Ember band under the hero. The shared .marquee--band, recoloured with this page's own accent.
+   Night text on Ember is about 5.3:1. A thin warm glow above and below so it reads as firelight, not a strip of paint. */
+body[data-page="brotherhood"] {
+  /* the band's size, shared with the hero so the band sits on the first screen, right under the hero */
+  --band-fs: clamp(.78rem, .7rem + .3vw, .98rem);
+  --band-pad: clamp(.7rem, 1.4vw, 1rem);
+  --band-h: calc(var(--band-fs) * 1.25 + var(--band-pad) * 2);
+}
+body[data-page="brotherhood"] .bro-band {
+  font-size: var(--band-fs);
+  line-height: 1.25;
+  padding-block: var(--band-pad);
+  position: relative;
+  z-index: 2;
+  background: var(--ember);
+  color: var(--night);
+  box-shadow: 0 0 40px -6px var(--ember-glow);
+}
+body[data-page="brotherhood"] .bro-band .marquee__sep { background: var(--night); }
 /* Brotherhood, room 2 (#circle): what it is. Three words, one sentence each, set as three columns
    with a single hairline above them. Type-led; the only warmth is a thread of ember at the head of
    each column and a glow that rises from the floor under the column you point at. */
