@@ -864,13 +864,123 @@ html.pov-on{overflow:hidden}
 .pov-body p.pov-stat{font-size:1.35rem;color:#E9A56A}
 .pov-body p.pov-note{font-size:.62rem;color:#6F7C6A}
 @media (max-width:480px){.team{grid-template-columns:1fr 1fr;gap:10px}.person{padding:16px 14px}.person .av{width:46px;height:46px;font-size:1.05rem;margin-bottom:10px}.person b{font-size:1.02rem}.person span{font-size:.8rem}}
+
+/* ================= v4: Apple-design review pass ================= */
+:root{--r-card:16px;--r-ctl:10px}
+/* concept ribbon becomes a quiet floating pill: out of the layout, out of the first impression */
+.ribbon{position:fixed;left:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:60;border-radius:999px;padding:9px 16px;background:rgba(16,26,19,.84);-webkit-backdrop-filter:blur(14px) saturate(1.4);backdrop-filter:blur(14px) saturate(1.4);box-shadow:0 12px 32px -12px rgba(0,0,0,.55),inset 0 0 0 1px rgba(255,255,255,.08);font-size:.68rem;text-align:left;max-width:calc(100vw - 32px)}
+.ribbon b{color:#C9DB98}
+.qbar-on .ribbon,.pov-on .ribbon{opacity:0;pointer-events:none}
+.ribbon{transition:opacity .3s ease}
+@media (max-width:900px){.ribbon .ribbon-long{display:none}.ribbon{left:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));padding:8px 13px}}
+/* header: keep everything inside the grid */
+@media (max-width:1680px){.brand small{display:none}}
+@media (max-width:1080px){.menu-toggle{order:2;margin-left:8px}.quote-btn{margin-left:auto}}
+/* gallery head on the same left edge as every other section */
+.hgal-head{width:100%}
+.hcard .n{text-shadow:0 1px 8px rgba(0,0,0,.6)}
+.hcard::before{background:linear-gradient(to top,rgba(6,12,8,.88),rgba(6,12,8,.08) 58%,rgba(6,12,8,.45))}
+/* legibility on photos */
+.hero .eyebrow{color:#F3F4EC;text-shadow:0 1px 12px rgba(0,0,0,.55)}
+.phero-tag,.pov-note{font-size:.72rem}
+/* one radius system */
+.path,.tcard,.story-frame,.hcard,.project,.plant,.rec,.person,.planner .out,.specimen,.spf{border-radius:var(--r-card)}
+.mix,.copy,.planner select,#q{border-radius:var(--r-ctl)}
+/* facts carry the weight the beats set up */
+.facts .fact b{font-size:clamp(2.6rem,4.6vw,4.2rem);letter-spacing:-.03em}
+.facts .fact{padding:40px 0 36px 28px}
+.facts .fact>span{margin-top:10px}
+@media (max-width:700px){.facts .fact b{font-size:2.2rem}.facts .fact{padding:22px 0 20px 16px}}
+.statement{padding-block:clamp(72px,9vw,128px)}
+/* story wipe: shorter, no seams */
+.story-frame img{transition:clip-path .7s cubic-bezier(.65,0,.35,1),transform 1.4s cubic-bezier(.2,.7,.2,1)}
+.story-frame img.on{z-index:1}
+@media (max-width:900px){.story-steps{padding-bottom:6vh}}
+/* memberships: one calm row */
+.affil-row{display:grid!important;grid-template-columns:repeat(7,minmax(0,1fr));gap:28px;align-items:center}
+.affil-row .affil{justify-content:center}
+.affil-row .affil>span:not(.affil),.affil-row .affil img+span{display:none}
+.affil-row .affil img{height:30px;width:auto;max-width:100%;margin-inline:auto;object-fit:contain}
+.affil-row .affil.text{border-left:0;padding-left:0;align-items:center;text-align:center}
+.affil-row .affil.text span{display:block;font-size:.72rem}
+.ack .affil-row{grid-template-columns:repeat(4,minmax(0,1fr));gap:24px 20px}
+@media (max-width:900px){.affil-row{grid-template-columns:repeat(4,minmax(0,1fr));gap:22px 18px}}
+/* LiveRoof */
+.mix .bar{gap:0}
+#areaOut{display:block;font:500 clamp(2rem,4vw,3rem)/1 var(--display);letter-spacing:-.02em;margin:4px 0 6px;color:var(--ink)}
+.planner .out .big{font-size:clamp(3.4rem,6.5vw,5.2rem);letter-spacing:-.035em}
+@media (min-width:901px){.planner .out{position:sticky;top:96px}}
+.roofviz{margin:0;display:grid;gap:8px}
+.roofviz canvas{display:block;width:100%;aspect-ratio:16/9;border-radius:12px;background:#2B302D}
+.roofviz figcaption{font-size:.7rem;color:var(--ink-3);letter-spacing:.08em}
+/* plant finder */
+@media (max-width:900px){.finder{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:600px){.results-bar>span:nth-child(2){display:none}}
+.plant{display:flex;flex-direction:column;gap:10px}
+.plant .add{margin-top:auto;padding-top:4px}
+@media (min-width:901px){.filters{max-height:calc(100vh - 96px);overflow:auto;overscroll-behavior:contain;padding-right:6px;scrollbar-width:thin}}
+/* reveals: crisp, never blurred */
+.motion .rv{filter:none;transform:translateY(16px)}
+.motion .rv.in{transition:opacity .7s cubic-bezier(.2,.7,.2,1) var(--d,0ms),transform .7s cubic-bezier(.2,.7,.2,1) var(--d,0ms)}
+/* curtain: a beat, not a loader */
+.curtain.cover{transition:transform .34s cubic-bezier(.76,0,.24,1)}
+.curtain.cover b,.curtain.cover .curtain-mark{transition:opacity .25s ease .08s,transform .4s cubic-bezier(.2,.8,.2,1) .06s}
+.curtain.leave{transition:transform .48s cubic-bezier(.76,0,.24,1)}
+/* callout cards */
+.specimen{overflow:hidden}
+.specimen::before{top:0;bottom:0;border-radius:0}
+.specimen>.mono:first-child{color:var(--ink-3);font-size:.72rem;letter-spacing:.14em}
+/* monograms: one colour per person on every page */
+.av[data-hue="g"]{background:radial-gradient(circle at 30% 25%,#8AA352,#22492C 72%)!important}
+.av[data-hue="p"]{background:radial-gradient(circle at 30% 25%,#9B85B8,#47305F 72%)!important}
+.av[data-hue="o"]{background:radial-gradient(circle at 30% 25%,#E9A56A,#A4501C 72%)!important}
+.av.tel svg{display:block}
+/* overlay: text centred in its column; low-res photos shown wide instead of tall */
+@media (min-width:821px){.pov-body{justify-content:center}.pov-panel.lowres{grid-template-columns:1fr;grid-template-rows:minmax(0,58%) auto}.pov-panel.lowres .pov-body{justify-content:flex-start;padding-top:clamp(24px,3vw,40px)}.pov-panel.lowres .pov-body h2{font-size:clamp(1.8rem,3vw,2.6rem)}}
+/* projects: closing CTA tile fills the grid */
+.proj-cta{display:flex;flex-direction:column;justify-content:flex-end;gap:10px;padding:clamp(22px,3vw,34px);text-decoration:none;background:#17241B;color:#F3F4EC;aspect-ratio:4/3}
+.proj-cta .eyebrow{color:#C9DB98}
+.proj-cta b{font-family:var(--display);font-weight:500;font-size:clamp(1.5rem,2.4vw,2rem);line-height:1.1;letter-spacing:-.01em}
+.proj-cta .go{font-size:.95rem;color:#C9DB98}
+.proj-cta:hover{background:#22492C}
+/* mobile hero crops keep their subject */
+@media (max-width:700px){#page-custom .phero-media img{object-position:80% 50%}#page-projects .phero-media img{object-position:50% 15%}#page-liveroof .phero-media img{object-position:72% 60%}}
+/* about: first logo, quietly; a photo for every year */
+.chron-logo-fig{margin:0;display:grid;justify-items:end;gap:8px}
+.chron-logo{background:none;padding:0;filter:grayscale(1) invert(1) brightness(1.15);mix-blend-mode:screen;opacity:.7;height:64px}
+.chron-logo-fig figcaption{font-size:.68rem;color:#8E9A88;letter-spacing:.1em}
+.chron-photo{display:none}
+@media (min-width:1000px){
+  .chron-body{display:grid;grid-template-columns:minmax(0,1fr) minmax(300px,34vw);gap:clamp(36px,5vw,80px);align-items:start}
+  .chron-list li{grid-template-columns:clamp(130px,15vw,230px) minmax(0,1fr)}
+  .chron-y{font-size:clamp(3rem,6vw,5.4rem)}
+  .chron-photo{display:block;position:sticky;top:120px;margin:0;aspect-ratio:5/4;border-radius:var(--r-card);overflow:hidden;background:#17241B;box-shadow:0 40px 80px -30px rgba(0,0,0,.7),0 0 0 1px rgba(255,255,255,.08)}
+  .chron-photo img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;clip-path:inset(100% 0 0 0);transform:scale(1.1);transition:clip-path .8s cubic-bezier(.65,0,.35,1),transform 1.4s cubic-bezier(.2,.7,.2,1)}
+  .chron-photo img.on{clip-path:inset(0);transform:none;z-index:1}
+  .chron-photo img.past{clip-path:inset(0);transform:none}
+  .chron-photo figcaption{position:absolute;left:0;right:0;bottom:0;z-index:2;padding:16px 18px;font-size:.72rem;letter-spacing:.1em;color:#F3F4EC;background:linear-gradient(to top,rgba(5,10,7,.72),transparent)}
+}
+/* species: the name shows the plant */
+.marquee.big .latin[data-sp]{cursor:pointer;transition:color .25s ease}
+.marquee.big .latin[data-sp]:hover{color:var(--forest-text)}
+.spf{position:fixed;left:0;top:0;z-index:70;width:220px;margin:0;pointer-events:none;opacity:0;transform:translate3d(-999px,-999px,0);transition:opacity .25s ease;overflow:hidden;background:#17241B;box-shadow:0 30px 60px -20px rgba(0,0,0,.55)}
+.spf.on{opacity:1}
+.spf img{display:block;width:100%;aspect-ratio:11/14;object-fit:cover}
+.spf figcaption{position:absolute;left:0;right:0;bottom:0;padding:12px 14px;font-family:var(--display);font-style:italic;font-size:1rem;color:#F3F4EC;background:linear-gradient(to top,rgba(5,10,7,.8),transparent)}
+@media (hover:none){.spf{display:none}}
+
+.scrub .hero{background:var(--ground)}
+.pill-off .ribbon,.pill-down .ribbon{opacity:0;pointer-events:none;transform:translateY(10px)}
+.ribbon{transition:opacity .3s ease,transform .4s cubic-bezier(.2,.7,.2,1)}
+@media (hover:none){.pov-note .kbd{display:none}}
+@media (min-width:821px){.pov-panel.lowres{inset:clamp(20px,4vh,48px) max(3vw,calc((100vw - 1080px)/2))}.pov-panel.lowres .pov-body{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:40px;align-content:start}.pov-panel.lowres .pov-body>*{grid-column:1}.pov-panel.lowres .pov-actions{grid-column:1}.pov-panel.lowres .pov-note{max-width:none}}
 </style>
 <style>:root{color-scheme:light dark} html,body{margin:0} [hidden]{display:none!important}</style>
 </head>
 <body>
 
 
-<div class="ribbon"><b>Concept demo</b><span class="ribbon-long"> · A proposed new website for NATS Nursery Ltd. · Sample plant data, not live inventory</span> · <a href="#chat" data-nav="chat">Like it? Let’s chat →</a></div>
+<div class="ribbon"><b>Concept demo</b><span class="ribbon-long"> · Proposed new site for NATS Nursery · sample plant data</span> · <a href="#chat" data-nav="chat">Like it? Let’s chat →</a></div>
 
 <header class="site">
   <div class="wrap bar">
@@ -886,7 +996,6 @@ html.pov-on{overflow:hidden}
       <a href="#projects" data-nav="projects">Projects</a>
       <a href="#about" data-nav="about">About</a>
       <a href="#contact" data-nav="contact">Contact</a>
-      <a href="#chat" data-nav="chat">Let’s chat</a>
       <a class="nav-call" href="tel:+16045309300">Call 604-530-9300</a>
     </nav>
     <button class="btn btn-ghost btn-sm quote-btn" id="openQuote" aria-label="Open quote list"><span class="ql">Quote list</span> <span class="count" id="qcount">0</span></button>
@@ -924,7 +1033,7 @@ html.pov-on{overflow:hidden}
     <div class="wrap">
       <div class="facts-grid" id="facts">
         <div class="fact"><b><span class="num" data-count="400">400</span>+</b><span>crops in production</span></div>
-        <div class="fact"><b><span class="num" data-count="500">500</span>+</b><span>native species</span></div>
+        <div class="fact"><b><span class="num" data-count="140000">140,000</span></b><span>sq ft of greenhouse and cold frame</span></div>
         <div class="fact"><b><span class="num" data-count="350000">350,000</span></b><span>plants on the Vancouver Convention Centre roof</span></div>
         <div class="fact"><b><span class="num" data-count="38">38</span></b><span>years growing, since 1988</span></div>
       </div>
@@ -937,7 +1046,7 @@ html.pov-on{overflow:hidden}
   </section>
   <section class="statement" aria-label="What NATS does">
     <div class="wrap">
-      <p class="eyebrow">Since 1988</p>
+      <p class="eyebrow">What we do</p>
       <p class="say" id="say">For 38 years NATS has grown the plants that put land back together: wetlands, mine sites, forest roads and rooftops, from <em>Inuvik</em> to the <em>California coast.</em></p>
     </div>
   </section>
@@ -967,14 +1076,15 @@ html.pov-on{overflow:hidden}
   <section class="species" aria-label="Species in production">
     <div class="wrap"><p class="eyebrow">500+ species in production</p></div>
     <div class="marquee big">
-      <div class="track"><span class="latin">Polystichum munitum</span><i aria-hidden="true">·</i><span class="latin">Ribes sanguineum</span><i aria-hidden="true">·</i><span class="latin">Gaultheria shallon</span><i aria-hidden="true">·</i><span class="latin">Mahonia nervosa</span><i aria-hidden="true">·</i><span class="latin">Arctostaphylos uva-ursi</span><i aria-hidden="true">·</i><span class="latin">Fragaria chiloensis</span><i aria-hidden="true">·</i><span class="latin">Carex obnupta</span><i aria-hidden="true">·</i><span class="latin">Cornus sericea</span><i aria-hidden="true">·</i><span class="latin">Thuja plicata</span><i aria-hidden="true">·</i><span class="latin">Pseudotsuga menziesii</span><i aria-hidden="true">·</i><span class="latin">Sedum spathulifolium</span><i aria-hidden="true">·</i><span class="latin">Camassia quamash</span><i aria-hidden="true">·</i><span class="latin">Achillea millefolium</span><i aria-hidden="true">·</i><span class="latin">Rosa nutkana</span><i aria-hidden="true">·</i><span class="latin">Vaccinium ovatum</span><i aria-hidden="true">·</i><span class="latin">Acer circinatum</span><i aria-hidden="true">·</i><span class="latin">Deschampsia cespitosa</span><i aria-hidden="true">·</i><span class="latin">Juncus effusus</span><i aria-hidden="true">·</i></div>
-      <div class="track" aria-hidden="true"><span class="latin">Polystichum munitum</span><i aria-hidden="true">·</i><span class="latin">Ribes sanguineum</span><i aria-hidden="true">·</i><span class="latin">Gaultheria shallon</span><i aria-hidden="true">·</i><span class="latin">Mahonia nervosa</span><i aria-hidden="true">·</i><span class="latin">Arctostaphylos uva-ursi</span><i aria-hidden="true">·</i><span class="latin">Fragaria chiloensis</span><i aria-hidden="true">·</i><span class="latin">Carex obnupta</span><i aria-hidden="true">·</i><span class="latin">Cornus sericea</span><i aria-hidden="true">·</i><span class="latin">Thuja plicata</span><i aria-hidden="true">·</i><span class="latin">Pseudotsuga menziesii</span><i aria-hidden="true">·</i><span class="latin">Sedum spathulifolium</span><i aria-hidden="true">·</i><span class="latin">Camassia quamash</span><i aria-hidden="true">·</i><span class="latin">Achillea millefolium</span><i aria-hidden="true">·</i><span class="latin">Rosa nutkana</span><i aria-hidden="true">·</i><span class="latin">Vaccinium ovatum</span><i aria-hidden="true">·</i><span class="latin">Acer circinatum</span><i aria-hidden="true">·</i><span class="latin">Deschampsia cespitosa</span><i aria-hidden="true">·</i><span class="latin">Juncus effusus</span><i aria-hidden="true">·</i></div>
+      <div class="track"><span class="latin" data-sp="polystichum-munitum">Polystichum munitum</span><i aria-hidden="true">·</i><span class="latin" data-sp="ribes-sanguineum">Ribes sanguineum</span><i aria-hidden="true">·</i><span class="latin" data-sp="gaultheria-shallon">Gaultheria shallon</span><i aria-hidden="true">·</i><span class="latin" data-sp="mahonia-nervosa">Mahonia nervosa</span><i aria-hidden="true">·</i><span class="latin" data-sp="arctostaphylos-uva-ursi">Arctostaphylos uva-ursi</span><i aria-hidden="true">·</i><span class="latin" data-sp="fragaria-chiloensis">Fragaria chiloensis</span><i aria-hidden="true">·</i><span class="latin" data-sp="carex-obnupta">Carex obnupta</span><i aria-hidden="true">·</i><span class="latin" data-sp="cornus-sericea">Cornus sericea</span><i aria-hidden="true">·</i><span class="latin" data-sp="thuja-plicata">Thuja plicata</span><i aria-hidden="true">·</i><span class="latin" data-sp="pseudotsuga-menziesii">Pseudotsuga menziesii</span><i aria-hidden="true">·</i><span class="latin" data-sp="sedum-spathulifolium">Sedum spathulifolium</span><i aria-hidden="true">·</i><span class="latin" data-sp="camassia-quamash">Camassia quamash</span><i aria-hidden="true">·</i><span class="latin" data-sp="achillea-millefolium">Achillea millefolium</span><i aria-hidden="true">·</i><span class="latin" data-sp="rosa-nutkana">Rosa nutkana</span><i aria-hidden="true">·</i><span class="latin" data-sp="vaccinium-ovatum">Vaccinium ovatum</span><i aria-hidden="true">·</i><span class="latin" data-sp="acer-circinatum">Acer circinatum</span><i aria-hidden="true">·</i><span class="latin" data-sp="deschampsia-cespitosa">Deschampsia cespitosa</span><i aria-hidden="true">·</i><span class="latin" data-sp="juncus-effusus">Juncus effusus</span><i aria-hidden="true">·</i></div>
+      <div class="track" aria-hidden="true"><span class="latin" data-sp="polystichum-munitum">Polystichum munitum</span><i aria-hidden="true">·</i><span class="latin" data-sp="ribes-sanguineum">Ribes sanguineum</span><i aria-hidden="true">·</i><span class="latin" data-sp="gaultheria-shallon">Gaultheria shallon</span><i aria-hidden="true">·</i><span class="latin" data-sp="mahonia-nervosa">Mahonia nervosa</span><i aria-hidden="true">·</i><span class="latin" data-sp="arctostaphylos-uva-ursi">Arctostaphylos uva-ursi</span><i aria-hidden="true">·</i><span class="latin" data-sp="fragaria-chiloensis">Fragaria chiloensis</span><i aria-hidden="true">·</i><span class="latin" data-sp="carex-obnupta">Carex obnupta</span><i aria-hidden="true">·</i><span class="latin" data-sp="cornus-sericea">Cornus sericea</span><i aria-hidden="true">·</i><span class="latin" data-sp="thuja-plicata">Thuja plicata</span><i aria-hidden="true">·</i><span class="latin" data-sp="pseudotsuga-menziesii">Pseudotsuga menziesii</span><i aria-hidden="true">·</i><span class="latin" data-sp="sedum-spathulifolium">Sedum spathulifolium</span><i aria-hidden="true">·</i><span class="latin" data-sp="camassia-quamash">Camassia quamash</span><i aria-hidden="true">·</i><span class="latin" data-sp="achillea-millefolium">Achillea millefolium</span><i aria-hidden="true">·</i><span class="latin" data-sp="rosa-nutkana">Rosa nutkana</span><i aria-hidden="true">·</i><span class="latin" data-sp="vaccinium-ovatum">Vaccinium ovatum</span><i aria-hidden="true">·</i><span class="latin" data-sp="acer-circinatum">Acer circinatum</span><i aria-hidden="true">·</i><span class="latin" data-sp="deschampsia-cespitosa">Deschampsia cespitosa</span><i aria-hidden="true">·</i><span class="latin" data-sp="juncus-effusus">Juncus effusus</span><i aria-hidden="true">·</i></div>
     </div>
     <div class="marquee big rev" aria-hidden="true">
-      <div class="track"><span class="latin">Camassia quamash</span><i>·</i><span class="latin">Rosa nutkana</span><i>·</i><span class="latin">Thuja plicata</span><i>·</i><span class="latin">Salix sitchensis</span><i>·</i><span class="latin">Spiraea douglasii</span><i>·</i><span class="latin">Festuca roemeri</span><i>·</i><span class="latin">Lupinus polyphyllus</span><i>·</i><span class="latin">Symphoricarpos albus</span><i>·</i><span class="latin">Sedum oreganum</span><i>·</i><span class="latin">Vaccinium ovatum</span><i>·</i><span class="latin">Cornus sericea</span><i>·</i><span class="latin">Achillea millefolium</span><i>·</i><span class="latin">Mahonia nervosa</span><i>·</i><span class="latin">Carex obnupta</span><i>·</i><span class="latin">Gaultheria shallon</span><i>·</i><span class="latin">Acer circinatum</span><i>·</i></div>
-      <div class="track"><span class="latin">Camassia quamash</span><i>·</i><span class="latin">Rosa nutkana</span><i>·</i><span class="latin">Thuja plicata</span><i>·</i><span class="latin">Salix sitchensis</span><i>·</i><span class="latin">Spiraea douglasii</span><i>·</i><span class="latin">Festuca roemeri</span><i>·</i><span class="latin">Lupinus polyphyllus</span><i>·</i><span class="latin">Symphoricarpos albus</span><i>·</i><span class="latin">Sedum oreganum</span><i>·</i><span class="latin">Vaccinium ovatum</span><i>·</i><span class="latin">Cornus sericea</span><i>·</i><span class="latin">Achillea millefolium</span><i>·</i><span class="latin">Mahonia nervosa</span><i>·</i><span class="latin">Carex obnupta</span><i>·</i><span class="latin">Gaultheria shallon</span><i>·</i><span class="latin">Acer circinatum</span><i>·</i></div>
+      <div class="track"><span class="latin" data-sp="camassia-quamash">Camassia quamash</span><i>·</i><span class="latin" data-sp="rosa-nutkana">Rosa nutkana</span><i>·</i><span class="latin" data-sp="thuja-plicata">Thuja plicata</span><i>·</i><span class="latin" data-sp="salix-sitchensis">Salix sitchensis</span><i>·</i><span class="latin" data-sp="spiraea-douglasii">Spiraea douglasii</span><i>·</i><span class="latin" data-sp="festuca-roemeri">Festuca roemeri</span><i>·</i><span class="latin" data-sp="lupinus-polyphyllus">Lupinus polyphyllus</span><i>·</i><span class="latin" data-sp="symphoricarpos-albus">Symphoricarpos albus</span><i>·</i><span class="latin" data-sp="sedum-oreganum">Sedum oreganum</span><i>·</i><span class="latin" data-sp="vaccinium-ovatum">Vaccinium ovatum</span><i>·</i><span class="latin" data-sp="cornus-sericea">Cornus sericea</span><i>·</i><span class="latin" data-sp="achillea-millefolium">Achillea millefolium</span><i>·</i><span class="latin" data-sp="mahonia-nervosa">Mahonia nervosa</span><i>·</i><span class="latin" data-sp="carex-obnupta">Carex obnupta</span><i>·</i><span class="latin" data-sp="gaultheria-shallon">Gaultheria shallon</span><i>·</i><span class="latin" data-sp="acer-circinatum">Acer circinatum</span><i>·</i></div>
+      <div class="track"><span class="latin" data-sp="camassia-quamash">Camassia quamash</span><i>·</i><span class="latin" data-sp="rosa-nutkana">Rosa nutkana</span><i>·</i><span class="latin" data-sp="thuja-plicata">Thuja plicata</span><i>·</i><span class="latin" data-sp="salix-sitchensis">Salix sitchensis</span><i>·</i><span class="latin" data-sp="spiraea-douglasii">Spiraea douglasii</span><i>·</i><span class="latin" data-sp="festuca-roemeri">Festuca roemeri</span><i>·</i><span class="latin" data-sp="lupinus-polyphyllus">Lupinus polyphyllus</span><i>·</i><span class="latin" data-sp="symphoricarpos-albus">Symphoricarpos albus</span><i>·</i><span class="latin" data-sp="sedum-oreganum">Sedum oreganum</span><i>·</i><span class="latin" data-sp="vaccinium-ovatum">Vaccinium ovatum</span><i>·</i><span class="latin" data-sp="cornus-sericea">Cornus sericea</span><i>·</i><span class="latin" data-sp="achillea-millefolium">Achillea millefolium</span><i>·</i><span class="latin" data-sp="mahonia-nervosa">Mahonia nervosa</span><i>·</i><span class="latin" data-sp="carex-obnupta">Carex obnupta</span><i>·</i><span class="latin" data-sp="gaultheria-shallon">Gaultheria shallon</span><i>·</i><span class="latin" data-sp="acer-circinatum">Acer circinatum</span><i>·</i></div>
     </div>
   </section>
+  <figure class="spf" id="spf" aria-hidden="true"><img alt=""><figcaption></figcaption></figure>
 
   <section class="tight paths-section">
     <div class="paths-pin" id="pathsPin"><div class="paths-stick" id="pathsStick">
@@ -994,23 +1104,6 @@ html.pov-on{overflow:hidden}
     </div></div>
   </section>
 
-  <section class="band">
-    <div class="band-photo" aria-hidden="true"><img src="img/greenhouse.jpg" width="750" height="380" loading="lazy" decoding="async" alt=""></div>
-    <div class="wrap">
-      <div class="grid g2" style="align-items:center;gap:48px">
-        <div>
-          <p class="eyebrow">Why our plants are different</p>
-          <h2 style="margin-top:10px">Seed-grown. Provenance recorded. Mycorrhizae in every plug.</h2>
-          <p class="lede" style="margin-top:16px">Most crops are grown from seed, so every project gets genetic diversity and a record of where each seed lot came from.</p>
-        </div>
-        <div class="grid" style="gap:12px" data-reveal="children">
-          <div class="specimen"><div class="mono">01 · PROVENANCE</div><h3 style="margin:6px 0 4px">Seed lot records for every crop</h3><p style="font-size:.95rem;opacity:.9">Ask where the seed for your stock was collected.</p></div>
-          <div class="specimen"><div class="mono">02 · STANDARDS</div><h3 style="margin:6px 0 4px">Meets or exceeds BCLNA standards</h3><p style="font-size:.95rem;opacity:.9">Clean Plants certified. AgSafe COR certified.</p></div>
-          <div class="specimen"><div class="mono">03 · SCALE</div><h3 style="margin:6px 0 4px">Trays of 45 to 128, pots of 4″ to 20 gal</h3><p style="font-size:.95rem;opacity:.9">140,000 sq ft of greenhouse and cold frame.</p></div>
-        </div>
-      </div>
-    </div>
-  </section>
 
   <section class="hgal" aria-label="Selected work">
     <div class="hgal-pin" id="hgalPin"><div class="hgal-stick" id="hgalStick">
@@ -1018,7 +1111,7 @@ html.pov-on{overflow:hidden}
         <div><p class="eyebrow">Selected work</p><h2>Projects that made the world a little greener</h2></div>
         <div class="hgal-meta"><span class="hgal-bar" aria-hidden="true"><i id="hgalBar"></i></span><a class="btn btn-ghost btn-sm" href="#projects" data-nav="projects">All projects</a></div>
       </div>
-      <div class="hgal-track" id="hgalTrack"><button class="hcard" type="button" data-p="vcc"><img src="img/hero.jpg" width="750" height="380" loading="lazy" decoding="async" alt="Native grasses on the Vancouver Convention Centre living roof with Coal Harbour towers behind"><span class="n mono">01 / 06</span><span class="hcap"><span class="mono">Green roof · Vancouver</span><b>Vancouver Convention Centre</b><i>350,000 plants</i></span><span class="hgo" aria-hidden="true">View</span></button><button class="hcard" type="button" data-p="splatsin"><img src="media/banner/projects-m.webp" alt="Aerial view of the round green roof on the Splatsin Community Centre"><span class="n mono">02 / 06</span><span class="hcap"><span class="mono">LiveRoof · Enderby</span><b>Splatsin Community Centre</b><i>Round roof, pre-grown</i></span><span class="hgo" aria-hidden="true">View</span></button><button class="hcard" type="button" data-p="deepcove"><img src="img/deepcove.jpg" width="1100" height="1009" loading="lazy" decoding="async" alt="Modern home at dusk on Deep Cove with a planted LiveRoof"><span class="n mono">03 / 06</span><span class="hcap"><span class="mono">LiveRoof · North Vancouver</span><b>Deep Cove Cliffhanger</b><i>Residential LiveRoof</i></span><span class="hgo" aria-hidden="true">View</span></button><button class="hcard" type="button" data-p="colony"><img src="media/banner/contact-m.webp" alt="Restored wetland with standing snags and native plantings at Colony Farm"><span class="n mono">04 / 06</span><span class="hcap"><span class="mono">Restoration · Coquitlam</span><b>Colony Farm Sheep Paddocks</b><i>Wetland restoration</i></span><span class="hgo" aria-hidden="true">View</span></button><button class="hcard" type="button" data-p="pinchi"><img src="media/banner/plants-m.webp" alt="Greenhouse benches of seedling trays at NATS"><span class="n mono">05 / 06</span><span class="hcap"><span class="mono">Reclamation · custom grow</span><b>Pinchi Lake Mine</b><i>Grown from regional seed</i></span><span class="hgo" aria-hidden="true">View</span></button><button class="hcard" type="button" data-p="barnston"><img src="img/barnston.jpg" width="1000" height="561" loading="lazy" decoding="async" alt="Curved green roof on the Barnston Pump Station with fields behind"><span class="n mono">06 / 06</span><span class="hcap"><span class="mono">LiveRoof · Surrey</span><b>Barnston Pump Station</b><i>A roof that curves</i></span><span class="hgo" aria-hidden="true">View</span></button></div>
+      <div class="hgal-track" id="hgalTrack"><button class="hcard" type="button" data-p="splatsin"><img src="media/banner/projects.webp" alt="Aerial view of the round green roof on the Splatsin Community Centre"><span class="n mono">01 / 06</span><span class="hcap"><span class="mono">LiveRoof · Enderby</span><b>Splatsin Community Centre</b><i>Round roof, pre-grown</i></span><span class="hgo" aria-hidden="true">View</span></button><button class="hcard" type="button" data-p="colony"><img src="media/banner/contact.webp" alt="Restored wetland with standing snags and native plantings at Colony Farm"><span class="n mono">02 / 06</span><span class="hcap"><span class="mono">Restoration · Coquitlam</span><b>Colony Farm Sheep Paddocks</b><i>Wetland restoration</i></span><span class="hgo" aria-hidden="true">View</span></button><button class="hcard" type="button" data-p="deepcove"><img src="img/deepcove.jpg" width="1100" height="1009" loading="lazy" decoding="async" alt="Modern home at dusk on Deep Cove with a planted LiveRoof"><span class="n mono">03 / 06</span><span class="hcap"><span class="mono">LiveRoof · North Vancouver</span><b>Deep Cove Cliffhanger</b><i>Residential LiveRoof</i></span><span class="hgo" aria-hidden="true">View</span></button><button class="hcard" type="button" data-p="vcc"><img src="img/hero.jpg" width="750" height="380" loading="lazy" decoding="async" alt="Native grasses on the Vancouver Convention Centre living roof with Coal Harbour towers behind"><span class="n mono">04 / 06</span><span class="hcap"><span class="mono">Green roof · Vancouver</span><b>Vancouver Convention Centre</b><i>350,000 plants</i></span><span class="hgo" aria-hidden="true">View</span></button><button class="hcard" type="button" data-p="creekside"><img src="img/pce.jpg" width="1000" height="1333" loading="lazy" decoding="async" alt="Sloped green roof with rock ballast and a mountain view in Revelstoke"><span class="n mono">05 / 06</span><span class="hcap"><span class="mono">LiveRoof · Revelstoke</span><b>Creekside</b><i>A sloped roof, finished on day one</i></span><span class="hgo" aria-hidden="true">View</span></button><button class="hcard" type="button" data-p="barnston"><img src="img/barnston.jpg" width="1000" height="561" loading="lazy" decoding="async" alt="Curved green roof on the Barnston Pump Station with fields behind"><span class="n mono">06 / 06</span><span class="hcap"><span class="mono">LiveRoof · Surrey</span><b>Barnston Pump Station</b><i>A roof that curves</i></span><span class="hgo" aria-hidden="true">View</span></button></div>
     </div></div>
   </section>
 
@@ -1157,6 +1250,7 @@ html.pov-on{overflow:hidden}
           </label>
         </div>
         <div class="out">
+          <figure class="roofviz"><canvas id="roofCv" aria-hidden="true"></canvas><figcaption class="mono" id="roofCap">Your roof, in modules</figcaption></figure>
           <div><p class="eyebrow">Estimated modules</p><div class="big" id="modOut">1,250</div><p class="note">1 by 2 foot modules, plus 3% cutting allowance</p></div>
           <div class="kv">
             <span>System</span><b id="sysOut">LiveRoof Standard</b>
@@ -1223,7 +1317,7 @@ html.pov-on{overflow:hidden}
   <section>
     <div class="wrap">
       <div class="section-head"><div><p class="eyebrow">Track record</p><h2>Custom grows we're proud of</h2></div></div>
-      <div class="recs" data-reveal="children"><article class="rec"><img src="img/hero.jpg" width="750" height="380" loading="lazy" decoding="async" alt=""><div class="big"><span class="num" data-count="350000">350,000</span><small>plants</small></div><h3>Vancouver Convention Centre</h3><p>A coastal grassland ecosystem on the largest non-industrial green roof in North America.</p></article><article class="rec"><img src="img/fragaria.jpg" width="1000" height="301" loading="lazy" decoding="async" alt=""><div class="big"><span class="num" data-count="60000">60,000</span><small>beach strawberry plugs</small></div><h3>California Academy of Sciences</h3><p>Fragaria chiloensis for Rana Creek's living roof in San Francisco.</p></article><article class="rec"><img src="img/seeding.jpg" width="1000" height="301" loading="lazy" decoding="async" alt=""><div class="big">2 yrs<small>grown from Arctic seed</small></div><h3>East Three School, Inuvik</h3><p>Seed collected in Inuvik, grown two years in Langley, returned north for a shelterbelt designed by Cornelia Hahn Oberlander.</p></article><article class="rec"><img src="img/greenhouse.jpg" width="750" height="380" loading="lazy" decoding="async" alt=""><div class="big">Mine<small>reclamation</small></div><h3>Pinchi Lake Mine</h3><p>Interior conifers and shrubs grown from regional seed for a closed mercury mine.</p></article><article class="rec"><img src="img/blakeburn.jpg" width="1000" height="357" loading="lazy" decoding="async" alt=""><div class="big"><span class="num" data-count="100000">100,000</span>+<small>natives</small></div><h3>Blakeburn Lagoons Park</h3><p>Perennials, shrubs and wetland plants for a reclaimed lagoon in Port Coquitlam.</p></article><article class="rec"><img src="img/plugs.jpg" width="750" height="380" loading="lazy" decoding="async" alt=""><div class="big"><span class="num" data-count="2">2</span> billion<small>trees program</small></div><h3>Federal reforestation</h3><p>Conifer seedling production for Canada's 2 Billion Trees commitment.</p></article></div>
+      <div class="recs" data-reveal="children"><article class="rec"><img src="img/hero.jpg" width="750" height="380" loading="lazy" decoding="async" alt=""><div class="big"><span class="num" data-count="350000">350,000</span><small>plants</small></div><h3>Vancouver Convention Centre</h3><p>A coastal grassland ecosystem on the largest non-industrial green roof in North America.</p></article><article class="rec"><img src="img/fragaria.jpg" width="1000" height="301" loading="lazy" decoding="async" alt=""><div class="big"><span class="num" data-count="60000">60,000</span><small>beach strawberry plugs</small></div><h3>California Academy of Sciences</h3><p>Fragaria chiloensis for Rana Creek's living roof in San Francisco.</p></article><article class="rec"><img src="media/story/2-plugs.webp" alt=""><div class="big">2 yrs<small>grown from Arctic seed</small></div><h3>East Three School, Inuvik</h3><p>Seed collected in Inuvik, grown two years in Langley, returned north for a shelterbelt designed by Cornelia Hahn Oberlander.</p></article><article class="rec"><img src="media/story/3-field.webp" alt=""><div class="big">Mine<small>reclamation</small></div><h3>Pinchi Lake Mine</h3><p>Interior conifers and shrubs grown from regional seed for a closed mercury mine.</p></article><article class="rec"><img src="img/blakeburn.jpg" width="1000" height="357" loading="lazy" decoding="async" alt=""><div class="big"><span class="num" data-count="100000">100,000</span>+<small>natives</small></div><h3>Blakeburn Lagoons Park</h3><p>Perennials, shrubs and wetland plants for a reclaimed lagoon in Port Coquitlam.</p></article><article class="rec"><img src="img/plugs.jpg" width="750" height="380" loading="lazy" decoding="async" alt=""><div class="big"><span class="num" data-count="2">2</span> billion<small>trees program</small></div><h3>Federal reforestation</h3><p>Conifer seedling production for Canada's 2 Billion Trees commitment.</p></article></div>
     </div>
   </section>
 </div>
@@ -1252,17 +1346,18 @@ html.pov-on{overflow:hidden}
   </section>
   <section class="tight" style="padding-top:0">
     <div class="wrap grid g3" id="projGrid" data-reveal="children">
-      <div class="project" data-p="vcc" data-cat="roof" data-feature><img src="img/hero.jpg" width="750" height="380" loading="lazy" decoding="async" alt="Grassland green roof on the Vancouver Convention Centre with downtown towers behind"><div class="cap"><span>Green roof · 6 acres</span><b>Vancouver Convention Centre</b></div></div>
+      <div class="project" data-p="colony" data-cat="restoration" data-feature><img src="media/banner/contact.webp" alt="Restored wetland with standing snags and native plantings at Colony Farm"><div class="cap"><span>Restoration · Coquitlam</span><b>Colony Farm Sheep Paddocks</b></div></div>
+      <div class="project" data-p="vcc" data-cat="roof"><img src="img/hero.jpg" width="750" height="380" loading="lazy" decoding="async" alt="Grassland green roof on the Vancouver Convention Centre with downtown towers behind"><div class="cap"><span>Green roof · 6 acres</span><b>Vancouver Convention Centre</b></div></div>
       <div class="project" data-p="deepcove" data-cat="roof residential"><img src="img/deepcove.jpg" width="1100" height="1009" loading="lazy" decoding="async" alt="Deep Cove home with a LiveRoof at dusk"><div class="cap"><span>LiveRoof · residential</span><b>Deep Cove Cliffhanger</b></div></div>
-      <div class="project" data-p="splatsin" data-cat="roof"><img src="media/banner/projects-m.webp" alt="Round LiveRoof on the Splatsin Community Centre"><div class="cap"><span>LiveRoof · First Nations</span><b>Splatsin Community Centre</b></div></div>
-      <div class="project" data-p="colony" data-cat="restoration"><img src="media/banner/contact-m.webp" alt="Restored wetland with standing snags and native plantings at Colony Farm"><div class="cap"><span>Restoration · Coquitlam</span><b>Colony Farm Sheep Paddocks</b></div></div>
+      <div class="project" data-p="splatsin" data-cat="roof"><img src="media/banner/projects.webp" alt="Round LiveRoof on the Splatsin Community Centre"><div class="cap"><span>LiveRoof · First Nations</span><b>Splatsin Community Centre</b></div></div>
       <div class="project" data-p="blakeburn" data-cat="restoration"><img src="img/blakeburn.jpg" width="1000" height="357" loading="lazy" decoding="async" alt="Blakeburn Lagoons Park entrance sign with lagoon behind"><div class="cap"><span>Restoration · Port Coquitlam</span><b>Blakeburn Lagoons Park</b></div></div>
       <div class="project" data-p="barnston" data-cat="roof"><img src="img/barnston.jpg" width="1000" height="561" loading="lazy" decoding="async" alt="Barnston Pump Station green roof"><div class="cap"><span>LiveRoof · Surrey</span><b>Barnston Pump Station</b></div></div>
       <div class="project" data-p="calvert" data-cat="roof residential"><img src="img/residential.jpg" width="1000" height="562" loading="lazy" decoding="async" alt="Sedum roof on a residential home"><div class="cap"><span>LiveRoof · residential</span><b>Calvert Residence</b></div></div>
       <div class="project" data-p="creekside" data-cat="roof"><img src="img/pce.jpg" width="1000" height="1333" loading="lazy" decoding="async" alt="Sloped green roof in Revelstoke"><div class="cap"><span>LiveRoof · Revelstoke</span><b>Creekside</b></div></div>
-      <div class="project" data-p="pinchi" data-cat="reclamation"><img src="media/banner/plants-m.webp" alt="Greenhouse benches with reclamation seedlings"><div class="cap"><span>Reclamation · custom grow</span><b>Pinchi Lake Mine</b></div></div>
-      <div class="project" data-p="eastthree" data-cat="reclamation"><img src="img/seeding.jpg" width="1000" height="301" loading="lazy" decoding="async" alt="Gloved hands holding seed and growing medium at the propagation bench"><div class="cap"><span>Custom grow · Inuvik</span><b>East Three School shelterbelt</b></div></div>
+      <div class="project" data-p="pinchi" data-cat="reclamation"><img src="media/story/3-field.webp" alt="Rows of native shrubs grown on at the nursery in Langley"><div class="cap"><span>Reclamation · custom grow</span><b>Pinchi Lake Mine</b></div></div>
+      <div class="project" data-p="eastthree" data-cat="reclamation"><img src="media/story/2-plugs.webp" alt="Gloved hands holding seed and growing medium at the propagation bench"><div class="cap"><span>Custom grow · Inuvik</span><b>East Three School shelterbelt</b></div></div>
       <div class="project" data-p="abbotsford" data-cat="restoration"><img src="img/lawn.jpg" width="750" height="380" loading="lazy" decoding="async" alt="Landscaped bed with boulder and lawn edge"><div class="cap"><span>Landscape · Permaloc edging</span><b>Abbotsford Regional Hospital</b></div></div>
+      <a class="project proj-cta" href="#chat" data-nav="chat"><span class="eyebrow">Your project next</span><b>Tell us what you’re building.</b><span class="go">Talk to Jennifer Adhika <span aria-hidden="true">→</span></span></a>
     </div>
   </section>
 </div>
@@ -1280,8 +1375,8 @@ html.pov-on{overflow:hidden}
   </section>
   <section class="chron" aria-labelledby="chronTitle">
     <div class="wrap">
-      <div class="section-head"><div><p class="eyebrow">The NATS story</p><h2 id="chronTitle">38 years of growing.</h2></div><img class="chron-logo" src="media/logos/nats-logo.png" alt="The original NATS globe logo" width="150" height="120" loading="lazy"></div>
-      <div class="chron-body" id="chron"><span class="chron-line" aria-hidden="true"><i id="chronLine"></i></span><ol class="chron-list"><li><span class="chron-y">1988</span><div><h3>Founded in Surrey</h3><p>North American Tree Specialists opens on Fraser Highway.</p></div></li><li><span class="chron-y">2002</span><div><h3>Thirty acres in Langley</h3><p>A purpose-built nursery: propagation facility, greenhouses and a shipping yard.</p></div></li><li><span class="chron-y">2006</span><div><h3>Vancouver Convention Centre</h3><p>Awarded the growing contract for 350,000 plants on the living roof.</p></div></li><li><span class="chron-y">2010s</span><div><h3>LiveRoof &amp; Permaloc</h3><p>Became BC’s licensed LiveRoof grower and Permaloc distributor.</p></div></li><li><span class="chron-y">2018</span><div><h3>Thirty years</h3><p>Three decades of growing native plants for BC and beyond.</p></div></li><li><span class="chron-y">2020</span><div><h3>Gather and Grow</h3><p>Launched seed collection training.</p></div></li><li><span class="chron-y">2024</span><div><h3>AgSafe COR</h3><p>Certified for workplace health and safety.</p></div></li><li><span class="chron-y">Today</span><div><h3>500+ native species</h3><p>38 years on, grown in Langley and shipped from the Arctic to California.</p></div></li></ol></div>
+      <div class="section-head"><div><p class="eyebrow">The NATS story</p><h2 id="chronTitle">38 years of growing.</h2></div><figure class="chron-logo-fig"><img class="chron-logo" src="media/logos/nats-logo.png" alt="The original NATS globe logo" width="150" height="120" loading="lazy"><figcaption class="mono">The first logo, 1988</figcaption></figure></div>
+      <div class="chron-body" id="chron"><span class="chron-line" aria-hidden="true"><i id="chronLine"></i></span><ol class="chron-list"><li><span class="chron-y">1988</span><div><h3>Founded in Surrey</h3><p>North American Tree Specialists opens on Fraser Highway.</p></div></li><li><span class="chron-y">2002</span><div><h3>Thirty acres in Langley</h3><p>A purpose-built nursery: propagation facility, greenhouses and a shipping yard.</p></div></li><li><span class="chron-y">2006</span><div><h3>Vancouver Convention Centre</h3><p>Awarded the growing contract for 350,000 plants on the living roof.</p></div></li><li><span class="chron-y">2010s</span><div><h3>LiveRoof &amp; Permaloc</h3><p>Became BC’s licensed LiveRoof grower and Permaloc distributor.</p></div></li><li><span class="chron-y">2020</span><div><h3>Gather and Grow</h3><p>Launched seed collection training.</p></div></li><li><span class="chron-y">2024</span><div><h3>AgSafe COR</h3><p>Certified for workplace health and safety.</p></div></li><li><span class="chron-y">Today</span><div><h3>500+ native species</h3><p>38 years on, grown in Langley and shipped from the Arctic to California.</p></div></li></ol><figure class="chron-photo" id="chronPhoto" aria-hidden="true"><img src="img/nursery.jpg" alt="" loading="lazy" decoding="async" data-cap="Langley today, where it all grew to" class="on"><img src="media/banner/about.webp" alt="" loading="lazy" decoding="async" data-cap="The Langley nursery"><img src="img/hero.jpg" alt="" loading="lazy" decoding="async" data-cap="Vancouver Convention Centre living roof"><img src="img/deepcove.jpg" alt="" loading="lazy" decoding="async" data-cap="A LiveRoof in Deep Cove"><img src="media/story/1-seed.webp" alt="" loading="lazy" decoding="async" data-cap="Native seed, collected and recorded"><img src="media/story/2-plugs.webp" alt="" loading="lazy" decoding="async" data-cap="Plugs on the propagation bench"><img src="media/field-16x9.webp" alt="" loading="lazy" decoding="async" data-cap="The nursery in October"><figcaption class="mono" id="chronCap">Langley today, where it all grew to</figcaption></figure></div>
     </div>
   </section>
   <section class="ack-sec">
@@ -1296,7 +1391,7 @@ html.pov-on{overflow:hidden}
   <section>
     <div class="wrap">
       <div class="section-head"><div><p class="eyebrow">Meet the team</p><h2>Talk to a person who grows plants</h2></div></div>
-      <div class="team" data-reveal="children"><div class="person"><span class="av" aria-hidden="true">RN</span><b>Rod Nataros</b><span>Principal &amp; founder</span><span class="mono">Since 1988</span></div><div class="person"><span class="av" aria-hidden="true">RJ</span><b>Ron Jacobson</b><span>Business development manager</span><span class="mono">Since 2014 · 40+ yrs in sales</span></div><div class="person"><span class="av" aria-hidden="true">MC</span><b>Michael Campbell</b><span>Container plant sales</span><span class="mono">Since 2007</span></div><div class="person"><span class="av" aria-hidden="true">JG</span><b>Jenn Gushuliak</b><span>Starter plant &amp; Christmas tree seedling sales</span><span class="mono">20+ yrs in horticulture</span></div><div class="person"><span class="av" aria-hidden="true">DV</span><b>Dean Villaceran</b><span>LiveRoof, sedum &amp; Permaloc sales</span><span class="mono">Green roofs</span></div><div class="person"><span class="av" aria-hidden="true">SP</span><b>Shailesh Patel</b><span>Head grower</span><span class="mono">Since 2002 · BSc Agriculture</span></div><div class="person"><span class="av" aria-hidden="true">LD</span><b>Louise Daudt</b><span>Production &amp; inventory manager</span><span class="mono">Since 2022</span></div><div class="person"><span class="av" aria-hidden="true">JA</span><b>Jennifer Adhika</b><span>Special projects · custom grow contracts</span><span class="mono">Since 2016</span></div></div>
+      <div class="team" data-reveal="children"><div class="person"><span class="av" data-hue="g" aria-hidden="true">RN</span><b>Rod Nataros</b><span>Principal &amp; founder</span><span class="mono">Since 1988</span></div><div class="person"><span class="av" data-hue="p" aria-hidden="true">RJ</span><b>Ron Jacobson</b><span>Business development manager</span><span class="mono">Since 2014 · 40+ yrs in sales</span></div><div class="person"><span class="av" data-hue="o" aria-hidden="true">MC</span><b>Michael Campbell</b><span>Container plant sales</span><span class="mono">Since 2007</span></div><div class="person"><span class="av" data-hue="p" aria-hidden="true">JG</span><b>Jenn Gushuliak</b><span>Starter plant &amp; Christmas tree seedling sales</span><span class="mono">20+ yrs in horticulture</span></div><div class="person"><span class="av" data-hue="g" aria-hidden="true">DV</span><b>Dean Villaceran</b><span>LiveRoof, sedum &amp; Permaloc sales</span><span class="mono">Green roofs</span></div><div class="person"><span class="av" aria-hidden="true">SP</span><b>Shailesh Patel</b><span>Head grower</span><span class="mono">Since 2002 · BSc Agriculture</span></div><div class="person"><span class="av" aria-hidden="true">LD</span><b>Louise Daudt</b><span>Production &amp; inventory manager</span><span class="mono">Since 2022</span></div><div class="person"><span class="av" data-hue="o" aria-hidden="true">JA</span><b>Jennifer Adhika</b><span>Special projects · custom grow contracts</span><span class="mono">Since 2016</span></div></div>
     </div>
   </section>
 </div>
@@ -1317,12 +1412,12 @@ html.pov-on{overflow:hidden}
       <div>
         <p class="eyebrow" style="margin-bottom:12px">Who to talk to</p>
         <div class="reps" data-reveal="children">
-          <div class="rep"><span class="av sm" aria-hidden="true">MC</span><div><b>Michael Campbell</b><span>Finished container plants · garden centres · landscapers</span></div><button class="copy" data-copy="michael@natsnursery.com">michael@natsnursery.com</button></div>
-          <div class="rep"><span class="av sm" aria-hidden="true">JG</span><div><b>Jenn Gushuliak</b><span>Starter plugs · restoration · Christmas tree seedlings</span></div><button class="copy" data-copy="jenn@natsnursery.com">jenn@natsnursery.com</button></div>
-          <div class="rep"><span class="av sm" aria-hidden="true">DV</span><div><b>Dean Villaceran</b><span>LiveRoof · sedum mats · Permaloc edging</span></div><button class="copy" data-copy="dean@natsnursery.com">dean@natsnursery.com</button></div>
-          <div class="rep"><span class="av sm" aria-hidden="true">JA</span><div><b>Jennifer Adhika</b><span>Custom grow contracts · bids &amp; large quotes</span></div><button class="copy" data-copy="jennifer@natsnursery.com">jennifer@natsnursery.com</button></div>
-          <div class="rep"><span class="av sm" aria-hidden="true">RJ</span><div><b>Ron Jacobson</b><span>Business development · new partnerships</span></div><button class="copy" data-copy="ron@natsnursery.com">ron@natsnursery.com</button></div>
-          <div class="rep"><span class="av sm tel" aria-hidden="true">☏</span><div><b>General inquiries</b><span>Mon–Fri 8:00–4:30</span></div><a class="copy" href="tel:+16045309300">Call 604-530-9300</a></div>
+          <div class="rep"><span class="av sm" data-hue="o" aria-hidden="true">MC</span><div><b>Michael Campbell</b><span>Finished container plants · garden centres · landscapers</span></div><button class="copy" data-copy="michael@natsnursery.com">michael@natsnursery.com</button></div>
+          <div class="rep"><span class="av sm" data-hue="p" aria-hidden="true">JG</span><div><b>Jenn Gushuliak</b><span>Starter plugs · restoration · Christmas tree seedlings</span></div><button class="copy" data-copy="jenn@natsnursery.com">jenn@natsnursery.com</button></div>
+          <div class="rep"><span class="av sm" data-hue="g" aria-hidden="true">DV</span><div><b>Dean Villaceran</b><span>LiveRoof · sedum mats · Permaloc edging</span></div><button class="copy" data-copy="dean@natsnursery.com">dean@natsnursery.com</button></div>
+          <div class="rep"><span class="av sm" data-hue="o" aria-hidden="true">JA</span><div><b>Jennifer Adhika</b><span>Custom grow contracts · bids &amp; large quotes</span></div><button class="copy" data-copy="jennifer@natsnursery.com">jennifer@natsnursery.com</button></div>
+          <div class="rep"><span class="av sm" data-hue="p" aria-hidden="true">RJ</span><div><b>Ron Jacobson</b><span>Business development · new partnerships</span></div><button class="copy" data-copy="ron@natsnursery.com">ron@natsnursery.com</button></div>
+          <div class="rep"><span class="av sm tel" data-hue="g" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg></span><div><b>General inquiries</b><span>Mon–Fri 8:00–4:30</span></div><a class="copy" href="tel:+16045309300">Call 604-530-9300</a></div>
         </div>
         <p class="note" style="margin-top:12px">Tap an address to copy it.</p>
         <div class="specimen" style="margin-top:24px"><div class="mono">VISIT</div><p style="margin-top:6px">24555 32nd Avenue, Langley, BC V2Z 2J5</p><p class="note" style="margin-top:6px">At the end of 32nd Avenue. Access from 240th or 232nd Street only. Not accessible from 248th Street. About 15 minutes from Highway 1, exit 66.</p></div>
@@ -1388,7 +1483,7 @@ html.pov-on{overflow:hidden}
       <p class="pov-stat" id="povStat"></p>
       <p id="povText"></p>
       <div class="pov-actions"><a class="btn btn-accent" id="povCta" href="#contact" data-nav="contact">Talk to us</a><button class="btn btn-ghost" type="button" id="povNext">Next project →</button></div>
-      <p class="pov-note mono">Concept copy from natsnursery.com project notes</p>
+      <p class="pov-note mono"><span id="povIdx">01 / 11</span><span class="kbd"> · ← → to browse</span> · Concept copy from natsnursery.com project notes</p>
     </div>
   </div>
 </div>
@@ -1608,7 +1703,7 @@ if(MOTION&&FINE){
     const c=e.target.closest&&e.target.closest('.project'); if(!c) return;
     const r=c.getBoundingClientRect(); if(!r.width||!r.height) return;
     const x=(e.clientX-r.left)/r.width-.5, y=(e.clientY-r.top)/r.height-.5;
-    c.classList.add('tilting'); c.style.transform='perspective(900px) rotateX('+(y*8).toFixed(2)+'deg) rotateY('+(-x*8).toFixed(2)+'deg)';
+    c.classList.add('tilting'); c.style.transform='perspective(900px) rotateX('+(y*3).toFixed(2)+'deg) rotateY('+(-x*3).toFixed(2)+'deg)';
   },{passive:true});
   document.addEventListener('mouseout',e=>{
     const c=e.target.closest&&e.target.closest('.project'); if(!c) return;
@@ -1651,7 +1746,9 @@ if(MOTION&&FINE){
   const headerH=()=>(document.querySelector('header.site')||{offsetHeight:64}).offsetHeight;
   const ready=f=>f&&f.complete&&f.naturalWidth>0;
   function size(){ const dpr=Math.min(2,window.devicePixelRatio||1), w=stick.clientWidth, h=stick.clientHeight; if(cv.width!==Math.round(w*dpr)||cv.height!==Math.round(h*dpr)){ cv.width=Math.round(w*dpr); cv.height=Math.round(h*dpr); last=-1; } }
-  function draw(i){ const f=frames[i]; if(!ready(f)) return; size(); last=i; const W=cv.width,H=cv.height, r=Math.max(W/f.naturalWidth,H/f.naturalHeight), w=f.naturalWidth*r, h=f.naturalHeight*r; ctx.drawImage(f,(W-w)/2,(H-h)/2,w,h); }
+  function paint(f,a){ const W=cv.width,H=cv.height, r=Math.max(W/f.naturalWidth,H/f.naturalHeight), w=f.naturalWidth*r, h=f.naturalHeight*r; ctx.globalAlpha=a; ctx.drawImage(f,(W-w)/2,(H-h)/2,w,h); ctx.globalAlpha=1; }
+  let lastMix=-1;
+  function draw(i,fp){ const f=frames[i]; if(!ready(f)) return; size(); last=i; paint(f,1); const j=i+1, k=fp==null?0:fp-i; if(k>0.02&&j<N&&ready(frames[j])) paint(frames[j],k); lastMix=fp==null?i:Math.round(fp*24)/24; }
   function nearest(i){ for(let d=0;d<N;d++){ if(ready(frames[i-d])) return i-d; if(ready(frames[i+d])) return i+d; } return -1; }
   function progress(){ const r=hero.getBoundingClientRect(), range=Math.max(1,hero.offsetHeight-stick.offsetHeight); return Math.max(0,Math.min(1,(headerH()-r.top)/range)); }
   const inner=hero.querySelector('.hero-inner'), bts=[...hero.querySelectorAll('.beats p')];
@@ -1661,11 +1758,14 @@ if(MOTION&&FINE){
     bts.forEach(b=>{ const a=+b.dataset.a, z=+b.dataset.b, t=(p-a)/(z-a), c=Math.max(0,Math.min(1,t)); const o=(t>0&&t<1)?Math.min(1,Math.sin(Math.PI*t)*1.7):0;
       b.style.opacity=o.toFixed(3); b.style.transform='translate3d(0,'+((.5-c)*70).toFixed(1)+'px,0) scale('+(.94+.06*o).toFixed(3)+')'; b.style.filter=o>.98?'none':'blur('+((1-o)*10).toFixed(1)+'px)'; });
   }
+  const tagEl=hero.querySelector('.tag');
+  const ease=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
+  function settle(p){ const k=ease(Math.max(0,Math.min(1,(p-.86)/.14))); if(k<=0){ if(stick.style.clipPath){ stick.style.clipPath=''; cv.style.transform=''; if(tagEl) tagEl.style.opacity=''; } return; } const sm=innerWidth<=600; if(tagEl) tagEl.style.opacity=(1-k).toFixed(3); stick.style.clipPath='inset('+(k*(sm?2:3)).toFixed(2)+'% '+(k*(sm?3:4.5)).toFixed(2)+'% '+(k*(sm?3:5)).toFixed(2)+'% round '+(k*(sm?18:28)).toFixed(1)+'px)'; cv.style.transform='scale('+(1-.035*k).toFixed(4)+')'; }
   const BEATS=[[.34,'Langley, BC · 30 acres of native shrubs in October colour'],[.7,'Hoop houses and cold frames · 140,000 sq ft under cover'],[2,'NATS Nursery · native plants start here']];
-  function update(){ tick=false; if(!on) return; const p=progress(), want=Math.round(p*(N-1)), i=nearest(want); if(i>=0&&i!==last) draw(i); if(hud) hud.style.width=(p*100).toFixed(1)+'%'; if(hint) hint.style.opacity=p>0.05?'0':'1'; stick.style.setProperty('--p',p.toFixed(3)); beat(p); if(cap){ const t=BEATS.find(b=>p<b[0])[1]; if(cap.textContent!==t) cap.textContent=t; } window.__heroFilm={p:+p.toFixed(3),frame:last,want,N,loaded:frames.filter(ready).length}; }
+  function update(){ tick=false; if(!on) return; const p=progress(), fp=p*(N-1), want=Math.round(fp), base=Math.floor(fp), i=nearest(base); if(i>=0&&(i!==last||Math.round(fp*24)/24!==lastMix)) draw(i,i===base?fp:null); cv.style.opacity=Math.max(0,Math.min(1,(p-.012)/.05)).toFixed(3); settle(p); if(hud) hud.style.width=(p*100).toFixed(1)+'%'; if(hint) hint.style.opacity=p>0.05?'0':'1'; stick.style.setProperty('--p',p.toFixed(3)); beat(p); if(cap){ const t=BEATS.find(b=>p<b[0])[1]; if(cap.textContent!==t) cap.textContent=t; } window.__heroFilm={p:+p.toFixed(3),frame:last,want,N,loaded:frames.filter(ready).length}; }
   const onS=()=>{ if(!tick){ tick=true; requestAnimationFrame(update); } };
-  function fit(){ const range=window.innerWidth<=600?Math.round(window.innerHeight*1.4):Math.round(window.innerHeight*2); hero.style.height=(stick.offsetHeight+range)+'px'; }
-  function enable(){ if(on) return; on=true; cv.classList.add('on'); fit();
+  function fit(){ const range=window.innerWidth<=600?Math.round(window.innerHeight*1.3):Math.round(window.innerHeight*1.55); hero.style.height=(stick.offsetHeight+range)+'px'; }
+  function enable(){ if(on) return; on=true; cv.classList.add('on'); cv.style.transition='opacity .2s linear'; fit();
     window.addEventListener('scroll',onS,{passive:true}); window.addEventListener('resize',()=>{ fit(); size(); last=-1; onS(); },{passive:true}); update(); }
   const src=i=>DIR+'f'+String(i+1).padStart(3,'0')+'.webp';
   // coarse-to-fine order: every 8th frame first, then every 4th, 2nd, 1st -> a fast flick never shows a frozen film for long
@@ -1714,7 +1814,7 @@ if(MOTION&&FINE){
   const fr=$('#storyFrame'); if(!fr) return; const imgs=[...fr.querySelectorAll('img')], steps=$$('.story-step'), num=$('#storyNum'), rail=$('#storyRail');
   imgs.forEach(im=>{ im.loading='eager'; });
   let cur=0, tick=false;
-  function set(i){ if(i===cur) return; cur=i; imgs.forEach((im,k)=>{ im.classList.toggle('on',k===i); im.classList.toggle('past',k<i); }); steps.forEach((s,k)=>s.classList.toggle('on',k===i)); if(num) num.textContent='0'+(i+1)+' / 0'+imgs.length; if(rail) rail.style.width=((i+1)/imgs.length*100)+'%'; }
+  function set(i){ if(i===cur) return; const jump=Math.abs(i-cur)>1; cur=i; imgs.forEach((im,k)=>{ im.style.transition=jump?'none':'';  im.classList.toggle('on',k===i); im.classList.toggle('past',k<i); }); steps.forEach((s,k)=>s.classList.toggle('on',k===i)); if(num) num.textContent='0'+(i+1)+' / 0'+imgs.length; if(rail) rail.style.width=((i+1)/imgs.length*100)+'%'; }
   function update(){ tick=false; const mid=window.innerHeight*(window.innerWidth<=900?0.72:0.55); let best=0, bd=1e9; steps.forEach((s,k)=>{ const r=s.getBoundingClientRect(), d=Math.abs((r.top+r.height/2)-mid); if(d<bd){ bd=d; best=k; } }); set(best); }
   window.addEventListener('scroll',()=>{ if(!tick){ tick=true; requestAnimationFrame(update); } },{passive:true}); update();
 })();
@@ -1747,7 +1847,7 @@ if(MOTION&&FINE){
     if(!page) return;
     if(!io){ page.querySelectorAll('.num[data-count]').forEach(n=>{ n._fired=false; }); return; }
     pending.forEach(el=>io.unobserve(el)); pending=[];
-    page.querySelectorAll('[data-reveal]').forEach(g=>{ const mode=g.dataset.reveal, els=mode==='children'?[...g.children]:[g]; els.forEach((el,i)=>{ if(el.closest('.hero')) return; el.style.setProperty('--d',((i%8)*75)+'ms'); el.classList.remove('in','rv','rvm'); el.classList.add(mode==='mask'?'rvm':'rv'); pending.push(el); }); });
+    page.querySelectorAll('[data-reveal]').forEach(g=>{ const mode=g.dataset.reveal, els=mode==='children'?[...g.children]:[g]; els.forEach((el,i)=>{ if(el.closest('.hero')) return; el.style.setProperty('--d',((i%3)*60)+'ms'); el.classList.remove('in','rv','rvm'); el.classList.add(mode==='mask'?'rvm':'rv'); pending.push(el); }); });
     page.querySelectorAll('.split').forEach(h=>{ h.classList.remove('in'); pending.push(h); });
     page.querySelectorAll('[data-draw]').forEach(d=>{ d.classList.remove('drawn'); pending.push(d); });
     page.querySelectorAll('.num[data-count]').forEach(n=>pending.push(n));
@@ -1776,10 +1876,10 @@ if(MOTION&&FINE){
       const c=$('#curtain'); if(!c||c._busy){ go(); return; } c._busy=true; $('#curtainLabel').textContent=LABEL[name]||'';
       const bi=warm(name); c.classList.remove('leave'); void c.offsetWidth; c.classList.add('cover');
       setTimeout(async()=>{
-        if(bi&&bi.decode){ try{ await Promise.race([bi.decode(),new Promise(r=>setTimeout(r,650))]); }catch(e){} }
+        if(bi&&bi.decode){ try{ await Promise.race([bi.decode(),new Promise(r=>setTimeout(r,240))]); }catch(e){} }
         go(); c.classList.remove('cover'); c.classList.add('leave');
-        setTimeout(()=>{ c.classList.remove('leave'); c._busy=false; },680);
-      },500);
+        setTimeout(()=>{ c.classList.remove('leave'); c._busy=false; },520);
+      },330);
     };
   }
   document.addEventListener('pointerover',e=>{ const a=e.target.closest&&e.target.closest('a[data-nav]'); if(a) warm(a.dataset.nav); },{passive:true});
@@ -1849,8 +1949,8 @@ const PROJ={
   barnston:{cat:'LiveRoof · Surrey',t:'Barnston Pump Station',stat:'LiveRoof on a curved roof',d:'LiveRoof modules on the curved roof of the Barnston Island pump station, with fields and mountains behind.',rep:'dean',img:'img/barnston.jpg'},
   calvert:{cat:'LiveRoof · residential',t:'Calvert Residence',stat:'Sedum LiveRoof',d:'A sedum LiveRoof on a modern family home, delivered in pre-grown modules.',rep:'dean',img:'img/residential.jpg'},
   creekside:{cat:'LiveRoof · Revelstoke',t:'Creekside',stat:'Sloped green roof',d:'A sloped LiveRoof with rock ballast edging, looking out over the mountains at Revelstoke.',rep:'dean',img:'img/pce.jpg'},
-  pinchi:{cat:'Reclamation · custom grow',t:'Pinchi Lake Mine',stat:'Grown from regional seed',d:'Interior conifers and shrubs grown from regional seed for the reclamation of a closed mercury mine.',rep:'jennifer',img:'media/banner/plants.webp'},
-  eastthree:{cat:'Custom grow · Inuvik',t:'East Three School shelterbelt',stat:'Arctic provenance',d:'Seed collected in Inuvik, grown for two years in Langley, then returned north for a shelterbelt designed by Cornelia Hahn Oberlander.',rep:'jennifer',img:'img/seeding.jpg'},
+  pinchi:{cat:'Reclamation · custom grow',t:'Pinchi Lake Mine',stat:'Grown from regional seed',d:'Interior conifers and shrubs grown from regional seed for the reclamation of a closed mercury mine.',rep:'jennifer',img:'media/story/3-field.webp'},
+  eastthree:{cat:'Custom grow · Inuvik',t:'East Three School shelterbelt',stat:'Arctic provenance',d:'Seed collected in Inuvik, grown for two years in Langley, then returned north for a shelterbelt designed by Cornelia Hahn Oberlander.',rep:'jennifer',img:'media/story/2-plugs.webp'},
   abbotsford:{cat:'Landscape · Permaloc edging',t:'Abbotsford Regional Hospital',stat:'Permaloc edging',d:'Permaloc aluminum edging for the hospital landscape, supplied by NATS as BC’s Permaloc distributor.',rep:'dean',img:'img/lawn.jpg'}
 };
 (function(){
@@ -1859,7 +1959,7 @@ const PROJ={
     const d=PROJ[id]; if(!d) return; cur=id; if(!pov.classList.contains('open')) back=document.activeElement;
     const im=$('#povImg'); im.src=d.img; im.alt=d.t;
     $('#povCat').textContent=d.cat; $('#povTitle').textContent=d.t; $('#povStat').textContent=d.stat; $('#povText').textContent=d.d;
-    $('#povCta').textContent='Talk to '+REPS[d.rep].split(' ')[0]+' about a project like this';
+    $('#povCta').textContent='Talk to '+REPS[d.rep].split(' (')[0]+' about a project like this'; $('#povIdx').textContent=String(order.indexOf(id)+1).padStart(2,'0')+' / '+String(order.length).padStart(2,'0'); pov.querySelector('.pov-panel').classList.toggle('lowres',(PROJ[id].img||'').startsWith('img/')&&!/deepcove|pce|colony|nursery|splatsin/.test(PROJ[id].img));
     pov.classList.add('open'); pov.setAttribute('aria-hidden','false'); document.documentElement.classList.add('pov-on');
     requestAnimationFrame(()=>requestAnimationFrame(()=>pov.classList.add('show')));
     setTimeout(()=>{ const x=pov.querySelector('.pov-close'); x&&x.focus({preventScroll:true}); },60);
@@ -1874,6 +1974,7 @@ const PROJ={
   });
   document.addEventListener('keydown',e=>{
     if(e.key==='Escape') close();
+    if(pov.classList.contains('open')&&(e.key==='ArrowRight'||e.key==='ArrowLeft')){ const n=order[(order.indexOf(cur)+(e.key==='ArrowRight'?1:order.length-1))%order.length]; pov.classList.remove('show'); setTimeout(()=>open(n),320); }
     if((e.key==='Enter'||e.key===' ')&&e.target.matches&&e.target.matches('.project[data-p]')){ e.preventDefault(); open(e.target.dataset.p); }
     if(e.key==='Tab'&&pov.classList.contains('open')){ const f=[...pov.querySelectorAll('button,a[href]')]; const i=f.indexOf(document.activeElement); if(e.shiftKey&&i<=0){ e.preventDefault(); f[f.length-1].focus(); } else if(!e.shiftKey&&i===f.length-1){ e.preventDefault(); f[0].focus(); } }
   });
@@ -1914,6 +2015,76 @@ const PROJ={
   else if(MOTION){ start(); }
   document.addEventListener('visibilitychange',()=>{ if(document.hidden) stop(); else if(cv.getBoundingClientRect().height) start(); });
   window.addEventListener('resize',()=>{ if(!running) draw(MOTION?0:1); },{passive:true});
+})();
+
+// ================= v4 signature moments =================
+// species marquee: hovering a Latin name brings up that plant; clicking searches the finder for it
+(function(){
+  const f=$('#spf'); if(!f) return; document.body.appendChild(f); const im=f.querySelector('img'), cap=f.querySelector('figcaption');
+  let x=0,y=0,tx=0,ty=0,vx=0,raf=0,cur=null;
+  const loop=()=>{ const nx=x+(tx-x)*.18, ny=y+(ty-y)*.18; vx=nx-x; x=nx; y=ny; f.style.transform='translate3d('+(x+24).toFixed(1)+'px,'+(y-150).toFixed(1)+'px,0) rotate('+Math.max(-4,Math.min(4,vx*.35)).toFixed(2)+'deg)'; raf=cur?requestAnimationFrame(loop):0; };
+  const hit=t=>{ if(!t){ if(cur){ cur=null; f.classList.remove('on'); } return; }
+    if(t===cur) return; const was=!!cur; cur=t; im.src='img/species/'+t.dataset.sp+'.jpg'; cap.textContent=t.textContent; if(!was){ x=tx; y=ty; } f.classList.add('on'); if(!raf) raf=requestAnimationFrame(loop); };
+  document.addEventListener('mousemove',e=>{ tx=e.clientX; ty=e.clientY; hit(e.target.closest&&e.target.closest('.marquee.big .latin[data-sp]')); },{passive:true});
+  addEventListener('scroll',()=>{ if(cur){ const el=document.elementFromPoint(tx,ty); hit(el&&el.closest('.marquee.big .latin[data-sp]')); } },{passive:true});
+  im.addEventListener('error',()=>f.classList.remove('on'));
+  document.addEventListener('click',e=>{ const t=e.target.closest&&e.target.closest('.marquee.big .latin[data-sp]'); if(!t) return; cur=null; f.classList.remove('on'); location.hash='plants'; setTimeout(()=>{ const q=$('#q'); if(q){ q.value=t.textContent; q.dispatchEvent(new Event('input',{bubbles:true})); } },420); });
+})();
+
+// About: a photo for every year, wiping in as the timeline lights
+(function(){
+  const fig=$('#chronPhoto'); if(!fig) return; const ims=[...fig.querySelectorAll('img')], cap=$('#chronCap'), lis=[...document.querySelectorAll('#chron .chron-list li')]; let cur=0, tk=false;
+  const set=i=>{ if(i===cur) return; cur=i; ims.forEach((im,k)=>{ im.classList.toggle('on',k===i); im.classList.toggle('past',k<i); }); if(cap) cap.textContent=ims[i].dataset.cap; };
+  const up=()=>{ tk=false; if(!fig.offsetParent) return; const mark=innerHeight*.62; let i=0; lis.forEach((li,k)=>{ if(li.getBoundingClientRect().top<mark) i=k; }); set(Math.min(i,ims.length-1)); };
+  addEventListener('scroll',()=>{ if(!tk){ tk=true; requestAnimationFrame(up); } },{passive:true});
+  const warm=()=>ims.forEach(im=>{ im.loading='eager'; }); addEventListener('hashchange',()=>{ if(location.hash==='#about') warm(); }); if(location.hash==='#about') warm();
+})();
+
+// LiveRoof: the roof itself, module by module, in the chosen mix
+(function(){
+  const cv=$('#roofCv'); if(!cv) return; const ctx=cv.getContext('2d'), cap=$('#roofCap'); const still=!MOTION;
+  let cells=[], t0=0, raf=0, mode='grow';
+  const pal=()=>{ const b=document.querySelector('.mix[aria-pressed="true"] .bar')||document.querySelector('.mix .bar'); return [...b.querySelectorAll('i')].map(i=>({c:i.style.background,w:parseFloat(i.style.width)/100})); };
+  const pick=(P,r)=>{ let a=0; for(const p of P){ a+=p.w; if(r<=a) return p.c; } return P[P.length-1].c; };
+  function layout(){
+    const dpr=Math.min(2,devicePixelRatio||1), W=cv.clientWidth, H=cv.clientHeight; cv.width=Math.round(W*dpr); cv.height=Math.round(H*dpr);
+    const a=parseInt($('#area').value,10), mods=Math.ceil(a/2*1.03), cap_=150, per=Math.max(1,Math.ceil(mods/cap_)), n=Math.ceil(mods/per);
+    // modules are 1 x 2 ft: lay them out on a roof shaped like the canvas
+    const ratio=(W/H)/2; let cols=Math.max(1,Math.round(Math.sqrt(n*ratio))), rows=Math.ceil(n/cols);
+    const pad=14*dpr, gap=Math.max(1,1.5*dpr), cw=Math.min((cv.width-pad*2-gap*(cols-1))/cols,((cv.height-pad*2-gap*(rows-1))/rows)*2), ch=cw/2;
+    const ox=(cv.width-(cols*cw+gap*(cols-1)))/2, oy=(cv.height-(rows*ch+gap*(rows-1)))/2; const P=pal();
+    cells=[]; for(let k=0;k<n;k++){ const c=k%cols, r=Math.floor(k/cols); const seed=Math.sin(k*12.9898)*43758.5453; const rnd=seed-Math.floor(seed); cells.push({x:ox+c*(cw+gap),y:oy+r*(ch+gap),w:cw,h:ch,d:(c+r)/(cols+rows),col:pick(P,rnd),old:null,dots:[rnd,(rnd*7)%1,(rnd*13)%1]}); }
+    if(cap) cap.textContent=per>1?('Your roof · each tile is '+per+' modules · '+mods.toLocaleString()+' in all'):('Your roof · '+mods.toLocaleString()+' modules, 1 by 2 ft');
+  }
+  function frame(now){
+    const T=mode==='grow'?900:520, p=still?1:Math.min(1,(now-t0)/T); ctx.fillStyle='#2B302D'; ctx.fillRect(0,0,cv.width,cv.height);
+    for(const c of cells){ const k=Math.max(0,Math.min(1,(p*1.6-c.d*.6)/1)); const e=1-Math.pow(1-k,3);
+      ctx.fillStyle='#4A3A2A'; ctx.fillRect(c.x,c.y,c.w,c.h); ctx.strokeStyle='rgba(0,0,0,.35)'; ctx.lineWidth=1; ctx.strokeRect(c.x+.5,c.y+.5,c.w-1,c.h-1);
+      const col=(mode==='tint'&&c.old&&e<1)?c.old:c.col;
+      if(mode==='tint'&&c.old){ ctx.fillStyle=c.old; ctx.fillRect(c.x,c.y,c.w,c.h); ctx.globalAlpha=e; ctx.fillStyle=c.col; ctx.fillRect(c.x,c.y,c.w,c.h); ctx.globalAlpha=1; }
+      else if(e>0){ const s=.35+.65*e; const w=c.w*s,h=c.h*s; ctx.globalAlpha=Math.min(1,e*1.4); ctx.fillStyle=col; ctx.fillRect(c.x+(c.w-w)/2,c.y+(c.h-h)/2,w,h); ctx.globalAlpha=1; }
+      if(e>.6&&c.w>10){ ctx.fillStyle='rgba(255,255,255,.18)'; c.dots.forEach((d,i)=>{ ctx.beginPath(); ctx.arc(c.x+c.w*(.2+.6*d),c.y+c.h*(.25+.5*((d*3+i*.37)%1)),Math.max(1,c.h*.09),0,7); ctx.fill(); }); }
+    }
+    if(p<1) raf=requestAnimationFrame(frame); else raf=0;
+  }
+  function run(m){ mode=m; cancelAnimationFrame(raf); t0=performance.now(); raf=requestAnimationFrame(frame); }
+  function grow(){ layout(); run('grow'); }
+  function tint(){ const P=pal(); cells.forEach(c=>{ c.old=c.col; const seed=Math.sin(c.x*.13+c.y*.71)*43758.5453; c.col=pick(P,seed-Math.floor(seed)); }); run('tint'); }
+  let deb=0; $('#area').addEventListener('input',()=>{ clearTimeout(deb); deb=setTimeout(grow,90); });
+  $('#mixes').addEventListener('click',e=>{ if(e.target.closest('.mix')) setTimeout(tint,0); });
+  addEventListener('resize',()=>{ if(cv.offsetParent){ layout(); run('tint'); } },{passive:true});
+  const io=new IntersectionObserver(es=>es.forEach(en=>{ if(en.isIntersecting){ grow(); io.unobserve(cv); } }),{threshold:.3}); io.observe(cv);
+  addEventListener('hashchange',()=>{ if(location.hash==='#liveroof'){ io.observe(cv); } });
+})();
+
+// concept pill steps aside where it would cover a call to action (closer, footer, chat page)
+(function(){
+  const r=document.documentElement, targets=[$('#closer'),document.querySelector('footer')].filter(Boolean); const vis=new Set();
+  const sync=()=>r.classList.toggle('pill-off',vis.size>0||location.hash==='#chat');
+  if('IntersectionObserver' in window){ const io=new IntersectionObserver(es=>{ es.forEach(e=>{ e.isIntersecting?vis.add(e.target):vis.delete(e.target); }); sync(); },{rootMargin:'0px 0px -10% 0px'}); targets.forEach(t=>io.observe(t)); }
+  addEventListener('hashchange',sync); sync();
+  // out of the way while reading down the page, back as soon as the visitor scrolls up
+  let ly=scrollY, tk=false; addEventListener('scroll',()=>{ if(tk) return; tk=true; requestAnimationFrame(()=>{ tk=false; const y=scrollY; if(y>ly+6&&y>480) r.classList.add('pill-down'); else if(y<ly-6||y<480) r.classList.remove('pill-down'); ly=y; }); },{passive:true});
 })();
 </script>
 
