@@ -198,7 +198,7 @@
           void numEl.offsetWidth;            // restart the little settle animation
           numEl.classList.add('is-new');
         }
-        var phase = lit >= 8 ? 'b' : 'a';
+        var phase = lit >= 7 ? 'b' : 'a';
         if (phase !== cur.phase) swapPhase(phase);
         setTen(lit === 10);
       }

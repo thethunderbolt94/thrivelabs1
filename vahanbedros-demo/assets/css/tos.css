@@ -100,6 +100,25 @@ body[data-page="tos"] {
     aspect-ratio: 1066 / 1600;
   }
 }
+/* Desktop: the whole photo, top to bottom (Vahan asked to see more of himself and of the logo).
+   The frame is as tall as the panel, sits against the right edge, and its left edge melts into the navy. */
+@media (min-width: 900px) {
+  @supports (width: 1cqw) {
+    #hero .slide__frame {
+      --fx: 100%;
+      --fy: 0%;
+      width: calc(100cqh * 1066 / 1600);
+      height: 100cqh;
+      -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 24%);
+      mask-image: linear-gradient(90deg, transparent 0, #000 24%);
+    }
+    #hero.is-live .slide .slide__frame { animation-name: hero-kb-soft; }
+  }
+}
+@keyframes hero-kb-soft {
+  from { transform: scale(1) translate3d(0, 0, 0); }
+  to { transform: scale(1.03) translate3d(-.3%, -.4%, 0); }
+}
 #hero .slide__frame picture,
 #hero .slide__frame img {
   position: absolute;
@@ -862,6 +881,13 @@ html.notes-on #pillars .pillar__line[data-tbc] { text-decoration-thickness: 1.5p
 #circle-of-ten .cot__phase-sub { margin: 0; color: var(--fg-soft); }
 
 #circle-of-ten .cot__cohort { margin: 0; }
+#circle-of-ten .cot__next {
+  margin: 14px 0 0;
+  font-family: var(--font-display);
+  font-size: clamp(1.2rem, 1rem + .7vw, 1.5rem);
+  line-height: 1.2;
+}
+#circle-of-ten .cot__next strong { font-weight: 600; color: var(--stage-gold); }
 #circle-of-ten .cot__dot {
   flex: none;
   width: 7px;
@@ -1616,6 +1642,7 @@ html.js #floor:not(.on):not(.done) .fl__frame img { filter: brightness(.52); }
   text-shadow: 0 2px 40px rgba(2, 6, 11, .55);
 }
 #floor .fl__title em { color: var(--accent); }
+#floor .fl__lede strong { font-weight: 600; color: var(--stage-gold, #D4A84B); }
 #floor .fl__lede { max-width: 38ch; margin: clamp(20px, 2.6vw, 30px) 0 0; color: rgba(245, 233, 200, .88); text-shadow: 0 1px 20px rgba(2, 6, 11, .7); }
 
 #floor .fl__ctas {

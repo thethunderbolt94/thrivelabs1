@@ -1077,6 +1077,13 @@ html:not(.js) #mirror .play .sent__expr .wd {
   line-height: 1.55;
   color: var(--fg);
 }
+#teaching .cls-link {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: var(--accent);
+  text-underline-offset: .2em;
+}
+#teaching .cls-link:hover { text-decoration-thickness: 2px; }
 /* a short brass tick, the margin mark of a ruled page */
 #teaching .cls-list li::before {
   content: "";
@@ -1088,7 +1095,7 @@ html:not(.js) #mirror .play .sent__expr .wd {
   background: var(--accent);
 }
 
-/* ---------- Photographs: the arch, and a printed detail pinned over its corner ---------- */
+/* ---------- Photograph: the arch ---------- */
 
 #teaching .cls-visual {
   grid-area: visual;
@@ -1100,54 +1107,9 @@ html:not(.js) #mirror .play .sent__expr .wd {
   width: 100%;
   margin: 0;
 }
-/* a tight crop: just him and the whiteboard, the projector slide left out of frame */
 #teaching .cls-arch img {
-  position: absolute;
-  left: -8.6%;
-  top: -11%;
-  width: 172%;
-  height: auto;
-  max-width: none;
-}
-
-#teaching .cls-board {
-  position: relative;
-  z-index: 2;
-  width: 88%;
-  margin: -4.75rem 0 0 -3.75rem;
-  padding: .6rem .6rem .5rem;
-  background: var(--linen);
-  box-shadow: 0 0 0 1px var(--rule), 0 26px 50px -22px rgba(28, 26, 22, .4);
-}
-#teaching .cls-board__img {
-  overflow: hidden;
-  aspect-ratio: 1024 / 473;
-  background: var(--paper);
-}
-#teaching .cls-board__img picture,
-#teaching .cls-board__img img {
-  display: block;
-  width: 100%;
-  height: 100%;
-}
-#teaching .cls-board__img img {
   object-fit: cover;
-  /* the detail zooms in once, when the print arrives (final state = zoomed, so a stalled clock still ends right) */
-  transform: scale(1.18);
-  transform-origin: 16% 26%;
-  transition: transform calc(2.8s * var(--slow)) var(--ease) calc(.35s * var(--slow));
-}
-html.js #teaching .cls-board.below:not(.is-in) .cls-board__img img {
-  transform: scale(1);
-  transition: none;
-}
-html.js #teaching .cls-board.is-in.done .cls-board__img img {
-  transition: none;
-}
-#teaching .cls-board figcaption {
-  margin: .6rem .15rem .1rem;
-  font-size: .78rem;
-  color: color-mix(in srgb, var(--ink) 70%, transparent);
+  object-position: 50% 45%;
 }
 
 /* ---------- Storytelling quote ---------- */
@@ -1180,21 +1142,12 @@ html.js #teaching .cls-board.is-in.done .cls-board__img img {
     row-gap: clamp(2.5rem, 7vw, 3.5rem);
   }
   #teaching .cls-visual { position: relative; top: auto; max-width: 34rem; }
-  #teaching .cls-board {
-    width: 84%;
-    margin: -3rem 0 0 auto;
-  }
   #teaching .cls-head .display { max-width: 12ch; }
 }
 
 @media (max-width: 759.98px) {
   #teaching .cls-arch { --arch-ratio: 1 / 1.1; }
-  #teaching .cls-arch img { top: -15.6%; }
   #teaching .cls-lead { font-size: 1.45rem; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  #teaching .cls-board__img img { transform: none; transition: none; }
 }
 /* Room 5: Temple of Speak teaser (#temple). Temple Navy room. Everything is scoped under #temple. */
 
@@ -1260,6 +1213,15 @@ html.js #teaching .cls-board.is-in.done .cls-board__img img {
   background: var(--stage-gold);
   box-shadow: 0 0 0 4px rgba(212, 168, 75, .18), 0 0 14px rgba(212, 168, 75, .5);
 }
+
+#temple .tmp-next {
+  margin: .9rem 0 0;
+  font-family: var(--font-display);
+  font-size: clamp(1.25rem, 1rem + .8vw, 1.6rem);
+  line-height: 1.2;
+  color: var(--fg);
+}
+#temple .tmp-next strong { font-weight: 600; color: var(--stage-gold); }
 
 /* ---------- The door ---------- */
 
@@ -1405,47 +1367,37 @@ html.js #teaching .cls-board.is-in.done .cls-board__img img {
 
 /* ---------- Testimonial ---------- */
 
-#temple .tmp-quote {
-  margin: clamp(3rem, 6vw, 5rem) 0 0;
-}
+/* ---------- What members say: a slow band of their words, then the photo strip ---------- */
+
 /* not Vahan's words, so roman, never italic */
-#temple .tmp-quote .display {
-  max-width: 54rem;
-  font-size: clamp(1.7rem, 1.05rem + 2.5vw, 3rem);
-  line-height: 1.12;
-  letter-spacing: -.015em;
-}
-#temple .tmp-quote figcaption { margin-top: 1.4rem; }
-#temple .tmp-quote cite { font-style: normal; color: var(--linen); font-weight: 500; }
-
-/* ---------- The session: an arch photo beside the testimonial, then a strip of photos ---------- */
-
-#temple .tmp-session {
-  display: grid;
-  grid-template-columns: minmax(0, 22rem) minmax(0, 1fr);
-  gap: clamp(2rem, 6vw, 6rem);
-  align-items: center;
-  margin-top: clamp(3.5rem, 7vw, 6rem);
-}
-#temple .tmp-photo { margin: 0; min-width: 0; }
-#temple .tmp-photo__arch {
-  box-shadow: 0 40px 80px -40px rgba(2, 6, 11, .9);
-}
-/* the photo is graded warm; a whisper of navy at its foot seats it in the room */
-#temple .tmp-photo__arch::before {
-  content: "";
-  position: absolute;
-  inset: 0;
+#temple .tmp-voices {
+  --marquee-gap: clamp(1.6rem, 3.4vw, 3.2rem);
+  position: relative;
   z-index: 1;
-  background: linear-gradient(180deg, transparent 68%, rgba(14, 36, 59, .45) 100%);
-  pointer-events: none;
+  margin: clamp(3.5rem, 7vw, 6rem) 0 0;
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 1rem + 1.9vw, 2.6rem);
+  line-height: 1.2;
+  letter-spacing: -.012em;
+  color: var(--linen);
 }
-#temple .tmp-session .tmp-quote { margin: 0; }
+#temple .tmp-voices q { quotes: "\201C" "\201D"; }
+#temple .tmp-voices__by {
+  margin-left: .55em;
+  font-family: var(--font-body);
+  font-size: .78rem;
+  font-weight: 500;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--stage-gold);
+  vertical-align: .35em;
+}
+#temple .tmp-voices .marquee__sep { width: .7em; height: .24em; }
 
 #temple .tmp-strip {
   position: relative;
   z-index: 1;
-  margin: clamp(3.5rem, 7vw, 6rem) 0 0;
+  margin: clamp(1.4rem, 2.6vw, 2.2rem) 0 0;
 }
 #temple .tmp-strip .marquee--photos { --strip-h: clamp(220px, 24vw, 340px); }
 #temple .tmp-strip img { border-radius: 2px; }
@@ -1463,11 +1415,6 @@ html.js #teaching .cls-board.is-in.done .cls-board__img img {
   #temple .tmp-grid { grid-template-columns: minmax(0, 1fr); }
   #temple .tmp-copy .display { max-width: 14ch; }
   #temple .tmp-door { width: min(100%, 22rem); }
-}
-
-@media (max-width: 759.98px) {
-  #temple .tmp-session { grid-template-columns: minmax(0, 1fr); }
-  #temple .tmp-photo { width: min(78%, 20rem); }
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -201,8 +201,9 @@
    The toggle sets data-mode on .play; CSS holds both finished states (rows and circle, rigid
    caps and expressive Fraunces). GSAP Flip carries the 34 desks and the speaker's mark from one
    layout to the other. Without Flip the browser animates the same move with CSS transitions
-   (.is-native); with reduced motion it just switches. The room plays once by itself when it
-   scrolls into view; after that the toggle is his. Everything is readable in either state. */
+   (.is-native); with reduced motion it just switches. While it is on screen the room swaps
+   layouts by itself every ~9 s; the first click on the toggle stops that. Everything is readable
+   in either state. */
 (function () {
   'use strict';
 
@@ -218,8 +219,7 @@
 
   var reduced = !!(window.VB && window.VB.reduced);
   var mode = play.getAttribute('data-mode') === 'expression' ? 'expression' : 'performance';
-  var touched = false;     // he used the toggle himself: never auto-play after that
-  var played = false;      // the one automatic play has happened (or been skipped)
+  var touched = false;     // the visitor used the toggle: never auto-play after that
   var autoTimer = 0;
 
   var LABEL = {
@@ -275,40 +275,48 @@
   buttons.forEach(function (b) {
     b.addEventListener('click', function () {
       touched = true;
-      played = true;
-      window.clearTimeout(autoTimer);
+      disarm();
       setMode(b.getAttribute('data-mode-set') === 'expression' ? 'expression' : 'performance');
     });
   });
 
   reflect();
 
-  // Play once, by itself, when the field is mostly on screen.
+  // Alternate by itself while the field is mostly on screen, holding each layout long enough to
+  // read (HOLD ms), and pause whenever it scrolls away. The first click hands the toggle over for good.
+  var HOLD = 9000;
+  var inView = false;
   function visibleEnough() {
     var r = field.getBoundingClientRect();
     var vh = window.innerHeight || document.documentElement.clientHeight || 0;
     var seen = Math.min(r.bottom, vh) - Math.max(r.top, 0);
     return seen >= Math.min(r.height, vh) * 0.6;
   }
-  function arm() {
-    if (played || touched || mode !== 'performance') return;
-    played = true;
-    autoTimer = window.setTimeout(function () {
-      if (touched) return;
-      if (!visibleEnough()) { played = false; return; }   // scrolled away first: wait for the next time it is in view
-      setMode('expression');
-    }, 900);
+  function tick() {
+    autoTimer = 0;
+    if (touched || !inView) return;
+    if (!visibleEnough() || document.hidden) { arm(); return; }
+    setMode(mode === 'performance' ? 'expression' : 'performance');
+    arm();
   }
+  function arm() {
+    if (touched || autoTimer) return;
+    autoTimer = window.setTimeout(tick, HOLD);
+  }
+  function disarm() { window.clearTimeout(autoTimer); autoTimer = 0; }
 
-  if (reduced) { played = true; return; }
+  if (reduced) return;
   if ('IntersectionObserver' in window) {
     var io = new IntersectionObserver(function (entries) {
-      entries.forEach(function (en) { if (en.isIntersecting) arm(); });
+      entries.forEach(function (en) {
+        inView = en.isIntersecting;
+        if (inView) arm(); else disarm();
+      });
     }, { threshold: 0.6 });
     io.observe(field);
   } else {
-    var onScroll = function () { if (visibleEnough()) { arm(); window.removeEventListener('scroll', onScroll); } };
-    window.addEventListener('scroll', onScroll, { passive: true });
+    inView = true;
+    arm();
   }
 })();
 ;

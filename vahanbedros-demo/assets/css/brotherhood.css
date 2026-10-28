@@ -579,6 +579,13 @@ body[data-page="brotherhood"] .bro-band .marquee__sep { background: radial-gradi
 }
 #join .step__more { margin: clamp(16px, 2vw, 24px) 0 0; font-size: .98rem; }
 
+#join .join__note {
+  max-width: 46ch;
+  margin: clamp(28px, 3.4vw, 44px) 0 0;
+  font-size: clamp(1.02rem, .96rem + .25vw, 1.18rem);
+  line-height: 1.6;
+  color: var(--fg);
+}
 #join .join__arka {
   max-width: 40ch;
   margin: clamp(56px, 7vw, 104px) 0 0;
