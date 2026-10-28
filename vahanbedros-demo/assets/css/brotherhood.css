@@ -312,8 +312,7 @@ html.js #hero.done .hero__frame { animation: none; opacity: 1; filter: none; tra
 @media (prefers-reduced-motion: reduce) {
   html.js #hero .hero__frame { animation: none; }
 }
-/* v4: the Ember band under the hero. The shared .marquee--band, recoloured with this page's own accent.
-   Night text on Ember is about 5.3:1. A thin warm glow above and below so it reads as firelight, not a strip of paint. */
+/* v4: the band under the hero. The shared quiet .marquee--band, with ember hairlines and ember sparks between items. */
 body[data-page="brotherhood"] {
   /* the band's size, shared with the hero so the band sits on the first screen, right under the hero */
   --band-fs: clamp(.78rem, .7rem + .3vw, .98rem);
@@ -326,11 +325,10 @@ body[data-page="brotherhood"] .bro-band {
   padding-block: var(--band-pad);
   position: relative;
   z-index: 2;
-  background: var(--ember);
-  color: var(--night);
-  box-shadow: 0 0 40px -6px var(--ember-glow);
+  color: color-mix(in srgb, var(--tungsten) 86%, transparent);
+  border-color: color-mix(in srgb, var(--ember) 45%, transparent);
 }
-body[data-page="brotherhood"] .bro-band .marquee__sep { background: var(--night); }
+body[data-page="brotherhood"] .bro-band .marquee__sep { background: radial-gradient(closest-side, var(--tungsten), var(--ember) 55%, rgba(200, 105, 58, 0) 100%); }
 /* Brotherhood, room 2 (#circle): what it is. Three words, one sentence each, set as three columns
    with a single hairline above them. Type-led; the only warmth is a thread of ember at the head of
    each column and a glow that rises from the floor under the column you point at. */

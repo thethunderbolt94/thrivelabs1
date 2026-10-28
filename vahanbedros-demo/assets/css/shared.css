@@ -656,7 +656,7 @@ html.js .bottom-bar:not(.is-shown) {
 
 /* Rolling banners. Markup: .marquee[data-marquee] > .marquee__track > .marquee__group (a <ul> is fine).
    core.js copies the group and drifts the track; without it the first group simply sits still, clipped.
-   Variants: --type (big serif words, every other one outlined), --band (a gold ribbon; add --tilt to lean it),
+   Variants: --type (big serif words, every other one outlined), --band (a quiet line of small caps between hairlines),
    --photos (a strip of pictures, set --strip-h). Add --fade to soften both ends. */
 .marquee {
   --marquee-gap: clamp(1.4rem, 3vw, 3rem);
@@ -710,27 +710,23 @@ html.js .bottom-bar:not(.is-shown) {
 }
 .marquee--type .marquee__sep { width: .5em; height: .17em; }
 
-/* a gold ribbon of small caps; .marquee--tilt leans it across whatever sits behind and bleeds it past both
-   edges so the ends never show (the page already clips sideways overflow) */
+/* a quiet line of small caps between two hairlines: the credits under a stage, not tape.
+   (Vahan, 2026-10-26: the gold ribbon read like "Caution" tape.) .marquee--tilt is kept for markup that
+   still asks for it, but it no longer leans anything. */
 .marquee--band {
-  --marquee-gap: clamp(1rem, 2vw, 1.6rem);
-  background: var(--stage-gold);
-  color: var(--house-dark);
+  --marquee-gap: clamp(1.4rem, 3vw, 2.6rem);
+  background: transparent;
+  color: color-mix(in srgb, var(--linen) 82%, transparent);
+  border-block: 1px solid rgba(183, 161, 122, .28);
   font-family: var(--font-body);
-  font-size: clamp(.78rem, .7rem + .3vw, .98rem);
-  font-weight: 600;
-  letter-spacing: .14em;
+  font-size: clamp(.72rem, .66rem + .22vw, .86rem);
+  font-weight: 500;
+  letter-spacing: .2em;
   text-transform: uppercase;
-  padding-block: clamp(.7rem, 1.4vw, 1rem);
-  transform: rotate(var(--tilt, 0deg));
+  padding-block: clamp(.85rem, 1.6vw, 1.15rem);
 }
-.marquee--tilt {
-  --tilt: -2.5deg;
-  width: calc(100% + 10vw);
-  max-width: none;
-  margin-inline: -5vw;
-}
-.marquee--band .marquee__sep { background: var(--house-dark); width: 1.4em; height: .45em; }
+.marquee--tilt { --tilt: 0deg; }
+.marquee--band .marquee__sep { width: .9em; height: .3em; }
 
 /* a strip of pictures */
 .marquee--photos { --marquee-gap: clamp(10px, 1.4vw, 18px); }
@@ -747,7 +743,6 @@ html.js .bottom-bar:not(.is-shown) {
 @media (prefers-reduced-motion: reduce) {
   .marquee { overflow-x: auto; scrollbar-width: none; }
   .marquee::-webkit-scrollbar { display: none; }
-  .marquee--band { transform: none; }
 }
 /* Navigation: the desktop links, the Menu button and the full-screen menu overlay.
 

@@ -1,5 +1,5 @@
 /* Home hero v4, "Centre stage" (#hero). One screen, no pin: a dark stage, a spotlight drawn in code, the giant
-   name behind the cut-out figure, his line, the call, and a tilted gold band of credentials.
+   name behind the cut-out figure, his line, the call, and a quiet rolling line of credentials.
 
    Layers, back to front: .hero__stage (the room) · .hero__name (h1) · .hero__light (the dark outside the beam,
    which is what lights the name; the beam; the lamp's glow; the pool on the floor; the dimmer) · .hero__figure ·
@@ -264,9 +264,7 @@
   z-index: 6;
   margin: clamp(1.4rem, 3vh, 2.6rem) 0 clamp(1rem, 3vh, 2.6rem);
 }
-#hero .hero__band .marquee--band {
-  box-shadow: 0 18px 40px -18px rgba(0, 0, 0, .7);
-}
+#hero .hero__band .marquee--band { background: rgba(2, 6, 11, .55); }
 
 /* ---------- tablets and phones: the stage on top, the sub and the speaking link under the band ---------- */
 
