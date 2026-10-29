@@ -201,7 +201,7 @@ body[data-page="brotherhood"] .nw { white-space: nowrap; }
   height: 100%;
   max-width: none;
   object-fit: cover;
-  object-position: 12% 40%;                 /* keeps his face centred and the guitar on the right out of the arch */
+  object-position: 50% 18%;                 /* his face high in the arch, his clasped hands below */
   filter: saturate(.78) contrast(1.05) brightness(.98);
 }
 

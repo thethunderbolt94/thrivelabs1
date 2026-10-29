@@ -859,7 +859,7 @@ html.notes-on #pillars .pillar__line[data-tbc] { text-decoration-thickness: 1.5p
   border-radius: 3px;
   background: rgba(183, 161, 122, .28);
 }
-#circle-of-ten .cot__cells i:nth-child(7) { margin-right: 14px; }
+#circle-of-ten .cot__cells i:nth-child(6) { margin-right: 14px; }
 #circle-of-ten .cot__cells i.is-lit { background: var(--stage-gold); box-shadow: 0 0 10px rgba(212, 168, 75, .45); }
 
 #circle-of-ten .cot__phases { display: grid; gap: 20px; }

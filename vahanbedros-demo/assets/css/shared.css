@@ -546,6 +546,8 @@ html.js .site-header:not(.is-solid) {
 .site-footer .contact { grid-area: contact; align-self: start; }
 .site-footer .social { grid-area: social; display: flex; flex-wrap: wrap; gap: 6px 22px; align-self: start; }
 .site-footer .credit { grid-area: credit; justify-self: end; align-self: end; font-size: .8rem; color: var(--fg-soft); }
+.site-footer .credit a { color: var(--fg); text-decoration: underline; text-decoration-color: var(--stage-gold); text-underline-offset: .25em; }
+.site-footer .credit a:hover { color: var(--stage-gold); }
 
 .footer-rule {
   grid-area: rule;

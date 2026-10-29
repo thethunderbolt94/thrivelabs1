@@ -1171,32 +1171,6 @@ html:not(.js) #mirror .play .sent__expr .wd {
   color: var(--fg-soft);
 }
 
-/* the three pillars, one line, across the whole room */
-#temple .tmp-pillars {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  gap: .5rem 1.5rem;
-  margin: clamp(3.5rem, 7vw, 6rem) 0 0;
-  padding-top: 1.6rem;
-  border-top: 1px solid var(--rule-strong);
-  font-family: var(--font-display);
-  font-variation-settings: "opsz" 72;
-  font-size: clamp(1.2rem, .9rem + 1.2vw, 2rem);
-  line-height: 1.2;
-  letter-spacing: -.01em;
-  color: var(--linen);
-}
-#temple .tmp-pillars span { display: inline-flex; align-items: center; gap: 1.1rem; white-space: nowrap; }
-#temple .tmp-pillars span::before {
-  content: "";
-  flex: none;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--stage-gold);
-}
-
 #temple .tmp-cohort {
   display: flex;
   align-items: center;
@@ -1365,34 +1339,50 @@ html:not(.js) #mirror .play .sent__expr .wd {
 #temple .tmp-door:hover .tmp-door__go svg,
 #temple .tmp-door:focus-visible .tmp-door__go svg { transform: translateX(.35rem); }
 
-/* ---------- Testimonial ---------- */
-
-/* ---------- What members say: a slow band of their words, then the photo strip ---------- */
+/* ---------- What members say: a slow band of cards, then the photo strip ---------- */
 
 /* not Vahan's words, so roman, never italic */
 #temple .tmp-voices {
-  --marquee-gap: clamp(1.6rem, 3.4vw, 3.2rem);
+  --marquee-gap: clamp(14px, 1.6vw, 22px);
   position: relative;
   z-index: 1;
   margin: clamp(3.5rem, 7vw, 6rem) 0 0;
+}
+#temple .tmp-voices .marquee__group { align-items: stretch; }
+#temple .tmp-voice {
+  display: flex;
+  flex-direction: column;
+  width: clamp(17.5rem, 29vw, 26rem);
+  padding: clamp(1.3rem, 2vw, 1.8rem) clamp(1.3rem, 2vw, 1.9rem);
+  border: 1px solid var(--rule-strong);
+  border-radius: 3px;
+  background: rgba(8, 22, 36, .38);
+  white-space: normal;
+}
+#temple .tmp-voice__q { margin: 0 0 1.4rem; }
+#temple .tmp-voice__q p {
+  margin: 0;
   font-family: var(--font-display);
-  font-size: clamp(1.5rem, 1rem + 1.9vw, 2.6rem);
-  line-height: 1.2;
-  letter-spacing: -.012em;
+  font-variation-settings: "opsz" 36;
+  font-size: clamp(1.06rem, .96rem + .4vw, 1.3rem);
+  line-height: 1.42;
   color: var(--linen);
 }
-#temple .tmp-voices q { quotes: "\201C" "\201D"; }
-#temple .tmp-voices__by {
-  margin-left: .55em;
-  font-family: var(--font-body);
-  font-size: .78rem;
+#temple .tmp-voice__q p::before { content: "\201C"; }
+#temple .tmp-voice__q p::after { content: "\201D"; }
+#temple .tmp-voice__by {
+  margin: auto 0 0;
+  font-size: .8rem;
+  color: var(--fg-soft);
+}
+#temple .tmp-voice__name {
+  display: block;
+  margin-bottom: .2rem;
   font-weight: 500;
-  letter-spacing: .16em;
+  letter-spacing: .14em;
   text-transform: uppercase;
   color: var(--stage-gold);
-  vertical-align: .35em;
 }
-#temple .tmp-voices .marquee__sep { width: .7em; height: .24em; }
 
 #temple .tmp-strip {
   position: relative;
@@ -1411,7 +1401,6 @@ html:not(.js) #mirror .play .sent__expr .wd {
 /* ---------- Tablet and phone ---------- */
 
 @media (max-width: 959.98px) {
-  #temple .tmp-pillars { flex-direction: column; align-items: flex-start; }
   #temple .tmp-grid { grid-template-columns: minmax(0, 1fr); }
   #temple .tmp-copy .display { max-width: 14ch; }
   #temple .tmp-door { width: min(100%, 22rem); }
