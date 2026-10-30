@@ -368,6 +368,19 @@ fieldset { border: 0; padding: 0; min-width: 0; }
 .dm-truck.is-parked .dm-truck__beam { opacity: 0; }
 .dm-leader { stroke: rgba(243, 239, 231, .45); stroke-width: 1; fill: none; }
 .dm-leader-dot { fill: var(--ink); }
+/* the network under the corridor: service-area tint, the other fifteen lanes, their cities */
+.dm-net__fill { fill: var(--red); fill-opacity: .075; stroke: var(--red); stroke-opacity: .28; stroke-width: 1; stroke-linejoin: round; fill-rule: evenodd; }
+.dm-net__lane { fill: none; stroke: #F3EFE7; stroke-opacity: .5; stroke-width: 1.2; stroke-linecap: round; stroke-linejoin: round; }
+.dm-net__lane--van { stroke: var(--red-2); stroke-opacity: .7; }
+.dm-city__dot { fill: var(--bg); stroke: var(--ink-2); stroke-width: 1.2; }
+.dm-city__label {
+  font: 500 11px/1 var(--f-ui); fill: var(--ink-2); letter-spacing: .01em;
+  paint-order: stroke; stroke: var(--bg); stroke-width: 3px; stroke-linejoin: round;
+}
+.dm-city:not(.dm-city--major) .dm-city__label { display: none; }
+.hero:not(.drive-on) .dm-net { opacity: .85; }
+.drive-on .dm-net, .drive-on .dm-cities { opacity: 0; }
+.drive-on .dm-city__label { opacity: 0; }
 
 /* ---- callouts (shared look) ---- */
 .co {
@@ -385,6 +398,8 @@ fieldset { border: 0; padding: 0; min-width: 0; }
 .co__body { font-size: 14.5px; line-height: 1.5; color: var(--ink-2); }
 .co__facts { margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--line); display: grid; gap: 5px; font-size: 14px; color: var(--ink-2); }
 .co__facts b { color: var(--ink); font-weight: 600; margin-right: 6px; letter-spacing: -0.02em; }
+.co__facts--row { grid-auto-flow: column; justify-content: start; gap: 18px; }
+.co--net .co__body { font-size: 14px; }
 .co__badges { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; margin-top: 12px; }
 .co__badges li { display: flex; align-items: center; justify-content: center; height: 44px; padding: 4px 6px; border-radius: 3px; background: #F1F1F2; }
 .co__badges img { width: auto; height: 36px; max-width: 100%; object-fit: contain; }
@@ -426,8 +441,8 @@ fieldset { border: 0; padding: 0; min-width: 0; }
 }
 
 /* ---- pinned drive ---- */
-.drive-on.hero { height: 640vh; }
-.drive-on.hero[data-mode="m"] { height: 580vh; }
+.drive-on.hero { height: 700vh; }
+.drive-on.hero[data-mode="m"] { height: 640vh; }
 .drive-on .drive__sticky {
   position: -webkit-sticky; position: sticky; top: 0;
   display: block; height: 100vh; height: 100dvh; overflow: hidden;
@@ -454,6 +469,7 @@ fieldset { border: 0; padding: 0; min-width: 0; }
 
 .drive-on .drive__callouts { position: absolute; inset: 0; z-index: 4; display: block; max-width: none; padding: 0; margin: 0; pointer-events: none; }
 .drive-on .co { position: absolute; left: 0; top: 0; width: 340px; opacity: 0; will-change: transform, opacity; }
+.drive-on .co--net { width: 380px; }
 
 .drive-on .drive__end {
   position: absolute; z-index: 5; margin: 0; padding: 0;

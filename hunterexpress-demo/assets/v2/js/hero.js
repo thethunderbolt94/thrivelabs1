@@ -34,13 +34,22 @@
   var OPEN_OUT = [.035, .085];          // opening copy leaves
   var PHOTO_OUT = [.05, .135];          // yard photo dissolves into the map
   var HUD_IN = [.085, .13];             // odometer, rail, grid
-  var FIT = [.83, .95];                 // camera eases out to the whole route
+  var FIT = [.83, .95];                 // camera eases out, past the route, to the whole network
   var END_IN = [.885, .915];            // end headline + CTAs
+  // the network: the other lanes draw on during the long haul after Nashville (the "one spine, fifteen branches"
+  // beat) and stay faint for the rest of the drive, then come up fully, with the service-area tint and the
+  // cities, as the camera pulls back at the end
+  var NET_DRAW = [.535, .615];          // lanes draw on
+  var NET_LOW = [.535, .58], NET_LOW_A = .45;
+  var NET_FULL = [.83, .93];
+  var COV_IN = [.86, .95];              // service-area tint + city labels
+  var CITY_MINZ = .36;                  // px per hero unit below which city labels would collide (phones)
   var CO = [
     { id: 'brampton', at: 'brampton', w: [.105, .125, .215, .235], go: .17 },
     { id: 'windsor-detroit', at: 'windsor-detroit', w: [.245, .265, .375, .395], go: .30 },
-    { id: 'nashville', at: 'nashville', w: [.425, .445, .53, .55], go: .48 },
-    { id: 'laredo', at: 'laredo', w: [.60, .62, .705, .725], go: .655 },
+    { id: 'nashville', at: 'nashville', w: [.425, .445, .515, .535], go: .48 },
+    { id: 'network', at: 'nashville', w: [.545, .565, .61, .63], go: .58, fixed: true },   // no single place: parks top-left on desktop, no leader
+    { id: 'laredo', at: 'laredo', w: [.64, .655, .715, .735], go: .66 },
     { id: 'saltillo', at: 'saltillo', w: [.735, .755, .86, .88], go: .80 }
   ];
   var RAIL_P = [0, .30, .47, .65, .79];  // when the truck reaches each rail stop
@@ -92,6 +101,12 @@
   var line = $('.dm-line'), glows = $$('.dm-glow'), ghost = $('.dm-ghost');
   var land = $('.dm-land'), lakes = $('.dm-lakes'), borders = $('.dm-borders'), bounds = $$('.dm-bound');
   var truck = $('#dmTruck'), truckR = $('.dm-truck__r'), leadersG = $('#dmLeaders');
+  var net = $('#dmNet'), cov = $('#dmCov'), laneEls = $$('.dm-net__lane'), citiesG = $('#dmCities');
+  var cities = $$('.dm-city').map(function (el) {
+    return { el: el, pos: { x: +el.getAttribute('data-x'), y: +el.getAttribute('data-y') }, staticT: el.getAttribute('transform'),
+             major: el.classList.contains('dm-city--major'), label: el.querySelector('text'), lab: -1 };
+  });
+  var NBv = JSON.parse(svg.getAttribute('data-net') || '[0,0,1,1]'), NB = { x: NBv[0], y: NBv[1], w: NBv[2], h: NBv[3] };
   var legs = JSON.parse(svg.getAttribute('data-legs'));
   var crossings = JSON.parse(svg.getAttribute('data-cross'));
   var xlabels = $$('.dm-xlabel').map(function (el) {
@@ -125,11 +140,12 @@
   }
 
   /* ---------------- layout ---------------- */
-  var odoUnderEnd = false, W = 0, H = 0, mode = 'd', navH = 76, gutter = 20, F = 1, Afit, Mfit, Adrive, RB, railBox, railLabelX = 0, odoBox, endH = 0, maxCoH = 0;
+  var odoUnderEnd = false, W = 0, H = 0, mode = 'd', navH = 76, gutter = 20, F = 1, R = 1, Afit, Mfit, Adrive, RB, railBox, railLabelX = 0, odoBox, endH = 0, maxCoH = 0;
 
   function cam(p) {
     var b = smooth(FIT[0], FIT[1], p);
-    var z = ZOOM(p) * F;
+    // ZOOM is in multiples of the whole-route fit (F); the closing blend takes it on to the whole-network fit (R = Fn / F)
+    var z = ZOOM(p) * F * lerp(1, R, b);
     var M = posAt(tOfKm(KM(Math.max(0, p - LAG))));
     var mx = lerp(M.x, Mfit.x, b), my = lerp(M.y, Mfit.y, b);
     var ax = lerp(Adrive.x, Afit.x, b), ay = lerp(Adrive.y, Afit.y, b);
@@ -165,19 +181,25 @@
     maxCoH = 0;
     co.forEach(function (c) { c.w = c.el.offsetWidth; c.h = c.el.offsetHeight; maxCoH = Math.max(maxCoH, c.h); });
 
-    var fit;
+    // fit: the box the whole route fits at ZOOM 1 (the drive's zoom levels are multiples of it, so it stays put);
+    // fitN: the box the whole network fits in the closing frame (desktop: wider, right up to the end panel)
+    var fit, fitN;
     if (mode === 'd') {
       fit = { x0: Math.max(W * .5, endEl.getBoundingClientRect().right + 40) + 40, x1: railLabelX - 40, y0: navH + 56, y1: H - 64 };
+      fitN = { x0: Math.max(W * .44, endEl.getBoundingClientRect().right + 24) + 32, x1: fit.x1, y0: fit.y0, y1: fit.y1 };
       Adrive = { x: W * .4, y: navH + (H - navH) * .5 };
     } else {
       var top = odoBox.y + odoBox.h + 16;
       fit = { x0: gutter + 50, x1: W - gutter - 10, y0: top + 10, y1: H - endH - 48 };
+      fitN = fit;
       var bottom = H - maxCoH - 36;
       Adrive = { x: W * .5, y: top + (bottom - top) * .5 };
     }
     F = Math.min((fit.x1 - fit.x0) / RB.w, (fit.y1 - fit.y0) / RB.h);
-    Afit = { x: (fit.x0 + fit.x1) / 2, y: (fit.y0 + fit.y1) / 2 };
-    Mfit = { x: RB.x + RB.w / 2, y: RB.y + RB.h / 2 };
+    var Fn = Math.min((fitN.x1 - fitN.x0) / NB.w, (fitN.y1 - fitN.y0) / NB.h);
+    R = Fn / F;
+    Afit = { x: (fitN.x0 + fitN.x1) / 2, y: (fitN.y0 + fitN.y1) / 2 };
+    Mfit = { x: NB.x + NB.w / 2, y: NB.y + NB.h / 2 };
     // where the end panel and the odometer would touch (short landscape screens), the odometer bows out
     var er = rectOf(endEl);   // desktop: vertically centred by the render transform, so derive the bottom from the height
     odoUnderEnd = mode === 'd' && H / 2 + endH / 2 + 12 > odoBox.y && er.x < odoBox.x + odoBox.w;
@@ -225,7 +247,7 @@
   }
 
   /* ---------------- render ---------------- */
-  var lastS = -1, lastKmTxt = '', lastPlace = '', lastRail = -1, curP = 0;
+  var lastS = -1, lastKmTxt = '', lastPlace = '', lastRail = -1, curP = 0, lastNetOff = '', lastNetA = -1, lastCovA = -1;
 
   function setStroke(el, px) { el.style.strokeWidth = px; }
 
@@ -249,9 +271,27 @@
       setStroke(ghost, 1.3 * u);
       setStroke(glows[0], 18 * u); setStroke(glows[1], 7 * u);
       setStroke(line, 2.6 * u);
+      setStroke(cov, u);
+      laneEls.forEach(function (l) { setStroke(l, 1.2 * u); });
     }
     var off = (1000 * (1 - t)).toFixed(2);
     line.style.strokeDashoffset = off; glows[0].style.strokeDashoffset = off; glows[1].style.strokeDashoffset = off;
+
+    // the network: lanes draw on over the long haul, sit faint, then come up with the tint and the cities at the end
+    var nd = (1000 * (1 - smooth(NET_DRAW[0], NET_DRAW[1], p))).toFixed(1);
+    if (nd !== lastNetOff) { lastNetOff = nd; laneEls.forEach(function (l) { l.style.strokeDashoffset = nd; }); }
+    var netA = NET_LOW_A * smooth(NET_LOW[0], NET_LOW[1], p) + (1 - NET_LOW_A) * smooth(NET_FULL[0], NET_FULL[1], p);
+    var covA = smooth(COV_IN[0], COV_IN[1], p);
+    if (Math.abs(netA - lastNetA) > .003) { lastNetA = netA; net.style.opacity = netA.toFixed(3); citiesG.style.opacity = netA.toFixed(3); }
+    if (Math.abs(covA - lastCovA) > .003) { lastCovA = covA; cov.style.opacity = covA.toFixed(3); }
+    var cityLab = s >= CITY_MINZ ? covA : 0;
+    cities.forEach(function (ct) {
+      if (netA > 0) {
+        var q = scr(c, ct.pos);
+        ct.el.setAttribute('transform', 'translate(' + q.x.toFixed(1) + ' ' + q.y.toFixed(1) + ')');
+      }
+      if (ct.major && Math.abs(cityLab - ct.lab) > .003) { ct.lab = cityLab; ct.label.style.opacity = cityLab.toFixed(3); }
+    });
 
     // dot grid drifts at half the camera's speed: depth without moving the geography
     grid.style.backgroundPosition = ((c.tx * .5) % 34).toFixed(1) + 'px ' + ((c.ty * .5) % 34).toFixed(1) + 'px';
@@ -261,7 +301,9 @@
     truck.setAttribute('transform', 'translate(' + P.x.toFixed(1) + ' ' + P.y.toFixed(1) + ')');
     var parked = km >= 3120.5;
     if (parked !== truck.classList.contains('is-parked')) truck.classList.toggle('is-parked', parked);
-    truckR.setAttribute('transform', 'rotate(' + angleAt(t).toFixed(1) + ')' + (mode === 'm' ? ' scale(.85)' : ''));
+    // the truck shrinks a little as the camera pulls right back, so it never sits on the Saltillo label
+    var tsc = (mode === 'm' ? .85 : 1) * lerp(.72, 1, smooth(.3, 1, s));
+    truckR.setAttribute('transform', 'rotate(' + angleAt(t).toFixed(1) + ') scale(' + tsc.toFixed(3) + ')');
 
     // stops
     stops.forEach(function (st) {
@@ -293,7 +335,10 @@
       k.a = a;
       k.el.style.opacity = a.toFixed(3);
       k.el.classList.toggle('is-live', a > .5);
-      if (mode === 'd') {
+      if (mode === 'd' && k.fixed) {
+        k.el.style.transform = 'translate3d(' + gutter.toFixed(1) + 'px,' + (navH + 48 + dy).toFixed(1) + 'px,0)';
+        k.leader.style.opacity = '0';
+      } else if (mode === 'd') {
         var S = scr(c, k.anchor), x = S.x + k.off[0], y = S.y + k.off[1];
         k.el.style.transform = 'translate3d(' + x.toFixed(1) + 'px,' + (y + dy).toFixed(1) + 'px,0)';
         // leader: stop dot to the nearest point of the card
@@ -377,6 +422,7 @@
     if (world) world.removeAttribute('transform');
     if (stops) stops.forEach(function (s) { s.el.setAttribute('transform', s.staticT); s.el.classList.remove('is-reached', 'is-ahead', 'is-nolabel'); });
     xlabels.forEach(function (x) { x.el.setAttribute('transform', x.staticT); });
+    cities.forEach(function (ct) { ct.el.setAttribute('transform', ct.staticT); ct.label.removeAttribute('style'); });
     if (win.console && console.error) console.error('[drive] fell back to the static hero:', err);
   }
 
@@ -403,11 +449,11 @@
       var ln = doc.createElementNS(SVGNS, 'line');
       ln.setAttribute('class', 'dm-leader'); ln.style.opacity = '0';
       leadersG.appendChild(ln);
-      co.push({ id: d.id, el: el, win: d.w, go: d.go, anchor: byId[d.at].pos, leader: ln, off: [30, -24], a: -1, w: 0, h: 0 });
+      co.push({ id: d.id, el: el, win: d.w, go: d.go, fixed: !!d.fixed, anchor: byId[d.at].pos, leader: ln, off: [30, -24], a: -1, w: 0, h: 0 });
       touched.push(el);
     });
-    touched.push(stage, photo, open, endEl, odo, rail, grid, line, ghost, land, lakes, borders, railFill);
-    touched = touched.concat(glows, bounds, xlabels.map(function (x) { return x.el; }));
+    touched.push(stage, photo, open, endEl, odo, rail, grid, line, ghost, land, lakes, borders, railFill, net, cov, citiesG);
+    touched = touched.concat(glows, bounds, laneEls, xlabels.map(function (x) { return x.el; }));
 
     hero.classList.add('drive-on');
     layout();
@@ -462,7 +508,8 @@
     // read-only hook for QA (Playwright): state at the current or a given p
     win.HunterDrive = {
       p: function () { return curP; },
-      at: function (p) { var km = KM(p), t = tOfKm(km), c = cam(p), P = scr(c, posAt(t)); return { p: p, km: Math.round(km), t: t, truck: P, s: c.s }; },
+      at: function (p) { var km = KM(p), t = tOfKm(km), c = cam(p), P = scr(c, posAt(t)); return { p: p, km: Math.round(km), t: t, truck: P, s: c.s, net: +net.style.opacity || 0, cov: +cov.style.opacity || 0, R: R }; },
+      netBox: function () { var c = cam(curP), a = scr(c, { x: NB.x, y: NB.y }), b = scr(c, { x: NB.x + NB.w, y: NB.y + NB.h }); return { x: a.x, y: a.y, w: b.x - a.x, h: b.y - a.y }; },
       stops: function () { var c = cam(curP); return stops.map(function (s) { var q = scr(c, s.pos); return { id: s.id, t: s.t, x: q.x, y: q.y }; }); },
       yFor: pToY
     };
