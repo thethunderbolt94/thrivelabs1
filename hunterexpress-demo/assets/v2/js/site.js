@@ -38,7 +38,7 @@
   var track = null, trackBottom = 0;
 
   function measureWorld() {
-    track = $('#growth') || $('#top');   // the pinned growth map (net.js); past-hero / world-done key off its bottom edge
+    track = $('#growthStage') || $('#top');   // the pinned map (net.js); past-hero / world-done key off its bottom edge
     trackBottom = track ? track.getBoundingClientRect().bottom + win.scrollY : 0;
   }
 
@@ -177,72 +177,41 @@
   }
 
   /* ------------------------------------------------------------------
-     Corridor map + lane planner + terminal directory
+     Lane planner + terminal directory (data from the hero map: data-legs, data-van on #heroNet)
      ------------------------------------------------------------------ */
-  var mapInst = null, mapSvg = null, mapHost = $('#mapHost');
-  var mqMapMobile = win.matchMedia('(max-width: 700px)');
-  function setCrop() {
-    if (!mapSvg) return;
-    var m = mqMapMobile.matches;
-    // the build writes the full frame as viewBox and a phone crop (data-vb-m) that trims the empty ocean margins
-    if (!mapSvg.getAttribute('data-vb-d')) mapSvg.setAttribute('data-vb-d', mapSvg.getAttribute('viewBox'));
-    var vb = (m && mapSvg.getAttribute('data-vb-m')) || mapSvg.getAttribute('data-vb-d'), p = vb.split(' ');
-    mapSvg.setAttribute('viewBox', vb);
-    mapSvg.setAttribute('width', p[2]);
-    mapSvg.setAttribute('height', p[3]);
-    mapSvg.setAttribute('data-crop', m ? 'm' : 'd');
-  }
-  function legsFallback() {
-    var p = mapSvg && mapSvg.querySelector('#corridorPath');
-    try { return JSON.parse(p.getAttribute('data-legs')); } catch (e) { return []; }
-  }
-  function ensureMap() {
-    if (mapInst || !mapSvg || !win.HunterMap) return mapInst;
-    mapInst = HunterMap.init(mapSvg, {
-      onHover: function (id) { highlightDir(id); },
-      onSelect: function (id) { pickTerminal(id); }
-    });
-    return mapInst;
-  }
+  var netSvg = $('#heroNet');
+  var LEGS = [], VAN = null;
+  try { LEGS = JSON.parse(netSvg.getAttribute('data-legs')); } catch (e) { LEGS = []; }
+  try { VAN = JSON.parse(netSvg.getAttribute('data-van')); } catch (e) { VAN = null; }
+  var byLeg = {}; LEGS.forEach(function (l) { byLeg[l.id] = l; });
   var fromSel = $('#laneFrom'), toSel = $('#laneTo');
-  var kmOut = $('#laneKm'), miOut = $('#laneMi'), teamOut = $('#laneTeam'), soloOut = $('#laneSolo'), bOut = $('#laneBorders'), routeOut = $('#laneRoute');
+  var kmOut = $('#laneKm'), miOut = $('#laneMi'), bOut = $('#laneBorders'), routeOut = $('#laneRoute');
   var shownKm = 3121;
 
-  // Fallback when map.js is unavailable: same arithmetic as HunterMap.getLegInfo, read from the build's data attributes.
-  function legInfoStatic(from, to) {
-    var legs = legsFallback(), byLeg = {}, lp = mapSvg && mapSvg.querySelector('#lane-vancouver');
-    legs.forEach(function (l) { byLeg[l.id] = l; });
-    var laneKm = lp ? parseFloat(lp.getAttribute('data-lane-km')) || 0 : 0, laneId = lp && lp.getAttribute('data-lane-to');
-    var join = lp && byLeg[lp.getAttribute('data-lane-from')], via = [];
-    try { via = JSON.parse(lp.getAttribute('data-lane-via')).sort(function (x, y) { return x.f - y.f; }).map(function (v) { return v.name; }); } catch (e) { via = []; }
-    if (from === to) return { km: 0, miles: 0, days: { team: 1, solo: 1 }, t: [0, 0] };
-    var onLane = laneKm && (from === laneId || to === laneId);
+  // Road distance along the corridor (the map build's leg km); a Vancouver end adds the Trans-Canada lane via Brampton.
+  function legInfo(from, to) {
+    if (from === to) return { km: 0, miles: 0, t: [0, 0], via: [] };
+    var onLane = VAN && (from === VAN.to || to === VAN.to);
     var a = byLeg[from], b = byLeg[to], km, t, extra = {};
     if (onLane) {
-      var other = byLeg[from === laneId ? to : from]; if (!other || !join) return null;
+      var other = byLeg[from === VAN.to ? to : from], join = byLeg[VAN.frm]; if (!other || !join) return null;
       var corr = Math.abs(other.km - join.km);
-      km = corr + laneKm; t = [Math.min(join.t, other.t), Math.max(join.t, other.t)];
-      extra = { corridorKm: corr, corridorT: corr > 0 ? t : null, laneKm: laneKm, laneFirst: from === laneId, laneVia: from === laneId ? via.slice().reverse() : via };
+      km = corr + VAN.km; t = [Math.min(join.t, other.t), Math.max(join.t, other.t)];
+      extra = { corridorKm: corr, corridorT: corr > 0 ? t : null, laneKm: VAN.km, laneFirst: from === VAN.to, laneVia: from === VAN.to ? VAN.via.slice().reverse() : VAN.via.slice() };
     } else {
       if (!a || !b) return null;
       km = Math.abs(b.km - a.km); t = [Math.min(a.t, b.t), Math.max(a.t, b.t)];
     }
-    var info = { km: km, miles: Math.round(km * .621371), days: { team: Math.max(1, Math.ceil(km / 1000)), solo: Math.max(1, Math.ceil(km / 800)) }, t: t };
+    var info = { km: km, miles: Math.round(km * .621371), t: t };
     for (var k in extra) info[k] = extra[k];
     return info;
   }
-  function legInfo(from, to) {
-    var m = ensureMap();
-    return m ? m.getLegInfo(from, to) : legInfoStatic(from, to);
-  }
-  // Cities named under the route, in travel order. The corridor contributes up to 3 (2 when a lane is attached);
-  // a Vancouver leg adds Brampton (the junction) and the lane's own cities (Winnipeg, Calgary).
+  // Cities named under the route, in travel order.
   function viaCities(info) {
-    var legs = legsFallback(), onLane = info.laneKm > 0, fromLane = onLane && info.laneFirst, out = [];
-    var mids = [];
+    var onLane = info.laneKm > 0, fromLane = onLane && info.laneFirst, out = [], mids = [];
     if (!onLane || info.corridorT) {
       var t0 = onLane ? info.corridorT[0] : info.t[0], t1 = onLane ? info.corridorT[1] : info.t[1];
-      mids = legs.filter(function (l) { return !l.terminal && l.t > t0 + .001 && l.t < t1 - .001 && l.id !== 'windsor'; }).map(function (l) { return l.name; });
+      mids = LEGS.filter(function (l) { return !l.terminal && l.t > t0 + .001 && l.t < t1 - .001 && l.id !== 'windsor'; }).map(function (l) { return l.name; });
       var cap = onLane ? 2 : 3;
       if (mids.length > cap) {
         var n = mids.length, pick = cap === 3 ? [0, Math.floor(n / 2), n - 1] : [Math.floor(n / 3), Math.floor(2 * n / 3)];
@@ -250,8 +219,8 @@
       }
     }
     if (!onLane) return mids;
-    if (fromLane) out = info.laneVia.concat(info.corridorT ? ['Brampton'] : [], mids);       // Vancouver -> south
-    else out = mids.reverse().concat(info.corridorT ? ['Brampton'] : [], info.laneVia);       // south -> Vancouver
+    if (fromLane) out = info.laneVia.concat(info.corridorT ? ['Brampton'] : [], mids);
+    else out = mids.reverse().concat(info.corridorT ? ['Brampton'] : [], info.laneVia);
     return out;
   }
   function tweenKm(to) {
@@ -264,7 +233,11 @@
       if (p < 1) requestAnimationFrame(step);
     })(t0);
   }
+  function hotTerminals(ids) {
+    $$('.hn-term', netSvg || doc).forEach(function (t) { t.classList.toggle('is-hover', ids.indexOf(t.getAttribute('data-id')) >= 0); });
+  }
   function setLane(from, to, fromForm) {
+    if (!fromSel || !toSel) return;
     if (from) fromSel.value = from;
     if (to) toSel.value = to;
     var f = fromSel.value, t = toSel.value;
@@ -275,19 +248,13 @@
     tweenKm(info.km);
     miOut.textContent = fmt(info.miles);
     var same = f === t;
-    teamOut.textContent = same ? '—' : info.days.team + (info.days.team === 1 ? ' day' : ' days');
-    soloOut.textContent = same ? '—' : info.days.solo + (info.days.solo === 1 ? ' day' : ' days');
     bOut.textContent = String(borders);
-    var ordered = A.i <= B.i ? [A, B] : [B, A];
     var via = same ? [] : viaCities(info);
     routeOut.innerHTML = same ? 'Same terminal. Pick a different destination.'
       : '<b>' + A.name.split(',')[0] + '</b> → <b>' + B.name.split(',')[0] + '</b>' + (via.length ? '<br>via ' + via.join(' · ') : '');
-    var m = ensureMap();
-    var full = ordered[0].id === 'brampton' && ordered[1].id === 'saltillo';
-    if (m) { if (same || full) m.focusLeg(null); else m.focusLeg(ordered[0].id, ordered[1].id); }
+    hotTerminals(same ? [] : [f, t]);
     if (!fromForm) syncQuoteLane();
   }
-  // Choosing a terminal (map click, directory click) makes it the destination.
   function pickTerminal(id) {
     if (id === fromSel.value) setLane(id, id === 'saltillo' ? 'brampton' : 'saltillo');
     else setLane(null, id);
@@ -296,10 +263,7 @@
     $$('.dir__item').forEach(function (li) { li.classList.toggle('is-hover', li.getAttribute('data-terminal') === id); });
   }
   function initMap() {
-    if (!mapHost) return;
-    mapSvg = $('svg.hx-map', mapHost);
-    setCrop();
-    mqMapMobile.addEventListener('change', setCrop);
+    if (!fromSel || !toSel) return;
     [fromSel, toSel].forEach(function (sel) {
       TERMINALS.forEach(function (t) { var o = doc.createElement('option'); o.value = t.id; o.textContent = t.name; sel.appendChild(o); });
     });
@@ -308,8 +272,6 @@
     toSel.addEventListener('change', function () { setLane(); });
     $('#laneSwap').addEventListener('click', function () { setLane(toSel.value, fromSel.value); });
     $('#laneForm').addEventListener('submit', function (e) { e.preventDefault(); });
-    $('#togglePlants').addEventListener('change', function (e) { mapHost.classList.toggle('no-plants', !e.target.checked); });
-    $('#toggleLanes').addEventListener('change', function (e) { mapHost.classList.toggle('no-lanes', !e.target.checked); });
     // Carry the planner's lane into the quote form before the hash jump happens.
     $('#laneQuote').addEventListener('click', function () {
       var qf = $('#q-from'), qt = $('#q-to');
@@ -318,40 +280,37 @@
       [qf, qt].forEach(function (el) { var m = el && doc.getElementById(el.id + '-err'); if (m) m.remove(); });
       syncQuoteLane();
     });
-
     $$('.dir__item').forEach(function (li) {
       var id = li.getAttribute('data-terminal');
-      var on = function () { var m = ensureMap(); if (m) m.hoverTerminal(id); highlightDir(id); };
-      var off = function () { var m = ensureMap(); if (m) m.hoverTerminal(null); highlightDir(null); };
+      var on = function () { highlightDir(id); };
+      var off = function () { highlightDir(null); };
       li.addEventListener('mouseenter', on); li.addEventListener('mouseleave', off);
       li.addEventListener('focusin', on); li.addEventListener('focusout', off);
       li.addEventListener('click', function (e) { if (!e.target.closest('a')) pickTerminal(id); });
       li.addEventListener('keydown', function (e) { if ((e.key === 'Enter' || e.key === ' ') && e.target === li) { e.preventDefault(); li.click(); } });
     });
-
-    // Initialise HunterMap when the section approaches the viewport.
-    var io = new IntersectionObserver(function (entries) {
-      if (entries.some(function (e) { return e.isIntersecting; })) { io.disconnect(); ensureMap(); setLane(); }
-    }, { rootMargin: '300px 0px' });
-    io.observe(mapHost);
+    setLane();
   }
 
   /* ------------------------------------------------------------------
      Services sticky index
      ------------------------------------------------------------------ */
   function initServices() {
-    var links = $$('.sidx a');
-    if (!links.length) return;
-    var map = {}; links.forEach(function (a) { map[a.getAttribute('href').slice(1)] = a; });
-    links[0].classList.add('is-active');
-    var io = new IntersectionObserver(function (entries) {
-      entries.forEach(function (e) {
-        if (!e.isIntersecting) return;
-        links.forEach(function (l) { l.classList.remove('is-active'); });
-        map[e.target.id].classList.add('is-active');
+    var tabs = $$('.sidx [role="tab"]'), panels = $$('.svc');
+    if (!tabs.length) return;
+    function show(i, focus) {
+      tabs.forEach(function (t, k) { var on = k === i; t.setAttribute('aria-selected', String(on)); t.tabIndex = on ? 0 : -1; if (on && focus) t.focus(); });
+      panels.forEach(function (p, k) { var on = k === i; p.hidden = !on; p.classList.toggle('is-active', on); });
+      if (hasGSAP) ScrollTrigger.refresh();
+    }
+    tabs.forEach(function (t, i) {
+      t.addEventListener('click', function () { show(i); });
+      t.addEventListener('keydown', function (e) {
+        var n = e.key === 'ArrowDown' || e.key === 'ArrowRight' ? i + 1 : e.key === 'ArrowUp' || e.key === 'ArrowLeft' ? i - 1 : e.key === 'Home' ? 0 : e.key === 'End' ? tabs.length - 1 : null;
+        if (n === null) return; e.preventDefault(); show((n + tabs.length) % tabs.length, true);
       });
-    }, { rootMargin: '-42% 0px -52% 0px' });
-    $$('.svc').forEach(function (s) { io.observe(s); });
+    });
+    show(0);
   }
 
   /* ------------------------------------------------------------------
@@ -500,7 +459,7 @@
     var a = matchTerminal(($('#q-from') || {}).value), b = matchTerminal(($('#q-to') || {}).value);
     if (!a || !b || a === b) { qLane.textContent = ''; return ''; }
     var info = legInfo(a, b); if (!info) { qLane.textContent = ''; return ''; }
-    var s = '≈ ' + fmt(info.km) + (info.laneKm > 0 ? ' km by road · about ' : ' km along the corridor · about ') + info.days.team + (info.days.team === 1 ? ' day' : ' days') + ' team, ' + info.days.solo + (info.days.solo === 1 ? ' day' : ' days') + ' solo';
+    var s = '≈ ' + fmt(info.km) + ' km by road (estimate)';
     qLane.textContent = s;
     return s;
   }
@@ -592,7 +551,6 @@
     initMotion();
     initOdometers();
     initOnce('.odo-grid', 'is-drawn', .2);
-    initOnce('#awardCert', 'is-lit', .6);
     initServices();
     initTilt();
     initMagnetic();

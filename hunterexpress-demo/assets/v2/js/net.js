@@ -12,7 +12,8 @@
   'use strict';
   var doc = document, win = window, root = doc.documentElement;
   var reduce = root.classList.contains('rm');
-  var sec = doc.getElementById('growth'), stage = doc.getElementById('growthStage'), mapEl = doc.getElementById('netMap');
+  var sec = doc.getElementById('coverage'), stage = doc.getElementById('growthStage'), mapEl = doc.getElementById('netMap');
+  var pin = stage && stage.parentNode;
   var svg = doc.getElementById('heroNet');
   if (!sec || !stage || !svg) return;
   var fine = win.matchMedia('(hover: hover) and (pointer: fine)').matches;
@@ -38,22 +39,21 @@
   /* ---- scroll progress -> beats ---- */
   var p = reduce ? 1 : 0, top = 0, span = 1, vh = 0, lastBeat = -1;
   var A = [reduce ? 1 : 0, reduce ? 1 : 0, reduce ? 1 : 0];   // country activation 0..1 (CA, US, MX)
-  var WIN = [[.05, .16], [.3, .42], [.57, .67]];   // each country lights early in its own caption
+  var WIN = [[0, .1], [.18, .32], [.46, .58]];   // Canada on entry, then each country lights early in its own caption
   function smooth(a, b, x) { var t = Math.max(0, Math.min(1, (x - a) / (b - a))); return t * t * (3 - 2 * t); }
   function measure() {
-    vh = win.innerHeight; var r = sec.getBoundingClientRect(); top = r.top + win.scrollY; span = Math.max(1, sec.offsetHeight - vh);
+    vh = win.innerHeight; var r = pin.getBoundingClientRect(); top = r.top + win.scrollY; span = Math.max(1, pin.offsetHeight - vh);
     fleetResize();
   }
-  function beatOf(x) { return x < .28 ? 0 : x < .56 ? 1 : x < .8 ? 2 : 3; }
+  function beatOf(x) { return x < .14 ? -1 : x < .44 ? 0 : x < .7 ? 1 : 2; }
   function applyScroll() {
     if (reduce) return;
     var y = win.scrollY || 0; p = Math.max(0, Math.min(1, (y - top) / span));
     for (var c = 0; c < 3; c++) A[c] = smooth(WIN[c][0], WIN[c][1], p);
     svg.style.setProperty('--a0', A[0].toFixed(3)); svg.style.setProperty('--a1', A[1].toFixed(3)); svg.style.setProperty('--a2', A[2].toFixed(3));
-    mapEl.style.opacity = smooth(0, .06, p).toFixed(3);
     var b = beatOf(p);
     if (b !== lastBeat) {
-      lastBeat = b; sec.setAttribute('data-beat', String(b)); sec.classList.toggle('is-end', b === 3);
+      lastBeat = b; sec.setAttribute('data-beat', String(b)); sec.classList.toggle('is-end', b === 2);
       caps.forEach(function (el, i) { el.classList.toggle('is-on', i === b); });
     }
     terms.forEach(function (t, i) { t.classList.toggle('is-on', A[termBeat[i]] > .55); });
