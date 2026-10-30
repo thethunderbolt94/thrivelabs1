@@ -275,10 +275,11 @@ fieldset { border: 0; padding: 0; min-width: 0; }
 .past-hero .kmrail { opacity: 1; }
 
 /* =====================================================================
-   HERO · "The living continent" (assets/v2/js/net.js, map from build/v2/net/net.py)
-   One screen, no pinning. The network is fully drawn by CSS alone (no JS,
-   failed JS, reduced motion); net.js adds the draw-on cascade, the trucks,
-   pointer tilt, lane hover with a tag, and the idle spotlight.
+   HERO 1 · the truck (one screen, CSS only)
+   HERO 2 · "one city to three countries" (assets/v2/js/net.js, map from build/v2/net/net.py)
+   Hero 2 is pinned while scrolling: Brampton, then Canada, the US and Mexico
+   light up with the fleet on them. Without JS or with reduced motion it is one
+   static screen, everything lit, with the closing caption and the numbers.
    ===================================================================== */
 .hero { position: relative; background: var(--bg); }
 
@@ -291,21 +292,65 @@ fieldset { border: 0; padding: 0; min-width: 0; }
 }
 .hero a:focus-visible, .hero button:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
 
-.net {
-  --stats-h: 104px;
-  min-height: 100vh; min-height: 100svh;
-  display: grid; grid-template-rows: minmax(0, 1fr) auto;
-  overflow: hidden; isolation: isolate;
+/* ---- hero 1: the truck ---- */
+.yard { min-height: 100vh; min-height: 100svh; display: flex; align-items: flex-end; overflow: hidden; isolation: isolate; }
+.yard__photo { position: absolute; inset: 0; z-index: 0; background: var(--bg-2); }
+.yard__photo img, .yard__video { width: 100%; height: 100%; object-fit: cover; object-position: 50% 50%; display: block; }
+.yard__video { background: var(--bg-2) url(../video/leg1_yard-poster.webp) center/cover no-repeat; }
+.yard__photo::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(11, 12, 15, .35) 0%, rgba(11, 12, 15, 0) 30%, rgba(11, 12, 15, 0) 55%, rgba(11, 12, 15, .9) 100%); }
+.yard__copy {
+  position: relative; z-index: 1; width: min(100%, 820px);
+  padding: calc(var(--nav-h) + 40px) max(var(--gutter), calc((100vw - var(--maxw)) / 2)) clamp(84px, 12vh, 128px);
+  display: flex; flex-direction: column; align-items: flex-start; gap: 8px;
 }
-.net__stage { position: absolute; inset: 0 0 var(--stats-h) 0; z-index: 0; perspective: 1600px; }
+.yard__eyebrow, .growth__yr {
+  display: inline-flex; align-items: center; gap: 10px;
+  font: 600 11px/1.6 var(--f-ui); letter-spacing: .24em; text-transform: uppercase; color: var(--ink-2);
+}
+.yard__eyebrow::before, .growth__yr::before { content: ""; width: 18px; height: 1px; background: var(--red-2); flex: none; }
+.growth__yr { font-family: var(--f-mono); font-weight: 400; letter-spacing: .16em; }
+.yard__title, .growth__title {
+  margin: 6px 0 4px; font-family: var(--f-display); font-weight: 400; color: var(--ink);
+  line-height: .98; letter-spacing: -0.02em; text-wrap: balance;
+  text-shadow: 0 4px 30px rgba(0, 0, 0, .9), 0 2px 10px rgba(0, 0, 0, .7), 0 0 60px rgba(0, 0, 0, .5);
+}
+.yard__title { font-size: clamp(44px, 5.4vw, 88px); max-width: 15ch; }
+.yard__title em, .growth__title em { font-style: italic; color: #E7E0D3; }
+.yard__lede, .growth__body { max-width: 50ch; padding: 7px 12px; border-radius: 4px; font-size: clamp(16px, 1.2vw, 18px); line-height: 1.5; color: #D6D9DE; }
+.yard__cta, .growth__cta { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; margin-top: 14px; }
+.yard__cta .btn--ghost, .growth__cta .btn--ghost { background: rgba(11, 12, 15, .7); border-color: rgba(243, 239, 231, .4); }
+.yard__drive { display: inline-flex; align-items: center; gap: 8px; padding: 6px 10px; font: 600 14px/1 var(--f-ui); color: var(--ink-2); background: rgba(11, 12, 15, .6); border-radius: 3px; }
+.yard__drive span { transition: transform .3s var(--ease); }
+.yard__drive:hover { color: #fff; } .yard__drive:hover span { transform: translateX(4px); }
+.yard__hint {
+  position: absolute; z-index: 1; left: 50%; bottom: 22px; transform: translateX(-50%);
+  display: inline-flex; gap: 8px; font-size: 10px; letter-spacing: .22em; text-transform: uppercase; color: var(--ink-3);
+}
+.yard__hint span { display: inline-block; animation: yard-bob 1.8s ease-in-out infinite; }
+@keyframes yard-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(4px); } }
+.rm .yard__hint span { animation: none; }
+@keyframes net-rise { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+.yard__copy > * { animation: net-rise .95s var(--ease) both; }
+.yard__copy > :nth-child(2) { animation-delay: .08s; }
+.yard__copy > :nth-child(3) { animation-delay: .18s; }
+.yard__copy > :nth-child(4) { animation-delay: .26s; }
+.rm .yard__copy > * { animation: none; }
+
+/* ---- hero 2: the growth map ---- */
+.growth { --stats-h: 104px; }
+.growth__sticky {
+  position: relative; height: 100vh; height: 100svh; overflow: hidden; isolation: isolate;
+  perspective: 1600px;
+}
+.js:not(.rm) .growth { height: 380vh; }
+.js:not(.rm) .growth__sticky { position: sticky; top: 0; }
 .net__map {
-  position: absolute; left: 26%; right: -1%; top: calc(var(--nav-h) + 28px); bottom: 28px;
+  position: absolute; left: 26%; right: -1%; top: calc(var(--nav-h) + 20px); bottom: calc(var(--stats-h) + 20px);
   transform-style: preserve-3d; will-change: transform;
 }
 .net__map .hn { width: 100%; height: 100%; display: block; overflow: visible; }
-/* the fleet (net.js): road mesh + trucks on canvases above the map, pointer-events off so lane hover reaches the SVG */
-.net__roads, .net__fleet { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; opacity: 0; transition: opacity 1.6s ease; }
-.net__roads.is-on, .net__fleet.is-on { opacity: 1; }
+/* the fleet (net.js): road mesh + trucks on canvases above the map */
+.net__roads, .net__fleet { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
 .net__roads { mix-blend-mode: screen; }
 .net__scrim {
   position: absolute; inset: 0; z-index: 1; pointer-events: none;
@@ -313,53 +358,34 @@ fieldset { border: 0; padding: 0; min-width: 0; }
     linear-gradient(90deg, var(--bg) 0%, rgba(11, 12, 15, .94) 24%, rgba(11, 12, 15, .42) 42%, rgba(11, 12, 15, 0) 58%),
     linear-gradient(180deg, rgba(11, 12, 15, .5) 0%, rgba(11, 12, 15, 0) 16%, rgba(11, 12, 15, 0) 84%, rgba(11, 12, 15, .7) 100%);
 }
-
-/* ---- copy ---- */
-.net__copy {
-  position: relative; z-index: 2; grid-row: 1; align-self: center;
-  width: min(100%, 660px);
-  padding: calc(var(--nav-h) + 32px) var(--gutter) 32px max(var(--gutter), calc((100vw - var(--maxw)) / 2));
-  display: flex; flex-direction: column; align-items: flex-start; gap: 10px;
-  pointer-events: none;
+/* captions: one at a time, left-middle */
+.growth__caps {
+  position: absolute; z-index: 2; left: 0; right: 40%; top: var(--nav-h); bottom: var(--stats-h);
+  padding: 24px var(--gutter) 24px max(var(--gutter), calc((100vw - var(--maxw)) / 2));
+  display: grid; align-items: center; pointer-events: none;
 }
-.net__copy > * { pointer-events: auto; }
-.net__eyebrow {
-  display: inline-flex; align-items: center; gap: 10px;
-  font: 600 11px/1.6 var(--f-ui); letter-spacing: .24em; text-transform: uppercase; color: var(--ink-2);
+.growth__cap {
+  grid-area: 1 / 1; display: flex; flex-direction: column; align-items: flex-start; gap: 8px; width: min(100%, 640px);
+  opacity: 0; transform: translateY(14px); transition: opacity .5s ease, transform .6s var(--ease); pointer-events: none;
 }
-.net__eyebrow::before { content: ""; width: 18px; height: 1px; background: var(--red-2); flex: none; }
-.net__title {
-  margin: 8px 0 6px; max-width: 11ch;
-  font: 400 clamp(52px, 6.6vw, 108px)/.96 var(--f-display); letter-spacing: -0.025em; color: var(--ink); text-wrap: balance;
-  text-shadow: 0 4px 30px rgba(0, 0, 0, .9), 0 2px 10px rgba(0, 0, 0, .7), 0 0 60px rgba(0, 0, 0, .5);
-}
-.net__title em { font-style: italic; color: #E7E0D3; }
-.net__lede { max-width: 50ch; padding: 7px 12px; border-radius: 4px; font-size: clamp(16px, 1.2vw, 18px); line-height: 1.5; color: #D6D9DE; }
-.net__cta { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; margin-top: 14px; }
-.net__cta .btn--ghost { background: rgba(11, 12, 15, .7); border-color: rgba(243, 239, 231, .4); }
-.net__drive { display: inline-flex; align-items: center; gap: 8px; padding: 6px 10px; font: 600 14px/1 var(--f-ui); color: var(--ink-2); background: rgba(11, 12, 15, .6); border-radius: 3px; }
-.net__drive span { transition: transform .3s var(--ease); }
-.net__drive:hover { color: #fff; } .net__drive:hover span { transform: translateX(4px); }
-
-/* CSS-only entrance: visible without JS and never waits on a script */
-@keyframes net-rise { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
-.net__copy > * { animation: net-rise .95s var(--ease) both; }
-.net__copy > :nth-child(2) { animation-delay: .08s; }
-.net__copy > :nth-child(3) { animation-delay: .18s; }
-.net__copy > :nth-child(4) { animation-delay: .26s; }
-.rm .net__copy > * { animation: none; }
+.growth__cap.is-on { opacity: 1; transform: none; pointer-events: auto; }
+/* static page: only the closing caption */
+.growth:not(.is-live) .growth__cap--end { opacity: 1; transform: none; pointer-events: auto; }
+.growth__title { font-size: clamp(40px, 4.6vw, 76px); max-width: 14ch; }
+.growth__cap--end .growth__title { font-size: clamp(48px, 5.6vw, 92px); max-width: 11ch; }
 
 /* ---- numbers band ---- */
 .net__stats {
-  position: relative; z-index: 2; grid-row: 2; height: var(--stats-h);
+  position: absolute; z-index: 2; left: 0; right: 0; bottom: 0; height: var(--stats-h);
   display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); align-items: center; gap: 0 18px;
   padding: 0 max(var(--gutter), calc((100vw - var(--maxw)) / 2));
   border-top: 1px solid var(--line);
   background: linear-gradient(180deg, rgba(11, 12, 15, .55), rgba(11, 12, 15, .92));
   -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
-  animation: net-rise 1s var(--ease) .5s both;
+  transition: opacity .6s ease, transform .7s var(--ease);
 }
-.rm .net__stats { animation: none; }
+.growth.is-live .net__stats { opacity: 0; transform: translateY(14px); }
+.growth.is-live.is-end .net__stats { opacity: 1; transform: none; }
 .net__stats li { display: flex; flex-direction: column; gap: 5px; min-width: 0; padding-left: 18px; border-left: 1px solid var(--line); }
 .net__stats li:first-child { padding-left: 0; border-left: 0; }
 .net__stats .odo {
@@ -368,180 +394,89 @@ fieldset { border: 0; padding: 0; min-width: 0; }
 }
 .net__stats .odo__strip span, .net__stats .odo__sep { background: linear-gradient(180deg, #fff 0%, #DCDFE4 100%); -webkit-background-clip: text; background-clip: text; }
 .net__stats li > span:last-child { font: 600 10.5px/1.3 var(--f-ui); letter-spacing: .2em; text-transform: uppercase; color: var(--ink-3); white-space: nowrap; }
-
-/* ---- lane tag (follows the pointer; sits on the lane in the idle spotlight) ---- */
-.net__tag {
-  position: absolute; z-index: 3; left: 0; top: 0; min-width: 196px; max-width: 280px;
-  display: flex; flex-direction: column; gap: 3px;
-  padding: 11px 13px 12px; border-radius: 4px;
-  background: rgba(11, 12, 15, .84); border: 1px solid rgba(243, 239, 231, .14);
-  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
-  box-shadow: 0 12px 34px rgba(0, 0, 0, .5);
-  font-size: 11px; letter-spacing: .05em; line-height: 1.5; color: var(--ink-2);
-  opacity: 0; pointer-events: none; transition: opacity .2s;
-}
-.net__tag.is-on { opacity: 1; pointer-events: auto; }
-.net__tag::before { content: ""; position: absolute; left: -1px; top: -1px; width: 30px; height: 2px; background: var(--red-2); }
-.net__tag-lane { font: 500 15px/1.25 var(--f-ui); letter-spacing: 0; color: var(--ink); }
-.net__tag-km { color: var(--ink); }
-.net__tag-via { color: var(--ink-3); }
-.net__tag-via:empty { display: none; }
-.net__tag-cta { margin-top: 6px; font-weight: 600; color: var(--red-2); }
-.net__tag-cta:hover { color: #fff; }
-
-.net__hint {
-  position: absolute; z-index: 2; right: clamp(16px, 2.4vw, 40px); bottom: 20px;
-  display: inline-flex; align-items: center; gap: 9px;
-  font-size: 10px; letter-spacing: .18em; text-transform: uppercase; color: var(--ink-3);
-  transition: opacity .4s; animation: net-rise 1s var(--ease) 2.4s both;
-}
-.rm .net__hint { animation: none; }
-.net__hint i { width: 6px; height: 6px; border-radius: 50%; background: var(--red-2); box-shadow: 0 0 0 0 rgba(227, 25, 58, .6); animation: net-dot 2.4s ease-out infinite; }
-.rm .net__hint i { animation: none; }
-@keyframes net-dot { 0% { box-shadow: 0 0 0 0 rgba(227, 25, 58, .6); } 70% { box-shadow: 0 0 0 9px rgba(227, 25, 58, 0); } 100% { box-shadow: 0 0 0 0 rgba(227, 25, 58, 0); } }
-.net__hint.is-used { opacity: 0; }
 .net__note {
-  position: absolute; z-index: 2; left: 0; right: 0; bottom: 20px; text-align: center;
-  font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: rgba(138, 143, 152, .75);
-  animation: net-rise 1s var(--ease) 3s both; pointer-events: none;
+  position: absolute; z-index: 2; right: clamp(16px, 2.4vw, 40px); bottom: calc(var(--stats-h) + 14px);
+  font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: rgba(138, 143, 152, .8); pointer-events: none;
+  transition: opacity .5s;
 }
-.rm .net__note { animation: none; }
-.net__hint-m { display: none; }
+.growth.is-live:not(.is-fleet) .net__note { opacity: 0; }
 
 /* ---- the map ---- */
-.hn-land path { fill: #181C23; stroke: rgba(243, 239, 231, .11); stroke-width: .8; stroke-linejoin: round; fill-rule: evenodd; }
-.hn-cov { fill: rgba(243, 239, 231, .05); stroke: rgba(243, 239, 231, .16); stroke-width: .6; stroke-linejoin: round; fill-rule: evenodd; }
+.hn-land path { fill: #171B22; stroke: rgba(243, 239, 231, .1); stroke-width: .8; stroke-linejoin: round; fill-rule: evenodd; }
+/* the service-area tint lights up per country (clip the one coverage shape with each country's land) */
+.hn-cov { fill: rgba(243, 239, 231, .085); stroke: rgba(243, 239, 231, .2); stroke-width: .6; stroke-linejoin: round; fill-rule: evenodd; }
+.hn-cov--ca { opacity: var(--a0, 1); } .hn-cov--us { opacity: var(--a1, 1); } .hn-cov--mx { opacity: var(--a2, 1); }
 .hn-admin { fill: none; stroke: rgba(243, 239, 231, .065); stroke-width: .5; stroke-linejoin: round; }
 .hn-lakes { fill: var(--bg-0); stroke: rgba(243, 239, 231, .09); stroke-width: .6; stroke-linejoin: round; fill-rule: evenodd; }
 .hn-borders { fill: none; stroke: rgba(243, 239, 231, .3); stroke-width: .7; stroke-dasharray: 3 2.2; stroke-linejoin: round; }
-.hn-geo text { font: 400 9px/1 var(--f-mono); letter-spacing: .34em; fill: rgba(243, 239, 231, .22); }
-
-/* lanes: the corridor is the spine (red, glow), the Vancouver lane is red and thin, every other lane is ink */
-.hn-lane { transition: opacity .35s; }
-.hn-lane__line, .hn-lane__glow { fill: none; stroke-linecap: round; stroke-linejoin: round; }
-.hn-lane__line { stroke: #E2DCCF; stroke-width: 1.15; opacity: .78; }
-.hn-lane__glow { stroke: #fff; stroke-width: 4.5; opacity: 0; }
-.hn-lane--corr .hn-lane__line { stroke: var(--red-2); stroke-width: 2.4; opacity: 1; }
-.hn-lane--corr .hn-lane__glow { stroke: var(--red); stroke-width: 7; opacity: .4; }
-.hn-lane--van .hn-lane__line { stroke: var(--red-2); stroke-width: 1.3; opacity: .85; }
-.hn-lane__hit { fill: none; stroke: rgba(0, 0, 0, 0); stroke-width: 14; pointer-events: stroke; cursor: pointer; }
-/* draw-on cascade. The hidden "before" state carries no transition (a transition on it would animate 0 -> 1000
-   first and swallow the draw); .is-drawn, added by net.js after the first paint, transitions everything on.
-   Reduced motion and no-JS pages never enter the hidden state. net.js sets --d per lane and city. */
-.js:not(.rm) .hn:not(.is-drawn) .hn-lane__line, .js:not(.rm) .hn:not(.is-drawn) .hn-lane__glow { stroke-dasharray: 1000 1000; stroke-dashoffset: 1000; }
-.js:not(.rm) .hn:not(.is-drawn) .hn-city, .js:not(.rm) .hn:not(.is-drawn) .hn-term, .js:not(.rm) .hn:not(.is-drawn) .hn-cov { opacity: 0; }
-.hn.is-drawn .hn-lane__line, .hn.is-drawn .hn-lane__glow {
-  stroke-dasharray: 1000 1000; stroke-dashoffset: 0;
-  transition: stroke-dashoffset 1.5s cubic-bezier(.35, .55, .2, 1) var(--d, 0s), opacity .35s;
-}
-.hn.is-drawn .hn-cov { transition: opacity 1.6s ease var(--dc, 2.3s); }
-.hn.is-drawn .hn-city, .hn.is-drawn .hn-term { transition: opacity .7s ease var(--d, 0s); }
-/* the spine breathes */
-@keyframes hn-breathe { 0%, 100% { opacity: .32; } 50% { opacity: .55; } }
-.hn.is-drawn .hn-lane--corr:not(.is-hot) .hn-lane__glow { animation: hn-breathe 4.5s ease-in-out infinite; }
-.rm .hn-lane__glow { animation: none !important; }
-/* hot lane */
-.hn.is-hot .hn-lane:not(.is-hot) { opacity: .38; }
-.hn-lane.is-hot .hn-lane__line { stroke: #fff; stroke-width: 2.2; opacity: 1; }
-.hn-lane.is-hot .hn-lane__glow { stroke: #fff; stroke-width: 8; opacity: .4; }
-.hn-lane--corr.is-hot .hn-lane__glow { stroke: #FF8A9B; opacity: .55; }
-.hn.is-hot .hn-city:not(.is-hot), .hn.is-hot .hn-term:not(.is-hot) { opacity: .45; }
-.hn.is-hot .hn-truck:not(.is-hot) { opacity: .35; }
-
-/* cities (constant size in map units) */
-.hn-city, .hn-term, .hn-truck { transition: opacity .35s; }
-.hn-city__dot { fill: #E7E0D3; opacity: .9; }
-.hn-city--stop .hn-city__dot { r: 1.25; fill: #F3EFE7; opacity: .55; }
-/* every city is a light: a soft halo always, brighter on the hot lane */
-.hn-city__halo { fill: #FFF0D6; opacity: .075; transition: opacity .3s; }
-.hn-city--stop .hn-city__halo { r: 3.4; opacity: .06; }
-.hn-city.is-hot .hn-city__halo { opacity: .2; }
-.hn-city--minor .hn-city__label { display: none; }
-.hn-city__label, .hn-term__label {
-  font: 500 9px/1 var(--f-ui); letter-spacing: .01em; fill: #B8BCC4;
-  paint-order: stroke; stroke: rgba(11, 12, 15, .92); stroke-width: 3px; stroke-linejoin: round;
-  transition: opacity .3s;
-}
-.hn-city__label { opacity: 0; }
-.hn-city--major .hn-city__label, .hn-city.is-hot .hn-city__label { opacity: 1; }
-.hn-city.is-hot .hn-city__label { fill: #fff; }
+.hn-geo text { font: 400 10px/1 var(--f-mono); letter-spacing: .34em; fill: rgba(243, 239, 231, .55); }
+.hn-geo text[data-cc="0"] { opacity: calc(.25 + .75 * var(--a0, 1)); }
+.hn-geo text[data-cc="1"] { opacity: calc(.25 + .75 * var(--a1, 1)); }
+.hn-geo text[data-cc="2"] { opacity: calc(.25 + .75 * var(--a2, 1)); }
+/* terminals: red dot, white ring, a pulse on the head office; each appears with its country */
+.hn-term { transition: opacity .6s ease; }
 .hn-term__dot { fill: var(--red-2); }
-.hn-term__glow { fill: var(--red-2); opacity: .13; }
+.hn-term__glow { fill: var(--red-2); opacity: .14; }
 .hn-term__ring { fill: none; stroke: #fff; stroke-width: 1; opacity: .9; }
-.hn-term__pulse { fill: none; stroke: var(--red-2); stroke-width: 1; opacity: 0; transform-box: fill-box; transform-origin: center; }
-.hn.is-drawn .hn-term__pulse, .hn:not(.is-live) .hn-term__pulse { animation: hn-pulse 3.4s ease-out infinite; }
-.hn-term[data-id="laredo"] .hn-term__pulse { animation-delay: 1.1s; }
-.hn-term[data-id="saltillo"] .hn-term__pulse { animation-delay: 2.2s; }
-.hn-term:not(.hn-term--hq):not([data-id="laredo"]):not([data-id="saltillo"]) .hn-term__pulse { display: none; }
+.hn-term__pulse { fill: none; stroke: var(--red-2); stroke-width: 1; opacity: 0; transform-box: fill-box; transform-origin: center; animation: hn-pulse 3.2s ease-out infinite; }
+.hn-term:not(.hn-term--hq) .hn-term__pulse { display: none; }
 .rm .hn-term__pulse { animation: none !important; }
-@keyframes hn-pulse { 0% { transform: scale(.7); opacity: .9; } 75% { transform: scale(3.4); opacity: 0; } 100% { transform: scale(3.4); opacity: 0; } }
-.hn-term__label { font-weight: 600; fill: #fff; }
-.hn-term--hq .hn-term__label { font-size: 11px; }
-.hn-term--hq .hn-term__dot { r: 3; }
-.hn-term--hq .hn-term__ring { r: 5.6; }
-.hn-term:not(.hn-term--hq):not([data-id="laredo"]):not([data-id="saltillo"]) .hn-term__label { opacity: 0; }
-.hn-term.is-hot .hn-term__label { opacity: 1; }
+@keyframes hn-pulse { 0% { transform: scale(.7); opacity: .9; } 75% { transform: scale(3.6); opacity: 0; } 100% { transform: scale(3.6); opacity: 0; } }
+.hn-term__label {
+  font: 600 9.5px/1 var(--f-ui); fill: #fff; letter-spacing: .01em;
+  paint-order: stroke; stroke: rgba(11, 12, 15, .92); stroke-width: 3px; stroke-linejoin: round;
+}
+.hn-term--hq .hn-term__label { font-size: 12px; }
+.hn-term--hq .hn-term__dot { r: 3.2; }
+.hn-term--hq .hn-term__ring { r: 5.8; }
+.hn-term--hq .hn-term__glow { r: 22; }
+.hn-term[data-id="belle-river"] .hn-term__label, .hn-term[data-id="romulus"] .hn-term__label, .hn-term[data-id="nuevo-laredo"] .hn-term__label, .hn-term[data-id="monterrey"] .hn-term__label { font-size: 8px; fill: #D6D9DE; }
+.js:not(.rm) .growth.is-live .hn-term:not(.is-on) { opacity: 0; }
+/* the one-city moment: the head office alone, big and bright, before Canada lights */
+.hn-term--hq .hn-term__glow { transition: opacity .8s; }
+.growth.is-live[data-beat="0"] .hn-term--hq .hn-term__glow { opacity: .34; }
+.hn-trucks { display: none; }
 
-/* trucks (net.js) */
-.hn-truck__tail { fill: none; stroke: #FFE2B8; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; opacity: .65; }
-.hn-truck__dot { fill: #FFF8EC; r: 2.5; }
-.hn-truck__glow { fill: #FFE2B8; opacity: .22; }
-.hn-truck.is-hot .hn-truck__glow { opacity: .4; }
-.hn-truck--corr .hn-truck__tail { stroke: #FF7A8C; opacity: .7; }
-.hn-truck--corr .hn-truck__dot { fill: #fff; }
-.rm .hn-trucks { display: none; }
-
-/* ---- phones and portrait tablets: map in the top half, copy at the bottom, numbers below ---- */
+/* ---- phones and portrait tablets: map in the top half, caption at the bottom, numbers compact ---- */
 @media (max-width: 860px) {
-  .net { --stats-h: auto; }
-  .net__stage { inset: 0; perspective: none; }
-  .net__map { left: -4%; right: -4%; top: calc(var(--nav-h) + 6px); bottom: 48%; }
+  .yard__photo img, .yard__video { object-position: 50% 50%; }
+  .yard__copy { padding-bottom: 64px; }
+  .yard__title { font-size: clamp(38px, 10.5vw, 56px); max-width: 13ch; }
+  .yard__eyebrow, .growth__yr { letter-spacing: .14em; gap: 8px; }
+  .yard__lede, .growth__body { font-size: 15.5px; }
+  .yard__cta .btn, .growth__cta .btn { flex: 1 1 auto; }
+  .yard__drive { width: 100%; justify-content: center; }
+  .growth { --stats-h: 128px; }
+  .growth__sticky { perspective: none; }
+  .net__map { left: -4%; right: -4%; top: calc(var(--nav-h) + 6px); bottom: 50%; }
   .net__scrim { background: linear-gradient(180deg, rgba(11, 12, 15, .55) 0%, rgba(11, 12, 15, 0) 16%, rgba(11, 12, 15, 0) 40%, rgba(11, 12, 15, .82) 54%, var(--bg) 66%); }
-  .net__copy { align-self: end; width: 100%; padding: 50vh var(--gutter) 18px; gap: 8px; }
-  .net__title { font-size: clamp(42px, 11.5vw, 60px); max-width: 12ch; }
-  .net__eyebrow { letter-spacing: .14em; gap: 8px; }
-  .net__lede { font-size: 15.5px; }
-  .net__cta .btn { flex: 1 1 auto; }
-  .net__drive { width: 100%; justify-content: center; }
+  .growth__caps { right: 0; top: 46%; bottom: 0; padding: 0 var(--gutter) 24px; align-items: center; }
+  .growth.is-end .growth__caps { bottom: var(--stats-h); padding-bottom: 16px; }
+  .growth__cap { width: 100%; gap: 6px; }
+  .growth__title { font-size: clamp(34px, 9.5vw, 48px); max-width: 14ch; }
+  .growth__cap--end .growth__title { font-size: clamp(40px, 11vw, 56px); }
   .net__stats {
-    height: auto; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px 12px;
-    padding: 18px var(--gutter) calc(20px + env(safe-area-inset-bottom));
+    height: auto; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px 10px;
+    padding: 14px var(--gutter) calc(14px + env(safe-area-inset-bottom));
   }
-  .net__stats li { padding-left: 0; border-left: 0; gap: 3px; }
-  .net__stats .odo { font-size: 24px; }
-  .net__stats li > span:last-child { font-size: 9.5px; letter-spacing: .14em; }
-  .net__hint { right: auto; left: var(--gutter); bottom: auto; top: calc(var(--nav-h) + 14px); }
+  .net__stats li { padding-left: 0; border-left: 0; gap: 2px; }
+  .net__stats .odo { font-size: 22px; }
+  .net__stats li > span:last-child { font-size: 9px; letter-spacing: .12em; }
   .net__note { display: none; }
-  .net__hint-d { display: none; } .net__hint-m { display: inline; }
-  .net__tag { min-width: 170px; font-size: 11px; }
-  /* the frame is drawn at ~0.4 px per map unit here: thicker strokes, bigger dots, labels only where they matter */
-  .hn-lane__line { stroke-width: 2.2; }
-  .hn-lane--corr .hn-lane__line { stroke-width: 4; }
-  .hn-lane--corr .hn-lane__glow { stroke-width: 12; }
-  .hn-lane--van .hn-lane__line { stroke-width: 2.6; }
-  .hn-lane.is-hot .hn-lane__line { stroke-width: 4; }
-  .hn-lane__hit { stroke-width: 26; }
+  /* the frame is drawn at ~0.4 px per map unit here: thicker strokes, bigger dots and labels */
   .hn-borders { stroke-width: 1.2; stroke-dasharray: 5 4; }
   .hn-cov { stroke-width: 1; }
-  .hn-geo text { font-size: 16px; }
-  .hn-city__dot { r: 3; } .hn-city--stop .hn-city__dot { r: 2.2; } .hn-city__halo { r: 10; }
-  .hn-term__dot { r: 4.2; } .hn-term__ring { r: 8.5; } .hn-term--hq .hn-term__dot { r: 5.5; } .hn-term--hq .hn-term__ring { r: 10.5; }
-  .hn-city__label, .hn-term__label { font-size: 20px; stroke-width: 6px; }
-  .hn-term--hq .hn-term__label { font-size: 24px; }
-  .hn-city--major:not(.is-hot) .hn-city__label { opacity: 0; }
-  .hn-city[data-id="vancouver"] .hn-city__label, .hn-city[data-id="los-angeles"] .hn-city__label, .hn-city[data-id="montreal"] .hn-city__label,
-  .hn-city[data-id="new-york"] .hn-city__label, .hn-city[data-id="chicago"] .hn-city__label, .hn-city[data-id="atlanta"] .hn-city__label,
-  .hn-city[data-id="orlando"] .hn-city__label, .hn-city[data-id="houston"] .hn-city__label, .hn-city[data-id="guadalajara"] .hn-city__label { opacity: 1; }
-  .hn-truck__dot { r: 3.6; } .hn-truck__tail { stroke-width: 2.8; } .hn-truck__glow { r: 9; }
-  .hn-term__glow { r: 34; }
-  /* the tag takes a fixed slot under the hint instead of chasing a lane that sits over the copy */
-  .net__tag { transform: none !important; left: var(--gutter); right: var(--gutter); top: calc(var(--nav-h) + 40px); max-width: none; }
+  .hn-geo text { font-size: 18px; }
+  .hn-term__dot { r: 4.2; } .hn-term__ring { r: 8.5; } .hn-term--hq .hn-term__dot { r: 6; } .hn-term--hq .hn-term__ring { r: 11; } .hn-term--hq .hn-term__glow { r: 44; }
+  .hn-term__label { font-size: 20px; stroke-width: 6px; }
+  .hn-term--hq .hn-term__label { font-size: 26px; }
+  .hn-term[data-id="belle-river"] .hn-term__label, .hn-term[data-id="romulus"] .hn-term__label, .hn-term[data-id="nuevo-laredo"] .hn-term__label, .hn-term[data-id="monterrey"] .hn-term__label { display: none; }
 }
 /* short landscape phones */
 @media (max-height: 520px) and (orientation: landscape) {
-  .net__title { font-size: clamp(30px, 8vh, 44px); max-width: 24ch; }
-  .net__lede { font-size: 14px; padding: 4px 12px; }
-  .net { --stats-h: 72px; }
+  .yard__title, .growth__title { font-size: clamp(30px, 8vh, 44px); max-width: 24ch; }
+  .yard__lede, .growth__body { font-size: 14px; padding: 4px 12px; }
+  .growth { --stats-h: 72px; }
   .net__stats .odo { font-size: 20px; }
 }
 

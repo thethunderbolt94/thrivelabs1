@@ -38,7 +38,7 @@
   var track = null, trackBottom = 0;
 
   function measureWorld() {
-    track = $('#top');   // the pinned hero (hero.js); past-hero / world-done key off its bottom edge
+    track = $('#growth') || $('#top');   // the pinned growth map (net.js); past-hero / world-done key off its bottom edge
     trackBottom = track ? track.getBoundingClientRect().bottom + win.scrollY : 0;
   }
 
