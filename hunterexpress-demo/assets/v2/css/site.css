@@ -303,6 +303,10 @@ fieldset { border: 0; padding: 0; min-width: 0; }
   transform-style: preserve-3d; will-change: transform;
 }
 .net__map .hn { width: 100%; height: 100%; display: block; overflow: visible; }
+/* the fleet (net.js): road mesh + trucks on canvases above the map, pointer-events off so lane hover reaches the SVG */
+.net__roads, .net__fleet { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; opacity: 0; transition: opacity 1.6s ease; }
+.net__roads.is-on, .net__fleet.is-on { opacity: 1; }
+.net__roads { mix-blend-mode: screen; }
 .net__scrim {
   position: absolute; inset: 0; z-index: 1; pointer-events: none;
   background:
@@ -396,6 +400,12 @@ fieldset { border: 0; padding: 0; min-width: 0; }
 .rm .net__hint i { animation: none; }
 @keyframes net-dot { 0% { box-shadow: 0 0 0 0 rgba(227, 25, 58, .6); } 70% { box-shadow: 0 0 0 9px rgba(227, 25, 58, 0); } 100% { box-shadow: 0 0 0 0 rgba(227, 25, 58, 0); } }
 .net__hint.is-used { opacity: 0; }
+.net__note {
+  position: absolute; z-index: 2; left: 0; right: 0; bottom: 20px; text-align: center;
+  font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: rgba(138, 143, 152, .75);
+  animation: net-rise 1s var(--ease) 3s both; pointer-events: none;
+}
+.rm .net__note { animation: none; }
 .net__hint-m { display: none; }
 
 /* ---- the map ---- */
@@ -501,6 +511,7 @@ fieldset { border: 0; padding: 0; min-width: 0; }
   .net__stats .odo { font-size: 24px; }
   .net__stats li > span:last-child { font-size: 9.5px; letter-spacing: .14em; }
   .net__hint { right: auto; left: var(--gutter); bottom: auto; top: calc(var(--nav-h) + 14px); }
+  .net__note { display: none; }
   .net__hint-d { display: none; } .net__hint-m { display: inline; }
   .net__tag { min-width: 170px; font-size: 11px; }
   /* the frame is drawn at ~0.4 px per map unit here: thicker strokes, bigger dots, labels only where they matter */

@@ -74,6 +74,7 @@
   /* ---- trucks: a few per lane, both directions, bounce at the ends ---- */
   var trucks = [], running = false, lastT = 0;
   function startTrucks() {
+    fleetOn();
     if (reduce || trucks.length) return;
     lanes.forEach(function (l) {
       var count = l.kind === 'corr' ? 5 : l.kind === 'van' ? 3 : l.len > 380 ? 2 : 1;
@@ -102,6 +103,124 @@
     }
   }
 
+
+  /* ---- the fleet: the real road mesh under the lanes and hundreds of trucks running it (two canvases above the SVG,
+     pointer-events off so lane hover still reaches the SVG). Roads: assets/v2/map/roads.json from build/map/build-roads.mjs. ---- */
+  var fleet = { ok: false, on: false, trucks: [], N: fine ? 520 : 220, dpr: Math.min(2, win.devicePixelRatio || 1) };
+  var roadsC = doc.createElement('canvas'), fleetC = doc.createElement('canvas');
+  roadsC.className = 'net__roads'; fleetC.className = 'net__fleet';
+  roadsC.setAttribute('aria-hidden', 'true'); fleetC.setAttribute('aria-hidden', 'true');
+  mapEl.appendChild(roadsC); mapEl.appendChild(fleetC);
+  var rctx = roadsC.getContext('2d'), fctx = fleetC.getContext('2d');
+  var VB = (svg.getAttribute('viewBox') || '0 0 1000 796').split(/\s+/).map(Number);
+  var fit = { s: 1, ox: 0, oy: 0, w: 0, h: 0 };
+  function fleetResize() {
+    var w = mapEl.clientWidth, h = mapEl.clientHeight; if (!w || !h) return;
+    fit.w = w; fit.h = h; fit.s = Math.min(w / VB[2], h / VB[3]);
+    fit.ox = (w - VB[2] * fit.s) / 2 - VB[0] * fit.s; fit.oy = (h - VB[3] * fit.s) / 2 - VB[1] * fit.s;
+    [roadsC, fleetC].forEach(function (c) { c.width = Math.round(w * fleet.dpr); c.height = Math.round(h * fleet.dpr); c.style.width = w + 'px'; c.style.height = h + 'px'; });
+    if (fleet.ok) { drawRoads(); if (reduce) drawFleet(); }
+  }
+  function X(x) { return fit.ox + x * fit.s; }
+  function Y(y) { return fit.oy + y * fit.s; }
+  var G = null;   // graph: nodes Float32Array, edges [{a,b,m,len,pts:Float32Array,cum:Float32Array}], adj [[edgeIdx,...]]
+  function buildGraph(d) {
+    var nodes = new Float32Array(d.n), edges = [], adj = [];
+    for (var i = 0; i < d.n.length / 2; i++) adj.push([]);
+    d.e.forEach(function (e, idx) {
+      var a = e[0], b = e[1], pts = [nodes[a * 2], nodes[a * 2 + 1]];
+      for (var k = 4; k < e.length; k++) pts.push(e[k]);
+      pts.push(nodes[b * 2], nodes[b * 2 + 1]);
+      var cum = [0]; for (k = 2; k < pts.length; k += 2) cum.push(cum[cum.length - 1] + Math.hypot(pts[k] - pts[k - 2], pts[k + 1] - pts[k - 1]));
+      edges.push({ a: a, b: b, m: e[2], len: cum[cum.length - 1] || .1, pts: new Float32Array(pts), cum: new Float32Array(cum) });
+      adj[a].push(idx); adj[b].push(idx);
+    });
+    G = { nodes: nodes, edges: edges, adj: adj };
+  }
+  function edgePoint(e, d, out) {   // distance d along the edge from node a
+    var cum = e.cum, n = cum.length - 1, lo = 0, hi = n;
+    if (d <= 0) { out[0] = e.pts[0]; out[1] = e.pts[1]; return; }
+    if (d >= e.len) { out[0] = e.pts[n * 2]; out[1] = e.pts[n * 2 + 1]; return; }
+    while (hi - lo > 1) { var mid = (lo + hi) >> 1; if (cum[mid] <= d) lo = mid; else hi = mid; }
+    var f = (d - cum[lo]) / ((cum[hi] - cum[lo]) || 1);
+    out[0] = e.pts[lo * 2] + (e.pts[hi * 2] - e.pts[lo * 2]) * f; out[1] = e.pts[lo * 2 + 1] + (e.pts[hi * 2 + 1] - e.pts[lo * 2 + 1]) * f;
+  }
+  function seedFleet() {
+    var total = 0; G.edges.forEach(function (e) { total += e.len * (e.m ? 2.2 : 1); });   // more of the fleet on the big roads
+    fleet.trucks = [];
+    for (var i = 0; i < fleet.N; i++) {
+      var r = Math.random() * total, acc = 0, ei = 0;
+      for (var k = 0; k < G.edges.length; k++) { acc += G.edges[k].len * (G.edges[k].m ? 2.2 : 1); if (acc >= r) { ei = k; break; } }
+      var e = G.edges[ei];
+      fleet.trucks.push({ e: ei, d: Math.random() * e.len, dir: Math.random() < .5 ? 1 : -1, v: 5.5 + Math.random() * 4.5, x: 0, y: 0, px: 0, py: 0, w: .8 + Math.random() * .5 });
+    }
+    var o = [0, 0];
+    fleet.trucks.forEach(function (t) { edgePoint(G.edges[t.e], t.d, o); t.x = t.px = o[0]; t.y = t.py = o[1]; });
+  }
+  function nextEdge(t, node, from) {
+    var list = G.adj[node]; if (list.length === 1) return from;   // dead end: turn around
+    var best = -1, bw = -1;
+    for (var i = 0; i < list.length; i++) { var ei = list[i]; if (ei === from && list.length > 1) continue; var w = (G.edges[ei].m ? 3 : 1) * (.4 + Math.random()); if (w > bw) { bw = w; best = ei; } }
+    return best < 0 ? from : best;
+  }
+  var _o = [0, 0];
+  function stepFleet(dt) {
+    for (var i = 0; i < fleet.trucks.length; i++) {
+      var t = fleet.trucks[i], e = G.edges[t.e];
+      t.d += t.v * t.dir * dt;
+      if (t.d > e.len || t.d < 0) {
+        var node = t.d > e.len ? e.b : e.a, ne = nextEdge(t, node, t.e), e2 = G.edges[ne];
+        t.e = ne; t.dir = (e2.a === node) ? 1 : -1; t.d = t.dir === 1 ? 0 : e2.len;
+        if (ne === e2 && false) {}
+      }
+      t.px = t.x; t.py = t.y; edgePoint(G.edges[t.e], t.d, _o); t.x = _o[0]; t.y = _o[1];
+    }
+  }
+  function drawRoads() {
+    var c = rctx, k = fleet.dpr; c.setTransform(k, 0, 0, k, 0, 0); c.clearRect(0, 0, fit.w, fit.h);
+    c.lineCap = 'round'; c.lineJoin = 'round';
+    [0, 1].forEach(function (m) {
+      c.beginPath();
+      for (var i = 0; i < G.edges.length; i++) {
+        var e = G.edges[i]; if (e.m !== m) continue;
+        c.moveTo(X(e.pts[0]), Y(e.pts[1]));
+        for (var k2 = 2; k2 < e.pts.length; k2 += 2) c.lineTo(X(e.pts[k2]), Y(e.pts[k2 + 1]));
+      }
+      c.strokeStyle = m ? 'rgba(243, 239, 231, .17)' : 'rgba(243, 239, 231, .085)';
+      c.lineWidth = m ? Math.max(.7, .9 * fit.s) : Math.max(.5, .6 * fit.s);
+      c.stroke();
+    });
+  }
+  function drawFleet() {
+    var c = fctx, k = fleet.dpr; c.setTransform(k, 0, 0, k, 0, 0); c.clearRect(0, 0, fit.w, fit.h);
+    var dim = svg.classList.contains('is-hot') ? .45 : 1, r = Math.max(1.1, 1.3 * fit.s * (fine ? 1 : 1.5));
+    c.lineCap = 'round';
+    // streaks
+    c.beginPath();
+    for (var i = 0; i < fleet.trucks.length; i++) {
+      var t = fleet.trucks[i]; var dx = t.x - t.px, dy = t.y - t.py;
+      c.moveTo(X(t.x - dx * 6), Y(t.y - dy * 6)); c.lineTo(X(t.x), Y(t.y));
+    }
+    c.strokeStyle = 'rgba(255, 226, 184, ' + (.5 * dim) + ')'; c.lineWidth = r * .9; c.stroke();
+    // halos
+    c.fillStyle = 'rgba(255, 226, 184, ' + (.18 * dim) + ')'; c.beginPath();
+    for (i = 0; i < fleet.trucks.length; i++) { t = fleet.trucks[i]; c.moveTo(X(t.x) + r * 2.6, Y(t.y)); c.arc(X(t.x), Y(t.y), r * 2.6, 0, 6.2832); }
+    c.fill();
+    // dots
+    c.fillStyle = 'rgba(255, 246, 228, ' + (.95 * dim) + ')'; c.beginPath();
+    for (i = 0; i < fleet.trucks.length; i++) { t = fleet.trucks[i]; c.moveTo(X(t.x) + r * t.w, Y(t.y)); c.arc(X(t.x), Y(t.y), r * t.w, 0, 6.2832); }
+    c.fill();
+  }
+  function loadFleet() {
+    if (!win.fetch) return;
+    fetch('assets/v2/map/roads.json').then(function (r) { return r.json(); }).then(function (d) {
+      buildGraph(d); fleet.ok = true; fleetResize(); seedFleet(); drawRoads();
+      if (reduce) { drawFleet(); roadsC.classList.add('is-on'); fleetC.classList.add('is-on'); }
+      else if (drawn) fleetOn();
+    }).catch(function () {});
+  }
+  function fleetOn() { if (!fleet.ok || fleet.on) return; fleet.on = true; roadsC.classList.add('is-on'); fleetC.classList.add('is-on'); kick(); }
+
   /* ---- tilt (pointer), depth, scroll-out ---- */
   var tx = 0, ty = 0, cx = 0, cy = 0, lastMove = -1e9, visible = true, raf = 0;
   if (fine && !reduce) {
@@ -122,6 +241,8 @@
       mapEl.style.transform = 'translate3d(' + (cx * 20).toFixed(2) + 'px,' + (cy * 14 + sh).toFixed(2) + 'px,0) rotateX(' + (-cy * 5).toFixed(2) + 'deg) rotateY(' + (cx * 7).toFixed(2) + 'deg)';
       citiesG.style.transform = 'translate(' + (cx * -8).toFixed(2) + 'px,' + (cy * -6).toFixed(2) + 'px)';
       worldG.style.transform = 'translate(' + (cx * 4).toFixed(2) + 'px,' + (cy * 3).toFixed(2) + 'px)';
+      var wt = 'translate3d(' + (cx * 4).toFixed(2) + 'px,' + (cy * 3).toFixed(2) + 'px,0)'; roadsC.style.transform = wt; fleetC.style.transform = wt;
+      if (fleet.on) { stepFleet(dt); drawFleet(); }
       if (copy) {
         var k = H ? Math.min(1, y / (H * .55)) : 0;
         copy.style.opacity = (1 - k).toFixed(3); copy.style.transform = 'translate3d(0,' + (y * .12).toFixed(1) + 'px,0)';
@@ -131,7 +252,7 @@
     raf = requestAnimationFrame(frame);
   }
   function kick() { if (!raf) { lastT = now(); raf = requestAnimationFrame(frame); } }
-  function measure() { H = hero.offsetHeight || win.innerHeight; }
+  function measure() { H = hero.offsetHeight || win.innerHeight; fleetResize(); }
 
   /* ---- hot lane + tag ---- */
   var hot = null, hoverLane = null, overTag = false, pinned = false;
@@ -226,6 +347,7 @@
   win.addEventListener('scroll', function () { if (visible) kick(); }, { passive: true });
 
   measure();
+  loadFleet();
   // after the first paint: a transition needs a painted "before" state (the CSS keeps the lanes hidden until then, so nothing flashes)
   requestAnimationFrame(function () { requestAnimationFrame(cascade); });
   kick();
@@ -234,6 +356,7 @@
     lanes: lanes, trucks: trucks, at: at,
     hot: function () { return hot ? hot.id : null; },
     state: function () { return { drawn: svg.classList.contains('is-drawn'), live: svg.classList.contains('is-live'), trucks: trucks.length, running: running, visible: visible, hot: hot ? hot.id : null, tag: tag.classList.contains('is-on') }; },
+    fleet: function () { return { ok: fleet.ok, on: fleet.on, n: fleet.trucks.length, edges: G ? G.edges.length : 0, fit: fit }; },
     spot: spotNext, setHot: function (id) { setHot(byId[id] || null); if (byId[id]) { var p = svgToStage(at(byId[id], .5)); placeTag(p.x, p.y); } }
   };
 })();
