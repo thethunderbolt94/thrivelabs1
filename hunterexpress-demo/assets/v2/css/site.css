@@ -987,6 +987,8 @@ html:not(.js) .certs__track { animation: marquee 80s linear infinite; }
 .footer__notice p:last-child { font-size: 13px; line-height: 1.6; color: var(--ink-2); }
 .footer__base { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px 24px; margin-top: 28px; padding-top: 24px; border-top: 1px solid var(--line); font-size: 11px; letter-spacing: .08em; color: var(--ink-3); }
 .footer__base a { color: var(--ink-2); }
+.footer__credit { color: var(--ink-3); }
+.footer__credit:hover { color: var(--ink); }
 @media (max-width: 1000px) {
   .footer__top { grid-template-columns: 1fr; }
 }
