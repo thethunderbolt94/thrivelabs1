@@ -296,21 +296,76 @@
      Services sticky index
      ------------------------------------------------------------------ */
   function initServices() {
-    var tabs = $$('.sidx [role="tab"]'), panels = $$('.svc');
+    var tabs = $$('.sidx [role="tab"]'), panels = $$('.svc'), sec = $('#services');
     if (!tabs.length) return;
+    var cur = 0, timer = 0, holdUntil = 0, visible = false, PERIOD = 6500;
     function show(i, focus) {
+      cur = i;
       tabs.forEach(function (t, k) { var on = k === i; t.setAttribute('aria-selected', String(on)); t.tabIndex = on ? 0 : -1; if (on && focus) t.focus(); });
       panels.forEach(function (p, k) { var on = k === i; p.hidden = !on; p.classList.toggle('is-active', on); });
       if (hasGSAP) ScrollTrigger.refresh();
+      restartBar();
     }
+    function restartBar() {
+      var t = tabs[cur]; t.classList.remove('is-timing'); void t.offsetWidth;
+      if (!reduce && visible && performance.now() >= holdUntil) t.classList.add('is-timing');
+    }
+    function tick() { if (visible && performance.now() >= holdUntil) show((cur + 1) % tabs.length); }
+    function hold(ms) { holdUntil = performance.now() + ms; tabs[cur].classList.remove('is-timing'); }
     tabs.forEach(function (t, i) {
-      t.addEventListener('click', function () { show(i); });
+      t.addEventListener('click', function () { hold(20000); show(i); });
       t.addEventListener('keydown', function (e) {
         var n = e.key === 'ArrowDown' || e.key === 'ArrowRight' ? i + 1 : e.key === 'ArrowUp' || e.key === 'ArrowLeft' ? i - 1 : e.key === 'Home' ? 0 : e.key === 'End' ? tabs.length - 1 : null;
-        if (n === null) return; e.preventDefault(); show((n + tabs.length) % tabs.length, true);
+        if (n === null) return; e.preventDefault(); hold(20000); show((n + tabs.length) % tabs.length, true);
       });
     });
+    if (sec) { sec.addEventListener('pointerenter', function () { hold(PERIOD); }); sec.addEventListener('pointerleave', function () { holdUntil = 0; restartBar(); }); }
     show(0);
+    if (!reduce && 'IntersectionObserver' in win) {
+      new IntersectionObserver(function (es) { visible = es[0].isIntersecting; if (visible) { clearInterval(timer); timer = setInterval(tick, PERIOD); } else clearInterval(timer); restartBar(); }, { threshold: .35 }).observe(sec);
+    }
+  }
+
+  /* ------------------------------------------------------------------
+     Certification strip: a JS marquee (runs on phones too), arrows, tap to open a badge
+     ------------------------------------------------------------------ */
+  function initCerts() {
+    var wrap = $('#certs'), row = wrap && $('.certs__row', wrap), track = wrap && $('.certs__track', wrap); if (!track) return;
+    var sets = $$('.certs__set', track), x = 0, target = null, paused = false, pauseUntil = 0, visible = false, raf = 0, last = 0, speed = reduce ? 0 : 28;
+    var setW = function () { return sets[0].getBoundingClientRect().width; };
+    function apply() { var w = setW(); if (w) { while (x <= -w) x += w; while (x > 0) x -= w; } track.style.transform = 'translate3d(' + x.toFixed(1) + 'px,0,0)'; }
+    function frame(now) {
+      raf = 0; if (!visible) return;
+      var dt = Math.min(.05, (now - last) / 1000); last = now;
+      if (target !== null) { var d = target - x; if (Math.abs(d) < .5) { x = target; target = null; } else x += d * Math.min(1, dt * 8); }
+      else if (!paused && now >= pauseUntil) x -= speed * dt;
+      apply();
+      raf = requestAnimationFrame(frame);
+    }
+    function kick() { if (!raf) { last = performance.now(); raf = requestAnimationFrame(frame); } }
+    function nudge(dir) { var w = setW(); var tile = $('.cert', track).getBoundingClientRect().width + 14; target = (target === null ? x : target) - dir * tile; pauseUntil = performance.now() + 4000; kick(); }
+    $('.certs__btn--prev', wrap).addEventListener('click', function () { nudge(-1); });
+    $('.certs__btn--next', wrap).addEventListener('click', function () { nudge(1); });
+    row.addEventListener('pointerenter', function (e) { if (e.pointerType === 'mouse') paused = true; });
+    row.addEventListener('pointerleave', function () { paused = false; kick(); });
+    // tap (no hover) opens one badge at a time; a second tap or a tap elsewhere closes it
+    $$('.cert', track).forEach(function (c) {
+      c.addEventListener('click', function () {
+        var open = c.classList.contains('is-open');
+        $$('.cert.is-open', track).forEach(function (o) { o.classList.remove('is-open'); });
+        if (!open) { c.classList.add('is-open'); pauseUntil = performance.now() + 6000; }
+      });
+    });
+    // finger panning: drag the strip
+    var dragX = null, dragStart = 0;
+    row.addEventListener('pointerdown', function (e) { if (e.pointerType === 'mouse') return; dragX = e.clientX; dragStart = x; });
+    row.addEventListener('pointermove', function (e) { if (dragX === null) return; target = null; x = dragStart + (e.clientX - dragX); pauseUntil = performance.now() + 3000; apply(); });
+    var endDrag = function () { dragX = null; };
+    row.addEventListener('pointerup', endDrag); row.addEventListener('pointercancel', endDrag);
+    if ('IntersectionObserver' in win) new IntersectionObserver(function (es) { visible = es[0].isIntersecting; if (visible) kick(); }, { threshold: 0 }).observe(wrap);
+    else { visible = true; kick(); }
+    win.addEventListener('resize', apply);
+    apply();
   }
 
   /* ------------------------------------------------------------------
@@ -552,6 +607,7 @@
     initOdometers();
     initOnce('.odo-grid', 'is-drawn', .2);
     initServices();
+    initCerts();
     initTilt();
     initMagnetic();
     initDeck();

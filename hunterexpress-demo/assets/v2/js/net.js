@@ -39,13 +39,14 @@
   /* ---- scroll progress -> beats ---- */
   var p = reduce ? 1 : 0, top = 0, span = 1, vh = 0, lastBeat = -1;
   var A = [reduce ? 1 : 0, reduce ? 1 : 0, reduce ? 1 : 0];   // country activation 0..1 (CA, US, MX)
-  var WIN = [[0, .1], [.18, .32], [.46, .58]];   // Canada on entry, then each country lights early in its own caption
+  var WIN = [[.02, .14], [.3, .44], [.56, .68]];   // Canada as the map arrives, then each country lights early in its own caption
   function smooth(a, b, x) { var t = Math.max(0, Math.min(1, (x - a) / (b - a))); return t * t * (3 - 2 * t); }
   function measure() {
-    vh = win.innerHeight; var r = pin.getBoundingClientRect(); top = r.top + win.scrollY; span = Math.max(1, pin.offsetHeight - vh);
+    // progress starts while the map is still sliding in (60% of a screen before it pins), so the first beat is already moving
+    vh = win.innerHeight; var r = pin.getBoundingClientRect(); top = r.top + win.scrollY - vh * .6; span = Math.max(1, pin.offsetHeight - vh + vh * .6);
     fleetResize();
   }
-  function beatOf(x) { return x < .14 ? -1 : x < .44 ? 0 : x < .7 ? 1 : 2; }
+  function beatOf(x) { return x < .26 ? 0 : x < .52 ? 1 : x < .76 ? 2 : 3; }
   function applyScroll() {
     if (reduce) return;
     var y = win.scrollY || 0; p = Math.max(0, Math.min(1, (y - top) / span));
@@ -53,7 +54,7 @@
     svg.style.setProperty('--a0', A[0].toFixed(3)); svg.style.setProperty('--a1', A[1].toFixed(3)); svg.style.setProperty('--a2', A[2].toFixed(3));
     var b = beatOf(p);
     if (b !== lastBeat) {
-      lastBeat = b; sec.setAttribute('data-beat', String(b)); sec.classList.toggle('is-end', b === 2);
+      lastBeat = b; sec.setAttribute('data-beat', String(b)); sec.classList.toggle('is-end', b === 3);
       caps.forEach(function (el, i) { el.classList.toggle('is-on', i === b); });
     }
     terms.forEach(function (t, i) { t.classList.toggle('is-on', A[termBeat[i]] > .55); });
