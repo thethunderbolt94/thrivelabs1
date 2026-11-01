@@ -331,41 +331,88 @@
      ------------------------------------------------------------------ */
   function initCerts() {
     var wrap = $('#certs'), row = wrap && $('.certs__row', wrap), track = wrap && $('.certs__track', wrap); if (!track) return;
-    var sets = $$('.certs__set', track), x = 0, target = null, paused = false, pauseUntil = 0, visible = false, raf = 0, last = 0, speed = reduce ? 0 : 28;
-    var setW = function () { return sets[0].getBoundingClientRect().width; };
-    function apply() { var w = setW(); if (w) { while (x <= -w) x += w; while (x > 0) x -= w; } track.style.transform = 'translate3d(' + x.toFixed(1) + 'px,0,0)'; }
+    var sets = $$('.certs__set', track), firstTile = $('.cert', track);
+    // pos is one continuous distance travelled (never wrapped); only the rendered offset wraps.
+    // Arrows set a target in the same coordinate, so a wrap can never send the strip the long way round.
+    var pos = 0, target = null, paused = false, holdUntil = 0, visible = false, raf = 0, last = 0, speed = reduce ? 0 : 28;
+    var setW = function () { return sets[0].getBoundingClientRect().width || 1; };
+    var step = function () { return firstTile.getBoundingClientRect().width + 14; };
+    function render() { var w = setW(), off = ((pos % w) + w) % w; track.style.transform = 'translate3d(' + (-off).toFixed(1) + 'px,0,0)'; }
     function frame(now) {
       raf = 0; if (!visible) return;
       var dt = Math.min(.05, (now - last) / 1000); last = now;
-      if (target !== null) { var d = target - x; if (Math.abs(d) < .5) { x = target; target = null; } else x += d * Math.min(1, dt * 8); }
-      else if (!paused && now >= pauseUntil) x -= speed * dt;
-      apply();
+      if (target !== null) { var d = target - pos; if (Math.abs(d) < .5) { pos = target; target = null; } else pos += d * Math.min(1, dt * 9); }
+      else if (!paused && now >= holdUntil) pos += speed * dt;
+      render();
       raf = requestAnimationFrame(frame);
     }
     function kick() { if (!raf) { last = performance.now(); raf = requestAnimationFrame(frame); } }
-    function nudge(dir) { var w = setW(); var tile = $('.cert', track).getBoundingClientRect().width + 14; target = (target === null ? x : target) - dir * tile; pauseUntil = performance.now() + 4000; kick(); }
+    function nudge(dir) {
+      var st = step(), base = target === null ? pos : target;
+      target = (Math.round(base / st) + dir) * st;   // land on a tile edge, one tile per press
+      holdUntil = performance.now() + 5000; kick();
+    }
     $('.certs__btn--prev', wrap).addEventListener('click', function () { nudge(-1); });
     $('.certs__btn--next', wrap).addEventListener('click', function () { nudge(1); });
     row.addEventListener('pointerenter', function (e) { if (e.pointerType === 'mouse') paused = true; });
     row.addEventListener('pointerleave', function () { paused = false; kick(); });
-    // tap (no hover) opens one badge at a time; a second tap or a tap elsewhere closes it
+    // tap (no hover) opens one badge at a time; a second tap closes it. A drag is not a tap.
+    var moved = 0;
     $$('.cert', track).forEach(function (c) {
       c.addEventListener('click', function () {
+        if (moved > 8) return;
         var open = c.classList.contains('is-open');
         $$('.cert.is-open', track).forEach(function (o) { o.classList.remove('is-open'); });
-        if (!open) { c.classList.add('is-open'); pauseUntil = performance.now() + 6000; }
+        if (!open) { c.classList.add('is-open'); holdUntil = performance.now() + 6000; }
       });
     });
-    // finger panning: drag the strip
-    var dragX = null, dragStart = 0;
-    row.addEventListener('pointerdown', function (e) { if (e.pointerType === 'mouse') return; dragX = e.clientX; dragStart = x; });
-    row.addEventListener('pointermove', function (e) { if (dragX === null) return; target = null; x = dragStart + (e.clientX - dragX); pauseUntil = performance.now() + 3000; apply(); });
+    // finger panning
+    var dragX = null, dragPos = 0;
+    row.addEventListener('pointerdown', function (e) { if (e.pointerType === 'mouse') return; dragX = e.clientX; dragPos = pos; moved = 0; target = null; });
+    row.addEventListener('pointermove', function (e) { if (dragX === null) return; moved = Math.abs(e.clientX - dragX); pos = dragPos - (e.clientX - dragX); holdUntil = performance.now() + 3000; render(); });
     var endDrag = function () { dragX = null; };
     row.addEventListener('pointerup', endDrag); row.addEventListener('pointercancel', endDrag);
     if ('IntersectionObserver' in win) new IntersectionObserver(function (es) { visible = es[0].isIntersecting; if (visible) kick(); }, { threshold: 0 }).observe(wrap);
     else { visible = true; kick(); }
-    win.addEventListener('resize', apply);
-    apply();
+    win.addEventListener('resize', render);
+    render();
+  }
+
+  /* ------------------------------------------------------------------
+     Ribbon: speed, direction and lean follow scroll velocity; the film perforations travel with the top row
+     ------------------------------------------------------------------ */
+  function initRibbon() {
+    var rb = $('#ribbon'); if (!rb || reduce) return;
+    var rows = $$('.rb__row', rb).map(function (r, i) {
+      return { track: $('.rb__track', r), set: $('.rb__set', r), dir: i === 0 ? 1 : -1, base: i === 0 ? 38 : 24, pos: 0, w: 0 };
+    });
+    if (!rows.length) return;
+    rb.classList.add('is-driven');
+    var visible = false, raf = 0, last = 0, lastY = win.scrollY, vel = 0, travel = 1, skew = 0;
+    function measure() { rows.forEach(function (r) { r.w = r.set.getBoundingClientRect().width || 1; }); }
+    function frame(now) {
+      raf = 0; if (!visible) return;
+      var dt = Math.min(.05, (now - last) / 1000) || .016; last = now;
+      var y = win.scrollY, v = (y - lastY) / dt; lastY = y;
+      vel += (v - vel) * Math.min(1, dt * 6);                     // smoothed px/s
+      if (Math.abs(vel) > 40) travel = vel > 0 ? 1 : -1;           // scrolling up runs the ribbon backwards
+      var boost = Math.min(Math.abs(vel) * .32, 1100);
+      rows.forEach(function (r) {
+        r.pos += r.dir * travel * (r.base + boost * (r.dir > 0 ? 1 : .6)) * dt;
+        var off = ((r.pos % r.w) + r.w) % r.w;
+        r.track.style.transform = 'translate3d(' + (-off).toFixed(1) + 'px,0,0)';
+      });
+      skew += (clamp(-vel * .006, -9, 9) - skew) * Math.min(1, dt * 8);
+      rb.style.setProperty('--rb-skew', skew.toFixed(2) + 'deg');
+      rb.style.setProperty('--rb-film', (-(rows[0].pos % 26)).toFixed(1) + 'px');
+      raf = requestAnimationFrame(frame);
+    }
+    function kick() { if (!raf) { last = performance.now(); lastY = win.scrollY; raf = requestAnimationFrame(frame); } }
+    measure();
+    if (doc.fonts && doc.fonts.ready) doc.fonts.ready.then(measure);
+    win.addEventListener('resize', measure);
+    if ('IntersectionObserver' in win) new IntersectionObserver(function (es) { visible = es[0].isIntersecting; if (visible) kick(); }, { threshold: 0 }).observe(rb);
+    else { visible = true; kick(); }
   }
 
   /* ------------------------------------------------------------------
@@ -608,6 +655,7 @@
     initOnce('.odo-grid', 'is-drawn', .2);
     initServices();
     initCerts();
+    initRibbon();
     initTilt();
     initMagnetic();
     initDeck();

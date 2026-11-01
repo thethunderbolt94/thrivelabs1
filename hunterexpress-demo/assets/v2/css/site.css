@@ -297,6 +297,68 @@ fieldset { border: 0; padding: 0; min-width: 0; }
 .yard__copy > :nth-child(4) { animation-delay: .26s; }
 .rm .yard__copy > * { animation: none; }
 
+/* ---- ribbon: the seam between the video and the map ----
+   Two counter-moving rows; site.js (initRibbon) couples speed, direction and lean to scroll velocity
+   and slides the film perforations with the top row. CSS marquee is the no-JS fallback; still under reduced motion. */
+.ribbon {
+  --rb-film: 0px; --rb-skew: 0deg;
+  position: relative; z-index: 2; overflow: hidden; isolation: isolate;
+  padding: 14px 0 12px;
+  background:
+    radial-gradient(55% 140% at 28% 0%, rgba(232, 163, 61, .13), transparent 70%),
+    radial-gradient(40% 120% at 78% 0%, rgba(200, 16, 46, .10), transparent 72%),
+    linear-gradient(180deg, #13100D 0%, var(--bg) 100%);
+  border-top: 1px solid rgba(243, 239, 231, .08); border-bottom: 1px solid var(--line);
+}
+.ribbon__film {
+  display: block; height: 10px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='26' height='10'%3E%3Crect x='7' y='2' width='12' height='6' rx='1.5' fill='%23F3EFE7' fill-opacity='.13'/%3E%3C/svg%3E");
+  background-size: 26px 10px; background-repeat: repeat-x; background-position: var(--rb-film) 0;
+}
+.ribbon__film--bot { background-position: calc(var(--rb-film) * -1) 0; }
+.rb__row {
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 9%, #000 91%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 9%, #000 91%, transparent);
+}
+.rb__track { display: flex; width: max-content; will-change: transform; }
+.rb__set { display: flex; align-items: center; flex: none; white-space: nowrap; }
+.rb__row--a { padding: 14px 0 6px; }
+.rb__row--a .rb__set { font: 400 clamp(46px, 6.4vw, 104px)/1.02 var(--f-display); letter-spacing: -0.02em; color: var(--ink); }
+.rb__w { display: inline-block; transform: skewX(var(--rb-skew)); transform-origin: 50% 100%; }
+.rb__w--o { color: transparent; -webkit-text-stroke: 1px rgba(243, 239, 231, .72); }
+.rb__w--i { font-style: italic; color: #E7E0D3; }
+.rb__w--o.rb__w--i { color: transparent; }
+.rb__sep {
+  display: inline-block; flex: none; width: .13em; height: .13em; margin: 0 .5em; transform: rotate(45deg) translateY(-.08em);
+  background: var(--red-2); box-shadow: 0 0 .35em rgba(227, 25, 58, .75);
+}
+.rb__row--b { padding: 4px 0 14px; border-top: 1px solid rgba(243, 239, 231, .06); }
+.rb__row--b .rb__set { padding-top: 10px; font: 400 11px/1 var(--f-mono); letter-spacing: .24em; text-transform: uppercase; color: var(--ink-3); }
+.rb__dot { display: inline-block; flex: none; width: 4px; height: 4px; margin: 0 1.6em; border-radius: 50%; background: var(--red-2); opacity: .8; }
+/* a slow light pass across the band */
+.ribbon::after {
+  content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none;
+  background: linear-gradient(100deg, transparent 38%, rgba(255, 228, 190, .07) 48%, rgba(255, 240, 220, .12) 50%, rgba(255, 228, 190, .07) 52%, transparent 62%);
+  transform: translateX(-100%); animation: rb-sheen 9s cubic-bezier(.45, 0, .25, 1) 1.5s infinite;
+}
+@keyframes rb-sheen { 0% { transform: translateX(-100%); } 55%, 100% { transform: translateX(100%); } }
+/* no-JS fallback marquee; site.js adds .is-driven and moves the tracks itself */
+@keyframes rb-left { to { transform: translateX(-50%); } }
+.rb__row--a .rb__track { animation: rb-left 70s linear infinite; }
+.rb__row--b .rb__track { animation: rb-left 90s linear infinite reverse; }
+.ribbon.is-driven .rb__track { animation: none; }
+.rm .rb__track, .rm .ribbon::after { animation: none; }
+@media (max-width: 860px) {
+  .ribbon { padding: 10px 0 8px; }
+  .rb__row--a { padding: 10px 0 4px; }
+  .rb__row--a .rb__set { font-size: clamp(38px, 11vw, 52px); }
+  .rb__row--b { padding-bottom: 10px; }
+  .rb__row--b .rb__set { font-size: 9.5px; letter-spacing: .18em; padding-top: 8px; }
+  .rb__dot { margin: 0 1.1em; }
+  .ribbon__film { height: 8px; background-size: 20px 8px; }
+}
+
 /* ---- hero 2: the growth map ---- */
 .growth { --stats-h: 0px; }
 .growth__sticky {
