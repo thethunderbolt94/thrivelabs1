@@ -743,10 +743,17 @@ html.js #hero .hero__quote :is([data-fx="rise"], .fx-rise) {
   column-gap: clamp(40px, 7vw, 112px);
   row-gap: clamp(32px, 4vw, 56px);
   align-items: center;
-  margin-top: clamp(64px, 7.5vw, 116px);
   padding-top: clamp(40px, 4.6vw, 68px);
   border-top: 1px solid var(--rule);
+  background: var(--bg);                    /* covers the facts above while it is held */
 }
+
+/* The scroll hold (03-mirror.js adds .is-held and the three numbers). The track is the room's height
+   plus --hold of scrolling; the room sticks for that stretch, by its bottom edge when it is taller than
+   the screen, so the desks and the sentence stay in view while it switches modes. */
+#mirror .play-track { position: relative; margin-top: clamp(64px, 7.5vw, 116px); }
+html.js #mirror .play-track.is-held { height: calc(var(--play-h) + var(--hold)); }
+html.js #mirror .play-track.is-held .play { position: sticky; top: var(--stick-top); }
 #mirror .play:is([data-mode="expression"]),
 html:not(.js) #mirror .play { --e: 1; }
 

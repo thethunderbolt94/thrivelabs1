@@ -201,9 +201,10 @@
    The toggle sets data-mode on .play; CSS holds both finished states (rows and circle, rigid
    caps and expressive Fraunces). GSAP Flip carries the 34 desks and the speaker's mark from one
    layout to the other. Without Flip the browser animates the same move with CSS transitions
-   (.is-native); with reduced motion it just switches. While it is on screen the room swaps
-   layouts by itself every ~9 s; the first click on the toggle stops that. Everything is readable
-   in either state. */
+   (.is-native); with reduced motion it just switches. Scrolling drives it: the room is held on
+   screen for a short stretch (the .play-track) and turns from performance to expression part way
+   through, back again on the way up. The first click on the toggle hands it over for good.
+   Everything is readable in either state. */
 (function () {
   'use strict';
 
@@ -219,8 +220,7 @@
 
   var reduced = !!(window.VB && window.VB.reduced);
   var mode = play.getAttribute('data-mode') === 'expression' ? 'expression' : 'performance';
-  var touched = false;     // the visitor used the toggle: never auto-play after that
-  var autoTimer = 0;
+  var touched = false;     // the visitor used the toggle: scrolling no longer switches the room
 
   var LABEL = {
     performance: '34 desks in rigid rows, facing the front: performance mode',
@@ -262,7 +262,7 @@
     if (state) {
       try {
         window.Flip.from(state, {
-          duration: 2,
+          duration: 1.2,
           ease: 'power3.inOut',
           stagger: { each: 0.018 },
           overwrite: true,
@@ -275,49 +275,56 @@
   buttons.forEach(function (b) {
     b.addEventListener('click', function () {
       touched = true;
-      disarm();
       setMode(b.getAttribute('data-mode-set') === 'expression' ? 'expression' : 'performance');
     });
   });
 
   reflect();
 
-  // Alternate by itself while the field is mostly on screen, holding each layout long enough to
-  // read (HOLD ms), and pause whenever it scrolls away. The first click hands the toggle over for good.
-  var HOLD = 9000;
-  var inView = false;
-  function visibleEnough() {
-    var r = field.getBoundingClientRect();
-    var vh = window.innerHeight || document.documentElement.clientHeight || 0;
-    var seen = Math.min(r.bottom, vh) - Math.max(r.top, 0);
-    return seen >= Math.min(r.height, vh) * 0.6;
-  }
-  function tick() {
-    autoTimer = 0;
-    if (touched || !inView) return;
-    if (!visibleEnough() || document.hidden) { arm(); return; }
-    setMode(mode === 'performance' ? 'expression' : 'performance');
-    arm();
-  }
-  function arm() {
-    if (touched || autoTimer) return;
-    autoTimer = window.setTimeout(tick, HOLD);
-  }
-  function disarm() { window.clearTimeout(autoTimer); autoTimer = 0; }
+  // The scroll hold. The track is the room's height plus 65% of a screen of scrolling; the room sticks for that
+  // stretch and switches to expression once SWITCH of the way through. When the room is taller than the
+  // screen it sticks by its bottom edge (a negative top), so the desks and the sentence stay in view.
+  var track = document.getElementById('mirror-track');
+  if (reduced || !track) return;
+  var SWITCH = 0.4;
+  var geo = { top: 0, h: 0, held: false };
 
-  if (reduced) return;
-  if ('IntersectionObserver' in window) {
-    var io = new IntersectionObserver(function (entries) {
-      entries.forEach(function (en) {
-        inView = en.isIntersecting;
-        if (inView) arm(); else disarm();
-      });
-    }, { threshold: 0.6 });
-    io.observe(field);
-  } else {
-    inView = true;
-    arm();
+  function measure() {
+    var vh = window.innerHeight || document.documentElement.clientHeight || 0;
+    var header = document.querySelector('.site-header');
+    var bar = document.querySelector('.bottom-bar');
+    var topGap = (header ? header.offsetHeight : 64) + 16;
+    var bottomGap = 16 + (bar && getComputedStyle(bar).position === 'fixed' && bar.offsetHeight ? bar.offsetHeight : 0);
+    geo.h = play.offsetHeight;
+    geo.top = Math.min(topGap, vh - bottomGap - geo.h);
+    geo.held = vh > 0;
+    track.style.setProperty('--play-h', geo.h + 'px');
+    track.style.setProperty('--stick-top', geo.top + 'px');
+    track.style.setProperty('--hold', Math.round(vh * 0.65) + 'px');
+    track.classList.toggle('is-held', geo.held);
   }
+
+  var pending = false;
+  function onScroll() {
+    pending = false;
+    if (touched || !geo.held) return;
+    var r = track.getBoundingClientRect();
+    var span = r.height - geo.h;
+    if (span <= 0) return;
+    var p = Math.max(0, Math.min(1, (geo.top - r.top) / span));
+    setMode(p >= SWITCH ? 'expression' : 'performance');
+  }
+  function queue() {
+    if (pending) return;
+    pending = true;
+    if (window.requestAnimationFrame) window.requestAnimationFrame(onScroll); else window.setTimeout(onScroll, 16);
+  }
+
+  measure();
+  onScroll();
+  window.addEventListener('scroll', queue, { passive: true });
+  window.addEventListener('resize', function () { measure(); queue(); });
+  if ('ResizeObserver' in window) new ResizeObserver(function () { measure(); queue(); }).observe(play);
 })();
 ;
 /* Room 5 (#temple): the logo's rays draw on once, when the door scrolls into view.
