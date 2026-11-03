@@ -1552,6 +1552,52 @@ html.notes-on #voices .vc__card--empty[data-tbc] { outline: 1.5px dashed var(--n
 @media (prefers-reduced-motion: reduce) {
   #voices .vc__list { scroll-behavior: auto; }
 }
+/* Room 6b: Questions people ask. A Paper pause between the voices and the floor.
+   Plain question-and-answer pairs, all visible (nothing collapsed), so readers, search engines and AI
+   assistants all see the same answers. Left: the heading, held in place on wide screens. Right: the list. */
+
+#questions .qa__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 4fr) minmax(0, 7fr);
+  align-items: start;
+  column-gap: clamp(32px, 6vw, 96px);
+  row-gap: clamp(28px, 5vw, 44px);
+}
+#questions .qa__head { min-width: 0; }
+#questions .qa__title {
+  font-size: clamp(2.3rem, .9rem + 3.8vw, 4.4rem);
+  line-height: 1;
+  margin-bottom: clamp(16px, 2.6vw, 26px);
+}
+#questions .lede { max-width: 30ch; }
+
+#questions .qa__list { margin: 0; padding: 0; min-width: 0; }
+#questions .qa__item {
+  padding: clamp(18px, 2.4vw, 26px) 0;
+  border-top: 1px solid var(--rule);
+}
+#questions .qa__item:last-child { border-bottom: 1px solid var(--rule); }
+#questions .qa__item dt {
+  margin: 0 0 .5rem;
+  font-family: var(--font-display);
+  font-variation-settings: "opsz" 36;
+  font-size: clamp(1.15rem, 1rem + .55vw, 1.45rem);
+  line-height: 1.25;
+  color: var(--fg);
+}
+#questions .qa__item dd {
+  margin: 0;
+  max-width: 40rem;
+  color: var(--fg-soft);
+}
+
+@media (min-width: 960px) {
+  #questions .qa__head { position: sticky; top: calc(var(--header-h) + 40px); }
+}
+
+@media (max-width: 959.98px) {
+  #questions .qa__grid { grid-template-columns: minmax(0, 1fr); }
+}
 /* Room 7: The floor is yours.
    The empty-room plate (an AI illustration, never captioned) under a dark veil. When the room comes into
    view the veil lifts and a pool of light grows on the speaker's mark; a 30:00 ring draws around the call.
