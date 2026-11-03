@@ -1109,7 +1109,7 @@ html:not(.js) #mirror .play .sent__expr .wd {
 }
 #teaching .cls-arch img {
   object-fit: cover;
-  object-position: 50% 45%;
+  object-position: 50% 30%;
 }
 
 /* ---------- Storytelling quote ---------- */

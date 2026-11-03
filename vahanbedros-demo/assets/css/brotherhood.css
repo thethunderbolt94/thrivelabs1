@@ -201,7 +201,7 @@ body[data-page="brotherhood"] .nw { white-space: nowrap; }
   height: 100%;
   max-width: none;
   object-fit: cover;
-  object-position: 50% 18%;                 /* his face high in the arch, his clasped hands below */
+  object-position: 50% 22%;                 /* his face high in the arch, his hands below */
   filter: saturate(.78) contrast(1.05) brightness(.98);
 }
 
